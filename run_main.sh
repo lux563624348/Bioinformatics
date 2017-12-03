@@ -6,7 +6,7 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 ## 
 #	nohup bash run_main.sh 1>default.log 2>default_err.log &
 ########################################################################
-## 12/01/2017
+## 12/02/2017
 ## By Xiang Li,
 ## lux@gwu.edu
 ## Peng's Lab
