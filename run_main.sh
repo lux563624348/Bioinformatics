@@ -31,30 +31,26 @@ echo "Import functions.sh"
 ## GLOBAL VARIABLES
 ########################################################################
 __RAW_DATA_PATH_DIR=$(pwd)
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Project_Xue_TCF1_620
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Project_Xue_TCF1_620/islands/raw_data/Peaks_MACS2/Distribution
 #### Execution or Output directory
 __EXE_PATH=${__RAW_DATA_PATH_DIR} 
 ########################################################################
 __INPUT_SAMPLE_DIR_List=(
-#gene_promoterGenebody_UP_D_EX_10k_iv
-memoryCD8_foxp3_common_peaks
-Treg_foxp3_common_peaks
-WT_CD4_foxp3_common_peaks
-WT_CD8_foxp3_common_peaks
-memoryCD8_solo_peaks
-Treg_solo_peaks
-WT_CD4_solo_peaks
-WT_CD8_solo_peaks
-#Overlap_Treg_vs_foxp3_13    
-#Treg_solo_peaks_13
-#Overlap_WT_CD8_vs_foxp3_13  
-#WT_CD8_solo_peaks_13
+GSE40684_foxp3_peaks
+gene_promoterGenebody_UP_D_EX_10k_iv
+Sample_Treg_TCF1_filtered_peaks_p_E-4
+Sample_Treg_TCF1_filtered_peaks_p_E-5
 )
 
 __INPUT_SAMPLE_DIR_List=(
-Sample_Treg_TCF1_20160827000
-Sample_TKOCD4_TCF1_20160827000
+gene_promoterGenebody_UP_D_EX_10k_iv
+Specific_Sample_Treg_TCF1_filtered_peaks_p_E-5_vs_GSE40684_foxp3_peaks
+Specific_Sample_Treg_TCF1_filtered_peaks_p_E-4_vs_GSE40684_foxp3_peaks
+Overlap_Sample_Treg_TCF1_filtered_peaks_p_E-5_vs_GSE40684_foxp3_peaks
+Overlap_Sample_Treg_TCF1_filtered_peaks_p_E-4_vs_GSE40684_foxp3_peaks
 )
+
+
 
 echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
 #__OUT_SAMPLE_NAME_List=(Unstim_Ctrl2_TCM Unstim_TKO1_TCM_bp Unstim_TKO2_TCM)
@@ -80,12 +76,12 @@ echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
 	#RUN_Wig2BigWig ${__INPUT_SAMPLE_DIR_List[0]}
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[1]}
 	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[1]}
-	#RUN_bed_intersect ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[i]}
+
+	RUN_bed_intersect ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[3]}
+	RUN_bed_intersect ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[4]}
 	#RUN_CUT_Columns ${__INPUT_SAMPLE_DIR_List[i]} 1 3
-	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}_13
-	
+	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[4]}
 	
 	break
 done

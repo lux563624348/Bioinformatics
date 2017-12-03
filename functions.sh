@@ -250,8 +250,8 @@ RUN_bed_intersect(){
 	echo "Input B1"
 	wc -l ${Input_B1}
 	
-	Output_Path="${__EXE_PATH}/Overlap/Overlap_${1::-4}_vs_${2::-4}"
-	Output_Path2="${__EXE_PATH}/Specific/Specific_${1::-4}_vs_${2::-4}"
+	Output_Path="${__EXE_PATH}/Overlap/Overlap_${1}_vs_${2}"
+	Output_Path2="${__EXE_PATH}/Specific/Specific_${1}_vs_${2}"
 
 	echo "bedtools intersect -wa -u -a ${Input_A1} -b ${Input_B1} > ${Output_Path}.bed"
 	bedtools intersect -wa -u -a ${Input_A1} -b ${Input_B1} > ${Output_Path}.${FILE_TYPE}
@@ -771,7 +771,7 @@ RUN_Peaks_Distribution_Analysis(){
 
 
 	INPUTFILE=${1}.bed
-	OUTPUTFILE=${1::-4}_distribution.txt
+	OUTPUTFILE=${1}_distribution.txt
 
 	echo "python $EXEDIR/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g $GTFDIR/$GTFFILE -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE"
 	python $EXEDIR/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g $GTFDIR/$GTFFILE -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE
