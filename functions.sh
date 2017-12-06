@@ -686,6 +686,33 @@ RUN_Wig2BigWig (){
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
 	}
 
+RUN_BigGraph2BigWig (){
+#### convert .wig to .bigwig and create the track hubs profiles.
+#### Usage: RUN_Wig2BigWig $Sample_Wig_NAME
+	CHECK_arguments $# 1
+	local Data_provider=Haihui
+	local Data_label=Tcf1
+		
+	local Tracks_NAME=$1
+	#local Contro_Tracks_NAME=$2
+	local Tracks_NAME_Lable=${Tracks_NAME: 7:-12} ##Skip out of Sample_ (7) and _20160827000 (-12)
+	#local Contro_Tracks_NAME_Lable=${Contro_Tracks_NAME: 7:-12}
+	
+	####INPUT
+	local UCSC_DIR=/home/lxiang/Software/UCSC
+	local Reference_genome_sizes=$UCSC_DIR/genome_sizes/mm9.chrom.sizes
+	local Wig_DIR=${__EXE_PATH}
+	cd ${Wig_DIR}
+#### OUTPUT
+	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
+	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigWigs
+
+#### Modified Tracks_NAME
+	local Tracks_NAME=${Tracks_NAME}_treat_pileup.bdg
+	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME} $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
+	$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME} $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+}
+
 RUN_TOPHAT (){
 #### Usage: RUN_TOPHAT 1.$RAW_DATA_PATH_DIR 2.$EXE_PATH 3.${INPUT_SAMPLE_DIR_List[*]} 4.OUT_SAMPLE_NAME_List
 ### Tophat Input and Output DIR setting ...	

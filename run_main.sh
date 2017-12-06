@@ -31,7 +31,7 @@ echo "Import functions.sh"
 ## GLOBAL VARIABLES
 ########################################################################
 __RAW_DATA_PATH_DIR=$(pwd)
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Project_Xue_TCF1_620/islands/raw_data/Peaks_MACS2/Distribution
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Project_Xue_TCF1_620/Sample_Treg_TCF1_20160827000/MACS2_results
 #### Execution or Output directory
 __EXE_PATH=${__RAW_DATA_PATH_DIR} 
 ########################################################################
@@ -49,8 +49,9 @@ Specific_Sample_Treg_TCF1_filtered_peaks_p_E-4_vs_GSE40684_foxp3_peaks
 Overlap_Sample_Treg_TCF1_filtered_peaks_p_E-5_vs_GSE40684_foxp3_peaks
 Overlap_Sample_Treg_TCF1_filtered_peaks_p_E-4_vs_GSE40684_foxp3_peaks
 )
-
-
+__INPUT_SAMPLE_DIR_List=(
+Sample_Treg_TCF1_20160827000
+)
 
 echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
 #__OUT_SAMPLE_NAME_List=(Unstim_Ctrl2_TCM Unstim_TKO1_TCM_bp Unstim_TKO2_TCM)
@@ -77,9 +78,9 @@ for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
 	#RUN_Wig2BigWig ${__INPUT_SAMPLE_DIR_List[0]}
 	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[1]}
-
-	RUN_bed_intersect ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[3]}
-	RUN_bed_intersect ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[4]}
+	RUN_BigGraph2BigWig ${__INPUT_SAMPLE_DIR_List[0]}
+	#RUN_bed_intersect ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[1]}
+	#RUN_bed_intersect ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[2]}
 	#RUN_CUT_Columns ${__INPUT_SAMPLE_DIR_List[i]} 1 3
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[4]}
 	
