@@ -353,7 +353,7 @@ local INPUT_NAME=$1
 local INPUI_CON=$2
 
 #local FDR=0.05
-local p_value=0.0001
+local p_value=0.00001
 
 local IN_FOLDER=${__EXE_PATH}/${INPUT_NAME}/bowtie2_results
 local IN_FILES=${INPUT_NAME}.bed
@@ -691,7 +691,7 @@ RUN_BigGraph2BigWig (){
 #### Usage: RUN_Wig2BigWig $Sample_Wig_NAME
 	CHECK_arguments $# 1
 	local Data_provider=Haihui
-	local Data_label=Tcf1
+	local Data_label=Tcf1_MACS2
 		
 	local Tracks_NAME=$1
 	#local Contro_Tracks_NAME=$2
@@ -701,16 +701,55 @@ RUN_BigGraph2BigWig (){
 	####INPUT
 	local UCSC_DIR=/home/lxiang/Software/UCSC
 	local Reference_genome_sizes=$UCSC_DIR/genome_sizes/mm9.chrom.sizes
-	local Wig_DIR=${__EXE_PATH}
-	cd ${Wig_DIR}
+	local bdg_DIR=${__EXE_PATH}/${1}/MACS2_results
+	cd ${bdg_DIR}
 #### OUTPUT
 	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
 	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigWigs
-
+	
+########################################################################
 #### Modified Tracks_NAME
 	local Tracks_NAME=${Tracks_NAME}_treat_pileup.bdg
 	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME} $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
 	$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME} $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+
+###	Creating hub.txt
+	cd $OUTPUTDIR_tracks_hub
+	local filename=hub.txt
+	if [ ! -f $filename ];then
+	echo "hub ${Data_label}" >>$filename
+	echo "shortLabel ${Data_label}" >>$filename
+	echo "longLabel ${Data_label}_/${Data_provider}" >>$filename
+	echo "genomesFile genomes.txt" >>$filename
+	echo "email lux@gwu.edu" >>$filename
+	echo "descriptionUrl descriptionUrl" >>$filename
+	fi
+########################################################################
+
+###	Creating genomes.txt	
+	trackDb_NAME="mm9"
+	local filename=genomes.txt
+	if [ ! -f $filename ];then
+	echo "genome $trackDb_NAME" >>$filename
+	echo "trackDb $trackDb_NAME/trackDb.txt" >>$filename
+	fi
+########################################################################
+
+	DIR_CHECK_CREATE $OUTPUTDIR_tracks_hub/${trackDb_NAME}	
+	cd $OUTPUTDIR_tracks_hub/${trackDb_NAME}
+	
+	local filename=trackDb.txt
+	local bw_Url=https://s3.amazonaws.com/xianglilab/tracks_hub/${Data_provider}/${Data_label}/BigWigs/${Tracks_NAME}.bw
+	echo "track ${Tracks_NAME}" >>$filename
+	echo "type bigWig" >>$filename
+	echo "bigDataUrl ${bw_Url}" >>$filename
+	echo "shortLabel ${Tracks_NAME: 0:18}" >>$filename
+	echo "longLabel ${Tracks_NAME}" >>$filename
+	echo "visibility full" >>$filename
+	echo "maxHeightPixels 60" >>$filename
+	echo "color 256,0,0" >>$filename
+	echo "autoScale on" >>$filename
+	echo -e "windowingFunction mean+whiskers \n" >>$filename
 }
 
 RUN_TOPHAT (){
