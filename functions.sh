@@ -83,6 +83,7 @@ RUN_Download (){
 	}
 
 PRE_READS_DIR(){
+	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
 	CHECK_arguments $# 2
 	echo "Entering one Library of RAW_DATA_DIR: $__RAW_DATA_PATH_DIR/$1"
 	echo "Searching file type of $2"
@@ -94,8 +95,8 @@ PRE_READS_DIR(){
 	#local DIRLIST_R1="$( find -name "*R1.fastq" | sort -n | xargs)"
 	#local DIRLIST_R2="$( find -name "*R2.fastq" | sort -n | xargs)" #
 	
-	local DIRLIST_R1_gz="$( find -name "*1.$2" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*2.$2" | sort -n | xargs)"
+	local DIRLIST_R1_gz="$( find -name "*R1_goodreads.$2" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*R2_goodreads.$2" | sort -n | xargs)"
 
 
 #### R1 Saving		
@@ -171,13 +172,15 @@ RUN_FAST_QC_BT (){
 	}
 
 RUN_BOWTIE2(){
+	### RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[3]}
 	echo "RUN_BOWTIE2"
 	CHECK_arguments $# 1
 	BOWTIEINDEXS_mm9="/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
+	
 	#BOWTIEINDEXS_mm9_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/mm9_pMXs_combo/mm9_pMXs_combo"
 	#BOWTIEINDEXS_mm9_combo_MMLV_pMXs="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/mm9_comdo_MMLV_pMXs/mm9_comdo_MMLV_pMXs"
-	#BOWTIEINDEXS_MMLV_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_pMXs_combo/MMLV_pMXs_combo"
-	#BOWTIEINDEXS_MMLV="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_index/MMLV"
+	BOWTIEINDEXS_MMLV_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_pMXs_combo/MMLV_pMXs_combo"
+	BOWTIEINDEXS_MMLV="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_index/MMLV"
 
 	local INPUT_NAME=$1
 	local BOWTIEINDEXS_name="BOWTIEINDEXS_mm9"
@@ -197,15 +200,15 @@ RUN_BOWTIE2(){
 	then
 	echo "Pair End Mode"
 	
-	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S $OUTPUT_BOWTIE2"
-	bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S $OUTPUT_BOWTIE2
+	 echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S $OUTPUT_BOWTIE2"
+	 bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S $OUTPUT_BOWTIE2
 	
 	#### concordantly pair output
-	#echo "bowtie2 -p $THREADS --no-unal --no-discordant --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --al-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/conc_aligned_R%.fastq.gz"
-	#bowtie2 -p $THREADS --no-unal --no-discordant --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --al-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/conc_aligned_R%.fastq.gz
-	#### using concordantly pair-ends do bowtie2 again.
-	#echo "bowtie2 -p $THREADS --no-unal --no-discordant --non-deterministic -x $BOWTIEINDEXS -1 ${OUTPUT_BOWTIE2_FOLDER}/conc_aligned_R1.fastq.gz -2 ${OUTPUT_BOWTIE2_FOLDER}/conc_aligned_R2.fastq.gz -S $OUTPUT_BOWTIE2"
-	#bowtie2 -p $THREADS --no-unal --no-discordant --non-deterministic -x $BOWTIEINDEXS -1 ${OUTPUT_BOWTIE2_FOLDER}/conc_aligned_R1.fastq.gz -2 ${OUTPUT_BOWTIE2_FOLDER}/conc_aligned_R2.fastq.gz -S $OUTPUT_BOWTIE2
+	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS_MMLV -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS_MMLV -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
+	#### using un concordantly pair-ends do bowtie2 again.
+	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS_MMLV_pMXs_combo -1 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R1.fastq.gz -2 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R2.fastq.gz -S $OUTPUT_BOWTIE2"
+	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS_MMLV_pMXs_combo -1 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R1.fastq.gz -2 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R2.fastq.gz -S $OUTPUT_BOWTIE2
 	
 	else
 	echo "Single End Mode."
@@ -225,8 +228,8 @@ RUN_bed2wig $OUTPUT_BOWTIE2_FOLDER $INPUT_NAME
 
 echo ""
 ###Wig2Bigwig
-#echo "RUN_Wig2BigWig $OUTPUT_BOWTIE2_FOLDER $INPUT_NAME"
-#RUN_Wig2BigWig $OUTPUT_BOWTIE2_FOLDER $INPUT_NAME
+echo "RUN_Wig2BigWig $OUTPUT_BOWTIE2_FOLDER $INPUT_NAME"
+RUN_Wig2BigWig $OUTPUT_BOWTIE2_FOLDER $INPUT_NAME
 
 	}
 
@@ -236,8 +239,8 @@ RUN_bed_intersect(){
 	FILE_TYPE='bed'
 	local Input_A1=${__RAW_DATA_PATH_DIR}/${1}.${FILE_TYPE}
 	local Input_B1=${__RAW_DATA_PATH_DIR}/${2}.${FILE_TYPE}
-	DIR_CHECK_CREATE "${__EXE_PATH}/Overlap"
-	DIR_CHECK_CREATE "${__EXE_PATH}/Specific"
+	DIR_CHECK_CREATE "${__EXE_PATH}/Common"
+	DIR_CHECK_CREATE "${__EXE_PATH}/Solo"
 	
 	local Title=""
 	
@@ -250,17 +253,17 @@ RUN_bed_intersect(){
 	echo "Input B1"
 	wc -l ${Input_B1}
 	
-	Output_Path="${__EXE_PATH}/Overlap/Overlap_${1}_vs_${2}"
-	Output_Path2="${__EXE_PATH}/Specific/Specific_${1}_vs_${2}"
+	Output_Path="${__EXE_PATH}/Common/Common_${1}_vs_${2}"
+	Output_Path2="${__EXE_PATH}/Solo/Solo_${1}_vs_${2}"
 
 	echo "bedtools intersect -wa -u -a ${Input_A1} -b ${Input_B1} > ${Output_Path}.bed"
 	bedtools intersect -wa -u -a ${Input_A1} -b ${Input_B1} > ${Output_Path}.${FILE_TYPE}
 	echo "bedtools intersect -v -a ${Input_A1} -b ${Input_B1} > ${Output_Path2}.bed"
 	bedtools intersect -v -a ${Input_A1} -b ${Input_B1} > ${Output_Path2}.${FILE_TYPE}
 	
-	echo "Output_One "
+	echo "Output_Common "
 	wc -l ${Output_Path}.${FILE_TYPE}
-	echo "Output_two_inverse_one"
+	echo "Output_Solo"
 	wc -l ${Output_Path2}.${FILE_TYPE}
 	
 	}
@@ -344,7 +347,7 @@ python ${EXEDIR}/macs14 --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_D
 	}
 
 RUN_MACS2(){
-#### Usage: RUN_MACS $1 $2 ($1 is input for MACS. $2 is the CONTRO Library)
+#### Usage: RUN_MACS2 $1 $2 ($1 is input for MACS. $2 is the CONTRO Library)
 echo "RUN_MACS"
 CHECK_arguments $# 2
 local EXEDIR="/home/lxiang/Software/python_tools/MACS2-2.1.1.20160309/bin"
@@ -364,10 +367,8 @@ local CONTRO_FILE=${INPUI_CON}.bed
 local OUT_FOLDER=${__EXE_PATH}/${INPUT_NAME}/MACS2_results
 DIR_CHECK_CREATE ${OUT_FOLDER}
 
-cd ${OUT_FOLDER}
-
 echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
-python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
+python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 
 }
 
@@ -622,13 +623,14 @@ RUN_GZIP(){
 	}
 
 RUN_Wig2BigWig (){
+	###RUN_Wig2BigWig   $INPUT_FOLDER $INPUT_NAME
 #### convert .wig to .bigwig and create the track hubs profiles.
 #### Usage: RUN_Wig2BigWig $Sample_Wig_NAME
-	CHECK_arguments $# 1
+	CHECK_arguments $# 2
 	local Data_provider=Haihui
-	local Data_label=Tcf1
+	local Data_label=Lef1
 		
-	local Tracks_NAME=$1
+	local Tracks_NAME=$2
 	#local Contro_Tracks_NAME=$2
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:-12} ##Skip out of Sample_ (7) and _20160827000 (-12)
 	#local Contro_Tracks_NAME_Lable=${Contro_Tracks_NAME: 7:-12}
@@ -636,14 +638,14 @@ RUN_Wig2BigWig (){
 	####INPUT
 	local UCSC_DIR=/home/lxiang/Software/UCSC
 	local Reference_genome_sizes=$UCSC_DIR/genome_sizes/mm9.chrom.sizes
-	local Wig_DIR=${__EXE_PATH}
+	local Wig_DIR=$1
 	cd ${Wig_DIR}
 #### OUTPUT
 	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
 	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigWigs
 
 #### Modified Tracks_NAME
-	local Tracks_NAME=${Tracks_NAME}-W200-G400-FDR0.0001-islandfiltered-normalized
+	local Tracks_NAME=${Tracks_NAME}-W200-RPKM
 	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
 	$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
 
@@ -687,13 +689,14 @@ RUN_Wig2BigWig (){
 	}
 
 RUN_BigGraph2BigWig (){
+	##RUN_BigGraph2BigWig   $INPUT_FOLDER $INPUT_NAME
 #### convert .wig to .bigwig and create the track hubs profiles.
 #### Usage: RUN_Wig2BigWig $Sample_Wig_NAME
-	CHECK_arguments $# 1
+	CHECK_arguments $# 2
 	local Data_provider=Haihui
-	local Data_label=Tcf1_MACS2
+	local Data_label=Lef1_MACS2
 		
-	local Tracks_NAME=$1
+	local Tracks_NAME=$2
 	#local Contro_Tracks_NAME=$2
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:-12} ##Skip out of Sample_ (7) and _20160827000 (-12)
 	#local Contro_Tracks_NAME_Lable=${Contro_Tracks_NAME: 7:-12}
@@ -701,7 +704,7 @@ RUN_BigGraph2BigWig (){
 	####INPUT
 	local UCSC_DIR=/home/lxiang/Software/UCSC
 	local Reference_genome_sizes=$UCSC_DIR/genome_sizes/mm9.chrom.sizes
-	local bdg_DIR=${__EXE_PATH}/${1}/MACS2_results
+	local bdg_DIR=$1
 	cd ${bdg_DIR}
 #### OUTPUT
 	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
@@ -709,9 +712,18 @@ RUN_BigGraph2BigWig (){
 	
 ########################################################################
 #### Modified Tracks_NAME
-	local Tracks_NAME=${Tracks_NAME}_treat_pileup.bdg
-	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME} $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
-	$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME} $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+	#local Tracks_NAME=${Tracks_NAME}_treat_pileup
+	##control sample
+	local Tracks_NAME=${Tracks_NAME}_control_lambda
+	
+	
+	if [ ! -f ${Tracks_NAME}_sorted.bdg ];then
+	echo "sort -k1,1 -k2,2n ${Tracks_NAME}.bdg > ${Tracks_NAME}_sorted.bdg"
+	sort -k1,1 -k2,2n ${Tracks_NAME}.bdg > ${Tracks_NAME}_sorted.bdg
+	fi
+	
+	echo "$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
+	$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
 
 ###	Creating hub.txt
 	cd $OUTPUTDIR_tracks_hub
