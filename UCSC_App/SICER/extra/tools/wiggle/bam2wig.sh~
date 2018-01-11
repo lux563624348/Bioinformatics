@@ -1,0 +1,17 @@
+#!/bin/bash
+
+SAMPLEDIR=$1
+SAMPLE=$2
+WINDOW_SIZE=$3
+FRAGMENT_SIZE=$4
+SPECIES=$5
+
+EXEDIR=/home/data/SICER1.1/SICER/extra/tools/wiggle
+
+#bamToBed is from BEDTools
+echo "bamToBed -i $SAMPLE.bam > $Name.bed"
+bamToBed -i $SAMPLE.bam > $Name.bed
+echo "sh $EXEDIR/bed2wig.sh $SAMPLEDIR $SAMPLE $WINDOW_SIZE $FRAGMENT_SIZE $SPECIES"
+sh $EXEDIR/bed2wig.sh $SAMPLEDIR $SAMPLE $WINDOW_SIZE $FRAGMENT_SIZE $SPECIES
+
+rm $Name.bed

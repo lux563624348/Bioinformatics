@@ -1,0 +1,358 @@
+#!/usr/bin/env python
+"""
+Compare the IRI of two states (eg, resting vs activated)
+
+required as input: 
+
+two summary pickle data structures, each of which is obtained from get_non_strandspecific_read_count_on_ExonsIntrons.py/get_strandspecific_read_count_on_ExonsIntrons.py
+
+each: {entrez_id:{feature_name:value}}
+
+	summary: {entrezID:{attribute:value}}
+				summary[entrez_id] = {}
+				(summary[entrez_id])["merged_exons_rc"] = merged_exons_rc
+				(summary[entrez_id])["merged_exon_RPKM"] = merged_exon_RPKM
+				(summary[entrez_id])["merged_exons_total_length"] = merged_exons_total_length
+				(summary[entrez_id])["shared_exons_rc"] = shared_exons_rc
+				(summary[entrez_id])["shared_exon_RPKM"] = shared_exon_RPKM
+				(summary[entrez_id])["shared_exons_total_length"] = shared_exons_total_length
+				(summary[entrez_id])["shared_introns_rc"] = shared_introns_rc
+				(summary[entrez_id])["shared_intron_RPKM"] = shared_intron_RPKM
+				(summary[entrez_id])["shared_introns_total_length"] = shared_introns_total_length
+				(summary[entrez_id])["merged_transcript_rc"] = merged_transcript_rc
+				(summary[entrez_id])["merged_transcript_RPKM"] = merged_transcript_RPKM
+				(summary[entrez_id])["merged_transcript_length"] = merged_transcript_length
+
+
+
+
+"""
+
+import re, os, sys, shutil
+from math import *   
+from string import *
+from optparse import OptionParser
+import operator
+import bisect
+from operator import itemgetter
+import scipy.stats
+import numpy
+import matplotlib.pyplot as plt
+import matplotlib
+import copy
+
+try:
+   import cPickle as pickle
+except:
+   import pickle
+
+import rpy2.robjects as robjects
+r = robjects.r
+from rpy2.robjects.packages import importr
+
+sys.path.append('/home/data/SICER1.1/SICER/lib')
+sys.path.append('/home/data/SICER1.1/SICER/extra')
+sys.path.append('/home/data/hg19/JunZhu/modules')
+
+import AnalyzeRNASeqPASeqChIPSeq as master
+import calculate_iri
+
+#font = {'family' : 'normal',
+        #'weight' : 'bold',
+        #'size'   : 14}
+#matplotlib.rc('font', **font)
+
+plus = re.compile("\+");
+minus = re.compile("\-");
+comment = re.compile("#|track")
+
+	
+def removed_misannotated_ids_from_IRI(summary_resting, summary_activated, max_iri = 1):
+	"""
+	
+	scatter plot of resting vs activated produce 4 clusters. Three of the 4 have outrageous IRI in either of the cell type and the IRI is strongly dependent on pseudo count involved in defining IRI (intron RPKM + pc)/(exon RPKM + pc) . suggesting 1) mis-annotation and furthermore 2) for those genes, the exon read counts are 0, whereas the intron read counts are non-zero. For all meaningful analysis along the IRI line, we need to get rid of those genes. Perhaps it is useful to revisit the two differential IRI outlier clusters at a later stage. This module is for use of finding the IRI main cluster.
+	
+	The delination of the clusters are based on the IRI scatter plot:
+	cluster 0 is the main cluster, independent of the pseudo count.
+	cluster 1,2 IDs to be determined
+	
+	Also remove ids whose intron length is 0
+	
+	Returns the ids
+	"""
+	cluster0 = []
+	for myid in summary_resting.keys():
+		if summary_resting[myid]["shared_introns_total_length"] > 0:
+			if summary_resting[myid]["iri"]<=max_iri and  summary_activated[myid]["iri"]<=max_iri :
+				cluster0.append(myid)
+	return cluster0
+	
+def characterize_IRI(summary_resting, summary_activated, name, pc=0.00001):
+	"""
+	characterize IRI by histograms, scatterplots, boxplots
+	
+	pc is for log transformation in Characterize_IRI
+	
+	"""
+	#font = {'family':'normal', 'weight':'bold', 'size':18}
+	#matplotlib.rc('font', **font)
+	
+	print "\nCharacterize IRI for summary_resting\n"
+	#Mean, median, histogram, boxplot
+	resting_iri = calculate_iri.characterize_IRI(summary_resting, name, pc)
+	log_resting_iri = numpy.array([log(i + pc, 2) for i in resting_iri])
+	
+	print "\nCharacterize IRI for summary_activated\n"
+	#Mean, median, histogram, boxplot
+	activated_iri = calculate_iri.characterize_IRI(summary_activated, name, pc)
+	log_activated_iri = numpy.array([log(i + pc, 2)  for i in activated_iri])
+
+	#print scipy.stats.ttest_in(log_resting_iri, log_activated_iri)
+	print "	P-value associated with ranking of the two sets of observations using MWU test: ", scipy.stats.mannwhitneyu(log_activated_iri, log_resting_iri)[1]	
+	
+	#Histogram
+	plt.clf()
+	plt.hist(log_resting_iri, bins=100, color='darkgreen', normed=True, alpha=0.5,label="Resting")
+	plt.hist(log_activated_iri, bins=100, color='darkorange', normed=True,  alpha=0.5, label="Activated")
+	myfontsize=28
+	plt.title("IRI histogram", fontsize=myfontsize)
+	plt.xlabel("log(IRI)", fontsize=myfontsize)
+	plt.ylabel("Frequency", fontsize=myfontsize)
+	#plt.legend()
+	plt.legend(loc = 'upper left')
+	if name !="":
+		plt.savefig( name + "_activated_resting_iri_hist.eps", format="eps")
+		plt.savefig( name + "_activated_resting_iri_hist.png", format="png")
+	plt.close()
+	
+	#Scatterplot
+	scatterplot(log_resting_iri, log_activated_iri,  name + "_log_resting_iri_vs_log_activated_iri", xscale='linear', yscale='linear')
+	
+	#Boxplot
+	mixed = [log_resting_iri, log_activated_iri]
+	myboxplot = plt.boxplot(mixed, sym='')
+	plt.setp(myboxplot['medians'], color = 'black')
+	plt.setp(myboxplot['boxes'], color = 'black', facecolor = "green" )
+	plt.setp(myboxplot['whiskers'], color = 'black')
+	plt.setp(myboxplot['fliers'], color = 'black')
+	if name !="":
+		title = name + "_boxplot"
+		plt.savefig(title + ".eps", format="eps")	
+		
+
+def get_subset_genes_by_iri_changes(summary_resting, summary_activated, change_type, fc_threshold, minRPKM, iri_pc=0.001):
+	"""
+	change_type: "up", "down", "no-change"
+	iri_pc is for iri fc
+	minRPKM: as long as one side meets the requirement
+	fc_threshold is activated_iri/resting_iri
+	Only retain genes with shared-exon expression
+	
+	Return: [ids]
+	"""
+	common_ids = list(set(summary_resting.keys()) & set(summary_activated.keys()))
+	
+	myids = []
+	for myid in common_ids:
+		resting_RPKM = float(summary_resting[myid]["shared_exon_RPKM"]) #shared exon
+		activated_RPKM = float(summary_activated[myid]["activated_shared_exon_RPKM"]) #shared exon
+		if resting_RPKM > minRPKM or activated_RPKM > minRPKM:
+			iri_fc = (summary_activated[myid]["iri"] + iri_pc) / (summary_resting[myid]["iri"] + iri_pc)
+			if change_type == "down":
+				assert (fc_threshold<1)
+				if iri_fc <= fc_threshold:
+					myids.append(myid)
+			elif change_type == "up":
+				assert ( fc_threshold > 1)
+				if iri_fc >= fc_threshold:
+					myids.append(myid)
+			elif change_type == "no-change":
+				assert ( fc_threshold > 1)
+				if iri_fc < fc_threshold and iri_fc > 1.0/fc_threshold:
+					myids.append(myid)
+	return myids
+
+def get_subset_genes_by_expression_changes(summary_resting, summary_activated, change_type, fc_threshold, minRPKM, pc=0.001):
+	"""
+	change_type: "up", "down", "no-change"
+	pc is for expression_fc
+	minRPKM: as long as one side meets the requirement
+	fc_threshold is activated/resting
+	Only retain genes with shared-exon expression
+	
+	Return: [ids]
+	"""
+	common_ids = list(set(summary_resting.keys()) & set(summary_activated.keys()))
+	
+	myids = []
+	for myid in common_ids:
+		resting_RPKM = float(summary_resting[myid]["shared_exon_RPKM"]) #shared exon
+		activated_RPKM = float(summary_activated[myid]["activated_shared_exon_RPKM"]) #shared exon
+		if resting_RPKM > minRPKM or activated_RPKM > minRPKM:
+			expression_fc = (activated_RPKM + pc) / (resting_RPKM + pc)
+			if change_type == "down":
+				assert (fc_threshold<1)
+				if expression_fc <= fc_threshold:
+					myids.append(myid)
+			elif change_type == "up":
+				assert ( fc_threshold > 1)
+				if expression_fc >= fc_threshold:
+					myids.append(myid)
+			elif change_type == "no-change":
+				assert ( fc_threshold > 1)
+				if expression_fc < fc_threshold and expression_fc > 1.0/fc_threshold:
+					myids.append(myid)
+	return myids
+
+def get_expression_changes (summary_resting, summary_activated, id_set, pc=0.001):
+	"""
+	returns [(id, expression_fc)]
+	"""
+	mylist = []
+	for myid in id_set:
+		resting_RPKM = float(summary_resting[myid]["shared_exon_RPKM"]) #shared exon
+		activated_RPKM = float(summary_activated[myid]["activated_shared_exon_RPKM"]) #shared exon
+		expression_fc = (activated_RPKM + pc) / (resting_RPKM + pc)
+		mylist.append([myid, expression_fc])
+	return mylist
+	
+	
+def associate_iri_change_with_expression_change(summary_resting, summary_activated, fc_threshold, minRPKM, pc=0.001):
+	"""
+	Idea: we expect IR down would lead to expression up, IR up would lead to expression down 
+	Approach: We find three groups of genes: iri_up, iri_down, iri_nochange. We then examine the expression changes of the three groups of genes
+	
+	"""
+	iri_up_genes = get_subset_genes_by_iri_changes(summary_resting, summary_activated, "up", fc_threshold, minRPKM, pc)
+	iri_down_genes = get_subset_genes_by_iri_changes(summary_resting, summary_activated, "down", fc_threshold, minRPKM, pc)
+	iri_nochange_genes = get_subset_genes_by_iri_changes(summary_resting, summary_activated, "down", fc_threshold * 0.7, minRPKM, pc)
+	
+	expression_pc = 0.001
+	expression_fc_for_iri_up_genes = get_expression_changes(summary_resting, summary_activated, iri_up_genes, expression_pc)#[(id, expression_fc)]
+	expression_fc_for_iri_down_genes = get_expression_changes(summary_resting, summary_activated, iri_down_genes, expression_pc)#[(id, expression_fc)]
+	expression_fc_for_iri_nochange_genes = get_expression_changes(summary_resting, summary_activated, iri_nochange_genes, expression_pc)#[(id, expression_fc)]
+	
+	mixed = []
+	mixed.append([item[1] for item in expression_fc_for_iri_up_genes])
+	mixed.append([item[1] for item in expression_fc_for_iri_nochange_genes])
+	mixed.append([item[1] for item in expression_fc_for_iri_down_genes])
+	
+	#use R to plot
+	title = "associate_iri_change_with_expression_change"
+	grdevices = importr('grDevices')
+	grdevices.png(file = title + "-R.png", width=512, height=512)
+	rlist = []
+	for i in xrange(len(mixed)):
+		rlist += r.list(robjects.FloatVector(mixed[i]))
+		#rlist += robjects.FloatVector(mixed[i])
+	#r.boxplot(rlist, col=r.c("gold", "darkgreen"), outline = r.FALSE)
+	r.boxplot(rlist, names=c("iri_up", "iri_nochange", "iri_down"), col=r.c("dark orange", "dark green", "dark blue"))
+	grdevices.dev_off()
+	
+	grdevices = importr('grDevices')
+	grdevices.postscript(file = title + "-R.eps", width=512, height=512)
+	r.boxplot(rlist, names=c("iri_up", "iri_nochange", "iri_down"), col=r.c("dark orange", "dark green", "dark blue"))
+	grdevices.dev_off()
+	
+def find_candidate_IR_regulated_genes(summary_resting, summary_activated, fc_threshold, minRPKM, pc=0.001):
+	"""
+	Find genes with IR down and expression up, IR up with expression down
+	Return: [ir_regulated_up_gene_ids], [ir_regulated_down_gene_ids]
+	"""
+	iri_up_gene_ids = get_subset_genes_by_iri_changes(summary_resting, summary_activated, "up", fc_threshold, minRPKM, pc)
+	expresion_down_gene_ids = get_subset_genes_by_expression_changes(summary_resting, summary_activated, "down", fc_threshold, minRPKM, pc)
+	ir_regulated_up_gene_ids = list(set(iri_up_gene_ids) & set(expresion_down_gene_ids))
+	
+	iri_down_gene_ids = get_subset_genes_by_iri_changes(summary_resting, summary_activated, "down", fc_threshold, minRPKM, pc)
+	expresion_up_gene_ids = get_subset_genes_by_expression_changes(summary_resting, summary_activated, "up", fc_threshold, minRPKM, pc)
+	ir_regulated_down_gene_ids = list(set(iri_down_gene_ids) & set(expresion_up_gene_ids))
+	return ir_regulated_up_gene_ids, ir_regulated_down_gene_ids
+		
+def main(argv):
+	parser = OptionParser()
+	parser.add_option("-f", "--all_feature_pickle_file", action="store", type="string", dest="summary_resting", help="summary of  RNASeq features in a pickle file in resting", metavar="<file>")
+	parser.add_option("-g", "--all_feature_pickle_file", action="store", type="string", dest="summary_activated", help="summary of  RNASeq features in a pickle file in activated", metavar="<file>")
+	parser.add_option("-n", "--name", action="store", type="string", dest="name", help="name for the data set", metavar="<file>")
+	parser.add_option("-s", "--species", action="store", type="string", dest="species", help="species", metavar="<str>")
+	
+	(opt, args) = parser.parse_args(argv)
+	if len(argv) < 8:
+		parser.print_help()
+		sys.exit(1)
+	
+	if opt.species in GenomeData.species_chroms.keys():
+		chroms = GenomeData.species_chroms[opt.species]
+		chrom_lengths = GenomeData.species_chrom_lengths[opt.species]
+	else:
+		print "This species is not recognized, exiting";
+		sys.exit(1);
+	
+	# load resting RNA features
+	if 	Utility_extended.fileExists(opt.summary_resting): #directly read the pickle file if it is available
+		Summary_resting = pickle.load(open(opt.summary_resting, 'rb'))
+		print "There are %d entrez IDs in %s" %(len(Summary_resting.keys()), opt.summary)
+		print "From the pickle there are %d features" % master.get_num_features(Summary_resting)
+		print master.get_feature_names(Summary_resting)
+	else:	
+		print opt.summary_resting, " is not found";
+		sys.exit(1)
+		
+	# load activated RNA features
+	if 	Utility_extended.fileExists(opt.summary_activated): #directly read the pickle file if it is available
+		Summary_activated = pickle.load(open(opt.summary_activated, 'rb'))
+		print "There are %d entrez IDs in %s" %(len(Summary_activated.keys()), opt.summary)
+		print "From the pickle there are %d features" % master.get_num_features(Summary_activated)
+		print master.get_feature_names(Summary_activated)
+	else:	
+		print opt.summary_activated, " is not found";
+		sys.exit(1)	
+		
+		
+	"""
+	Calculate IRI
+	"""
+	iri_pc = 1 # read count pc
+	Summary_resting = calculate_iri.calculate_expression_iri(Summary_resting, iri_pc)
+	print "After adding iri. There are %d features in %s" % (master.get_num_features(Summary_resting), opt.summary_resting)
+	Summary_activated = calculate_iri.calculate_expression_iri(Summary_activated, iri_pc)
+	print "After adding iri. There are %d features in %s" % (master.get_num_features(Summary_activated), opt.summary_resting)
+	
+	
+		
+	"""
+	characterize IRI
+	"""
+	print "\nRemove genes with IRI>=1 and genes without intron"
+	
+	# Remove genes with likely misannotations, remove genes with 0 introns
+	max_iri = 1
+	ids_misannotation_removed = removed_misannotated_ids_from_IRI(Summary_resting, Summary_activated, max_iri)
+	print "\nAfter removing mis-annotations and genes with no introns, there are %d IDs left for downstream analysis" %len(ids_misannotation_removed)
+	
+	# Find expressed genes
+	# expression_cutoff 1 is better than expression_cutoff 0.5 for histone mark iri results, expression_cutoff 3 is better in H3K36me3 iri top 1000 vs bottom 1000
+	expression_cutoff = 1
+	print "\nRemove genes with resting expression rpkm <1"
+	expressed_ids = calculate_iri.get_expressed_genes(Summary_resting, expression_cutoff)
+	print "\nWith requirement of resting RPKM above ", expression_cutoff, ", ",  len(expressed_ids), " entrez IDs are left for downstream analysis"
+
+	#Combine the requirements 
+	print "\nRemove genes with resting expression rpkm <1 and with misannotation"
+	subset_ids = list (set(ids_misannotation_removed) & set(expressed_ids))
+	print "\nAfter removing mis-annotations,genes with no introns and genes not expressed in %s, there are %d IDs left for downstream analysis" %(opt.summary_resting, len(ids_misannotation_removed))
+	
+	expressed_summary_resting = master.subset(subset_ids, Summary_resting)
+	restingexpressed_summary_activated = master.subset(subset_ids, Summary_activated)
+	
+	print "\nCharacterize IRI between the two states for retained genes: calcualte mean and median, significance of difference, generate histogram, boxplot"
+	iri_pc = 0.001
+	characterize_IRI(expressed_summary_resting, restingexpressed_summary_activated, opt.name, iri_pc)	
+	
+	fc_threshold = 2.0
+	minRPKM = expression_cutoff
+	pc = 
+	associate_iri_change_with_expression_change(expressed_summary_resting, restingexpressed_summary_activated, fc_threshold, minRPKM, pc)
+	
+if __name__ == "__main__":
+	main(sys.argv)	
+	

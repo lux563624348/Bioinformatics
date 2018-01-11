@@ -1,0 +1,40 @@
+#!/bin/bash
+# Authors: Weiqun Peng
+#
+# Comments and/or additions are welcome (send e-mail to:
+# wpeng@gwu.edu).
+
+
+##############################################################
+# ##### Please replace PATHTO with your own directory ###### #
+##############################################################
+
+SICER=/home/data/SICER1.1/SICER
+PYTHONPATH=$SICER/lib
+export PYTHONPATH
+
+LIBA=72h_EM_K27
+ISLANDDIR=/home/data/SICER1.1/SICER/extra/test
+ISLANDFILE=$LIBA-W200-G600-E500.scoreisland
+
+READDIR=/home/data/hg18/CD8/2010data/processed
+READFILE=$LIBA-W200-G600-E500-islandfiltered.bed 
+
+EXEDIR=/home/data/SICER1.1/SICER/extra
+EXE=calculate_correlation_dev.py
+
+
+TYPE=+anto
+SPECIES=hg18
+BINSIZE=10
+MINPOINTS=5
+MAXDISTANCE=80
+RESOLUTION=3
+SHIFT=0
+OUTFILE=${LIBA}_on_${TYPE}_correlation
+
+echo "python $EXEDIR/$EXE  -b $READDIR/$READFILE  -s $SPECIES -i $ISLANDDIR/$ISLANDFILE -w $BINSIZE -m $MINPOINTS -n $MAXDISTANCE -r $RESOLUTION -t $TYPE -f $SHIFT -o $OUTFILE"
+
+
+python $EXEDIR/$EXE  -b $READDIR/$READFILE  -s $SPECIES -i $ISLANDDIR/$ISLANDFILE -w $BINSIZE -m $MINPOINTS -n $MAXDISTANCE -r $RESOLUTION -t $TYPE -f $SHIFT -o $OUTFILE
+
