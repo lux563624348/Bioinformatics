@@ -372,6 +372,89 @@ python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${
 
 }
 
+RUN_MACS2_Diff(){
+#### Usage: RUN_MACS2_Diff $1 $2 $3 $4 $5 $6 $threshold ($1 is input for con1. $2 is the CONTRO_1  $3 is Con2. $4 is the CONTRO_2 )
+echo "RUN_MACS2 Diff"
+CHECK_arguments $# 7
+local EXEDIR="/home/lxiang/Software/python_tools/MACS2-2.1.1.20160309/bin"
+
+local CON1_NAME=$1
+local CON1_TREAT=$2
+local CON1_CONTRO=$3
+local CON2_NAME=$4
+local CON2_TREAT=$5
+local CON2_CONTRO=$6
+
+local p_value=0.00001
+########################################################################
+########################################################################
+local CON1_FOLDER=${__EXE_PATH}/${CON1_TREAT}/bowtie2_results
+local CON1_FILE=${CON1_TREAT}.bed
+
+local CON1_CONTRO_FOLDER=${__EXE_PATH}/${CON1_CONTRO}/bowtie2_results
+local CON1_CONTRO_FILE=${CON1_CONTRO}.bed
+
+local CON2_FOLDER=${__EXE_PATH}/${CON2_TREAT}/bowtie2_results
+local CON2_FILE=${CON2_TREAT}.bed
+
+local CON2_CONTRO_FOLDER=${__EXE_PATH}/${CON2_CONTRO}/bowtie2_results
+local CON2_CONTRO_FILE=${CON2_CONTRO}.bed
+
+########################################################################
+
+########################################################################
+local CON1_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON1_FILE=${CON1_TREAT}.bed
+
+local CON1_CONTRO_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON1_CONTRO_FILE=${CON1_CONTRO}.bed
+
+local CON2_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON2_FILE=${CON2_TREAT}.bed
+
+local CON2_CONTRO_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON2_CONTRO_FILE=${CON2_CONTRO}.bed
+
+########################################################################
+
+########################################################################
+local OUT_FOLDER=${__EXE_PATH}/MACS2_Diff_results/${CON1_NAME}_vs_${CON2_NAME}
+DIR_CHECK_CREATE ${OUT_FOLDER}
+
+echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' --nomodel --extsize 200"
+python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' --nomodel --extsize 200 #-p ${p_value}
+
+echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' --nomodel --extsize 200"
+python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' --nomodel --extsize 200 #-p ${p_value}
+
+cd ${OUT_FOLDER}
+
+local Size_Treat1=$(egrep "fragments after filtering in treatment" ${CON1_NAME}_peaks.xls | grep -o '[0-9]*')
+local Size_Contro1=$(egrep "fragments after filtering in control" ${CON1_NAME}_peaks.xls | grep -o '[0-9]*')
+
+local Size_Treat2=$(egrep "fragments after filtering in treatment" ${CON2_NAME}_peaks.xls | grep -o '[0-9]*')
+local Size_Contro2=$(egrep "fragments after filtering in control" ${CON2_NAME}_peaks.xls | grep -o '[0-9]*')
+
+if [ ${Size_Treat1} -lt ${Size_Contro1} ];then 
+	local Size_1=${Size_Treat1}
+	else
+	local Size_1=${Size_Contro1}
+	fi
+	
+if [ ${Size_Treat2} -lt ${Size_Contro2} ];then 
+	local Size_2=${Size_Treat2}
+	else
+	local Size_2=${Size_Contro2}
+	fi
+	
+	echo "Size_Treat1: ${Size_Treat1} and Size_Contro1: ${Size_Contro1}, Size_1 equal ${Size_1}"
+	echo "Size_Treat2: ${Size_Treat2} and Size_Contro2: ${Size_Contro2}, Size_2 equal ${Size_2}"
+
+macs2 bdgdiff --t1 ${CON1_NAME}_treat_pileup.bdg --c1 ${CON1_NAME}_control_lambda.bdg --t2 ${CON2_NAME}_treat_pileup.bdg \
+--c2 ${CON2_NAME}_control_lambda.bdg --d1 ${Size_1} --d2 ${Size_2} -g 60 -l 120 --o-prefix diff_${CON1_NAME}_vs_${CON2_NAME}
+
+}
+
 RUN_CHECK_SEQ(){
 #### Check a specific seq in fastq.gz
 ####	1.Raw_data 2.Seq
