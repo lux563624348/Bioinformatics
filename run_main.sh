@@ -31,7 +31,7 @@ echo "Import functions.sh"
 ## GLOBAL VARIABLES
 ########################################################################
 #__RAW_DATA_PATH_DIR=$(pwd)
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Project_Xue_TCF1_620/MACS2_Diff_results/naiveCD8_TCF1_vs_MemoryCD8_TCF1_FDR_E-5
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Project_Xue_TCF1_620
 #### Execution or Output directory
 __EXE_PATH=${__RAW_DATA_PATH_DIR}
 #__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/DN3
@@ -46,17 +46,19 @@ Sample_LKO_LFF1_20160901000 # LKO whole thymocytes
 )
 
 __INPUT_SAMPLE_DIR_List=(
-Sample_naiveCD8_TCF1_20160827000
-Sample_memoryCD8_TCF1_20160827000
-Sample_TKOCD8_TCF1_20160827000
-)
-
-__INPUT_SAMPLE_DIR_List=(
 Sample_naiveCD8_TCF1_20160827000_island_reads
 Sample_memoryCD8_TCF1_20160827000_island_reads
 naiveCD8_CONTRO_island_reads
 MemoryCD8_CONTRO_island_reads
 )
+
+__INPUT_SAMPLE_DIR_List=(
+Sample_naiveCD8_TCF1_20160827000
+Sample_memoryCD8_TCF1_20160827000
+Sample_TKOCD8_TCF1_20160827000
+)
+
+
 
 
 echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
@@ -85,7 +87,7 @@ echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
 	RUN_MACS2_Diff "naiveCD8_TCF1" ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[2]} \
-	"MemoryCD8_TCF1" ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[3]} 0.00001
+	"MemoryCD8_TCF1" ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[2]} 0.00001
 	break
 	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]}

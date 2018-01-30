@@ -387,6 +387,23 @@ local CON2_CONTRO=$6
 
 local p_value=0.00001
 ########################################################################
+	if [ false ]; then
+## Customized Part DIR
+########################################################################
+local CON1_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON1_FILE=${CON1_TREAT}.bed
+
+local CON1_CONTRO_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON1_CONTRO_FILE=${CON1_CONTRO}.bed
+
+local CON2_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON2_FILE=${CON2_TREAT}.bed
+
+local CON2_CONTRO_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON2_CONTRO_FILE=${CON2_CONTRO}.bed
+	fi
+
+########################################################################
 ########################################################################
 local CON1_FOLDER=${__EXE_PATH}/${CON1_TREAT}/bowtie2_results
 local CON1_FILE=${CON1_TREAT}.bed
@@ -403,29 +420,14 @@ local CON2_CONTRO_FILE=${CON2_CONTRO}.bed
 ########################################################################
 
 ########################################################################
-local CON1_FOLDER=${__EXE_PATH}/bowtie2_results
-local CON1_FILE=${CON1_TREAT}.bed
-
-local CON1_CONTRO_FOLDER=${__EXE_PATH}/bowtie2_results
-local CON1_CONTRO_FILE=${CON1_CONTRO}.bed
-
-local CON2_FOLDER=${__EXE_PATH}/bowtie2_results
-local CON2_FILE=${CON2_TREAT}.bed
-
-local CON2_CONTRO_FOLDER=${__EXE_PATH}/bowtie2_results
-local CON2_CONTRO_FILE=${CON2_CONTRO}.bed
-
-########################################################################
-
-########################################################################
 local OUT_FOLDER=${__EXE_PATH}/MACS2_Diff_results/${CON1_NAME}_vs_${CON2_NAME}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 
 echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' --nomodel --extsize 200"
-python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' --nomodel --extsize 200 #-p ${p_value}
+python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' -p ${p_value} # --nomodel --extsize 200 
 
 echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' --nomodel --extsize 200"
-python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' --nomodel --extsize 200 #-p ${p_value}
+python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' -p ${p_value} # --nomodel --extsize 200 
 
 cd ${OUT_FOLDER}
 
