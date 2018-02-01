@@ -78,7 +78,7 @@ DIR_CHECK_CREATE $__RAW_DATA_PATH_DIR
 DIR_CHECK_CREATE $__EXE_PATH
 
 #### Email Alert
-RUN_CHOOSE
+FUNC_CHOOSE_EMAIL_ALERT
 Alert_email=$?
 
 echo ""
@@ -86,8 +86,8 @@ echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
-	RUN_MACS2_Diff "naiveCD8_TCF1" ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[2]} \
-	"MemoryCD8_TCF1" ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[2]} 0.00001
+	RUN_HiC_Iterative_Mapping
+	
 	break
 	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]}
