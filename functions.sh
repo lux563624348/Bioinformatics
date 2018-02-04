@@ -44,8 +44,8 @@ PRE_READS_DIR(){
 	#local DIRLIST_R1="$( find -name "*R1.fastq" | sort -n | xargs)"
 	#local DIRLIST_R2="$( find -name "*R2.fastq" | sort -n | xargs)" #
 	
-	local DIRLIST_R1_gz="$( find -name "*R1_goodreads.$2" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*R2_goodreads.$2" | sort -n | xargs)"
+	local DIRLIST_R1_gz="$( find -name "*R1.$2" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*R2.$2" | sort -n | xargs)"
 
 
 #### R1 Saving		
@@ -887,13 +887,40 @@ RUN_Peaks_Distribution_Analysis(){
 
 RUN_HiC_Iterative_Mapping(){
 #### Usage: RUN_HiC_Iterative_Mapping #1 #2
-	CHECK_arguments $# 0
-	local EXEDIR="/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/HiC-seq/TEST_CD8"
+	CHECK_arguments $# 1
+	echo "RUN HiC Iterative Mapping!"
+########################################################################
+	local EXEDIR="/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/HiC-seq/version.beta"
+	local OUTPUT_BAM_PATH="${__EXE_PATH}/$1/iterative_mapping_bam"
+########################################################################
 	local BOWTIE_PATH="/usr/local/bowtie2-2.2.6/bin/bowtie2"
 	local BOWTIE_INDEX_PATH="/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
-	local OUTPUT_BAM_DIR="/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/HiC-seq/TEST_CD8/iterative_mapping"
 	
-	DIR_CHECK_CREATE ${EXEDIR} ${OUTPUT_BAM_DIR}
+	DIR_CHECK_CREATE ${EXEDIR} ${OUTPUT_BAM_PATH}
+	
+	local IM_PARAMETERS=(30 10 0 50) # min_seq_len, len_step, seq_start, seq_end
+	
+	# ${__FASTQ_DIR_R1[0]}
+	
+	
+	
+	for fastq_path in ${__FASTQ_DIR_R1}
+	do
+	echo "python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIE_INDEX_PATH} -q ${fastq_path}\
+	-o ${OUTPUT_BAM_PATH}/${__INPUT_SAMPLE_DIR_List[i]}_R1.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}"
+	python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIE_INDEX_PATH} -q ${fastq_path}\
+	-o ${OUTPUT_BAM_PATH}/${__INPUT_SAMPLE_DIR_List[i]}_R1.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}
+	done
+	
+	for fastq_path in ${__FASTQ_DIR_R2}
+	do
+	echo ""
+	python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIE_INDEX_PATH} -q ${fastq_path}\
+	-o ${OUTPUT_BAM_PATH}/${__INPUT_SAMPLE_DIR_List[i]}_R2.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}
+	done
+	
+	
+	echo "Finished!..."
 	
 	}
 ## END OF MODULES
