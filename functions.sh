@@ -2,6 +2,7 @@
 # /mnt/c/Users/Xiang/Dropbox/AResearch/version.beta
 
 #set -e	#### terminating the script if any command exited with a nonzero exit status
+set +H #### to disable the C shell-style command history,‘!’ as a special character.
 set -u #### prevents the error by aborting the script if a variable’s value is unset
 set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 #set -o noclobber ####The noclobber option tells bash not to overwrite any existing files when you redirect output.
@@ -44,8 +45,8 @@ PRE_READS_DIR(){
 	#local DIRLIST_R1="$( find -name "*R1.fastq" | sort -n | xargs)"
 	#local DIRLIST_R2="$( find -name "*R2.fastq" | sort -n | xargs)" #
 	
-	local DIRLIST_R1_gz="$( find -name "*R1.$2" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*R2.$2" | sort -n | xargs)"
+	local DIRLIST_R1_gz="$( find -name "*R1*.$2" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*R2*.$2" | sort -n | xargs)"
 
 
 #### R1 Saving		
@@ -90,13 +91,13 @@ RUN_FAST_QC (){
 	for fastq_file in $__FASTQ_DIR_R1
 	do
 	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} $fastq_file
+	fastqc -o ${Output_fastqc} ${fastq_file}
 	done
 	
 	for fastq_file in $__FASTQ_DIR_R2
 	do
 	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} $fastq_file
+	fastqc -o ${Output_fastqc} ${fastq_file}
 	done
 	
 	echo "Fastq Completed!"
@@ -113,7 +114,28 @@ RUN_READLINE(){
 			echo ${line[*]} >> $2 # OUTPUT file
 		fi
 	done < $1   #INPUT file
-	} 
+	}
+	
+RUN_Read_Process_Data(){
+	#### USAGE: RUN_READLINE $INPUT $OUTPUT
+	CHECK_arguments $# 2
+	echo "READ_LINE"
+	while read -a line
+	do
+		if [ ${line[6]} \> 0.0 ]; then
+			echo ${line[0]} ${line[1]} $(expr ${line[6]} + ${line[1]}) ${line[6]} >> $2 # OUTPUT file
+		fi
+	done < $1 #INPUT file
+	}
+
+RUN_awk_Process_Data(){
+	#### USAGE: RUN_READLINE $INPUT $OUTPUT
+	CHECK_arguments $# 2
+	echo "READ_LINE"
+	awk 'BEGIN{print "Don\47t Panic!"}'
+		
+	}
+
 
 RUN_CHANGE_STR(){
 	
@@ -125,21 +147,6 @@ for FN in *.bad
 do
 mv "${FN}" "${FN%bad}bash"
 done
-	}
-
-RUN_FAST_QC_BT (){
-####	RUN_FAST_QC ${fastq_file_path}
-####	Usage: RUN_FAST_QC $INPUT_DATA_DIR
-########################################################################
-### FASTQC Output DIR setting ...
-	local Output_fastqc=$__EXE_PATH/fastqc
-	DIR_CHECK_CREATE ${Output_fastqc}
-	cd $__RAW_DATA_PATH_DIR
-	
-	echo "fastqc -o ${Output_fastqc} $1"
-	fastqc -o ${Output_fastqc} $1
-	
-	echo "$1 Fastqc Completed!"
 	}
 
 RUN_bed_intersect(){
@@ -177,6 +184,56 @@ RUN_bed_intersect(){
 	
 	}
 
+RUN_read_filtering_Bamtohdf5(){
+####Usage: RUN_Bamtohdf5 $1(Input Parent folder path) $2(condition name) $3(Input subfolder) $4(Resolution) ...
+	local SPECIES=mm9
+	local MM9_GENOME_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM9/genome.fa
+	local hg38_GENOME_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Annotation/hg38_UCSC/genome.fa
+	local EXEDIR="/home/lxiang/Software/HiC_lib"
+	local INPUT_Parameters=$@
+	local INPUT_NUMS=$#
+	local RESOLUTION=$4
+	echo "Input ${INPUT_NUMS} parameters, which are: $*"
+	
+	local GENOME_PATH=${MM9_GENOME_PATH}
+	
+	for (( i = 3; i <= $(expr ${INPUT_NUMS} - 1); i++ ))
+	do 
+		local INPUT_R1=${1}/${2}/${3}/${2}_R1.bam
+		local INPUT_R2=${1}/${2}/${3}/${2}_R2.bam
+	
+		local OUTPUT=${1}/${2}/${3}/f_hdf5
+		DIR_CHECK_CREATE ${OUTPUT}
+		
+		
+		echo "python run_parse_sam.py -g ${GENOME_PATH} -1 ${INPUT_R1} -2 ${INPUT_R2} -o ${OUTPUT}/${2}_mapped_reads.hdf5"
+		#python ${EXEDIR}/run_parse_sam.py -g ${GENOME_PATH} -1 ${INPUT_R1} -2 ${INPUT_R2} -o ${OUTPUT}/${2}_mapped_reads.hdf5
+		
+		echo "python run_merge_pairs_and_rm_duplicates.py -g ${GENOME_PATH} -i ${OUTPUT} -o ${OUTPUT} -n ${2}"
+		#python ${EXEDIR}/run_merge_pairs_and_rm_duplicates.py -g ${GENOME_PATH} -i ${OUTPUT} -n ${2} -o ${OUTPUT}
+		
+		echo "python run_ICE.py -g ${GENOME_PATH} -n ${2} -o ${OUTPUT} -r ${RESOLUTION}"
+		#python ${EXEDIR}/run_ICE.py -g ${GENOME_PATH} -n ${2} -o ${OUTPUT} -r ${RESOLUTION}
+		
+		echo "		java -Xmx16g -jar ${EXEDIR}/juicer_tools_0.7.0.jar pre -n ${OUTPUT}/Juicebox/${2}_Juicebox_input.txt.gz ${OUTPUT}/Juicebox/${2}_Juicebox.hic $SPECIES"
+		java -Xmx16g -jar ${EXEDIR}/juicer_tools_0.7.0.jar pre -n ${OUTPUT}/Juicebox/${2}_Juicebox_input.txt.gz ${OUTPUT}/Juicebox/${2}_Juicebox.hic $SPECIES
+		
+		echo "Finished Condition: $2"
+		echo ""
+		
+		
+		
+	done
+	
+	
+	
+	
+	
+	
+	
+	echo "RUN_Bamtohdf5 is completed!"
+	}
+
 RUN_CHECK_SEQ(){
 #### Check a specific seq in fastq.gz
 ####	1.Raw_data 2.Seq
@@ -212,17 +269,18 @@ RUN_CHECK_SEQ(){
 }
 
 RUN_SELECT_SEQ_SAM(){
-	#### Usage: RUN_SELECT_SEQ_SAM $INPUT_SAM_FOLDER $INPUT_NAME $RNAME
+	#### Usage: RUN_SELECT_SEQ_SAM $INPUT_SAM_FOLDER ${INPUT_NAME} ${NAME_EXTENSION} (Such as _unaligned for xxx_unaligned)
 	#### Given a sam file DIR
-	local INPUT_NAME=$1
+	local INPUT_NAME=${1}
+	local NAME_EXTENSION=${3}
 	local INPUT_SAM_FOLDER=${__EXE_PATH}/${INPUT_NAME}/bowtie2_results
-	local OUTPUT_RNAME=$2
-	CHECK_arguments $# 2
+	local OUTPUT_RNAME=${2}
+	CHECK_arguments $# 3
 	
 	echo "Entering one Library of SAM_DATA_FOLDER: $INPUT_SAM_FOLDER"
 	cd ${INPUT_SAM_FOLDER}
-	local INPUT_SAM=${INPUT_NAME}.sam
-	local SORT_BAM=${INPUT_NAME}\_sorted.bam
+	local INPUT_SAM=${1}${3}.sam
+	local SORT_BAM=${1}${3}\_sorted.bam
 	#local SORT_SAM=$INPUT_NAME\_sorted.sam
 	
 	if [ ! -e $SORT_BAM ];then
@@ -324,7 +382,7 @@ RUN_Counting_READS_Pair_End(){
 	cd $__EXE_PATH/$INPUT_NAME/bowtie2_results
 	
 	local Q_NAME=HS2
-	#local Q_NAME=HWI
+	local Q_NAME=HWI
 	
 	local NUM_Klf4=$( grep ${Q_NAME} pMXs-Klf4-full_R1.fastq | wc -l )
 	local NUM_Oct4=$( grep ${Q_NAME} pMXs-Oct4-full_R1.fastq | wc -l )
@@ -359,12 +417,14 @@ RUN_Counting_READS_Pair_End(){
 	fi
 	}
 
+#RUN_Sam2
+
 RUN_bed2wig(){
 	#### Usage: RUN_bed2wig <Output_DIR> <Output_name>
 local SICER="/home/zzeng/Software/SICER1.1/SICER"
 local EXEDIR="${SICER}/extra/tools/wiggle"
 local WINDOW_SIZE=200
-local FRAGMENT_SIZE=150
+local FRAGMENT_SIZE=100
 local OUTPUTDIR=$1
 local OUTPUT=$2
 
@@ -372,31 +432,33 @@ sh $EXEDIR/bed2wig.sh $OUTPUTDIR $OUTPUT $WINDOW_SIZE $FRAGMENT_SIZE $SPECIES
 	}
 
 RUN_Wig2BigWig (){
-	###RUN_Wig2BigWig   $INPUT_FOLDER $INPUT_NAME
+	###RUN_Wig2BigWig $1 $2 $3 ($1=INPUT_FOLDER $2=INPUT_NAME $3=Track_hub_label)
 #### convert .wig to .bigwig and create the track hubs profiles.
-#### Usage: RUN_Wig2BigWig $Sample_Wig_NAME
-	CHECK_arguments $# 2
-	local Data_provider=Haihui
-	local Data_label=Lef1
-		
-	local Tracks_NAME=$2
-	#local Contro_Tracks_NAME=$2
-	local Tracks_NAME_Lable=${Tracks_NAME: 7:-12} ##Skip out of Sample_ (7) and _20160827000 (-12)
-	#local Contro_Tracks_NAME_Lable=${Contro_Tracks_NAME: 7:-12}
+#### Usage: RUN_Wig2BigWig $1 $2 $3
+	CHECK_arguments $# 3
+	local Data_provider=34bc
+	trackDb_NAME="mm10"
+	
+	local Wig_DIR=${1}
+	local Tracks_NAME=${2}
+	local Data_label=${3}
+	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
 	
 	####INPUT
 	local UCSC_DIR=/home/lxiang/Software/UCSC
-	local Reference_genome_sizes=$UCSC_DIR/genome_sizes/mm9.chrom.sizes
-	local Wig_DIR=$1
+	local chrom_sizes_mm10=${UCSC_DIR}/genome_sizes/mm10.chrom.sizes
+	local chrom_sizes_mm9=${UCSC_DIR}/genome_sizes/mm9.chrom.sizes
+
+	
+
 	cd ${Wig_DIR}
 #### OUTPUT
 	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
 	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigWigs
 
-#### Modified Tracks_NAME
-	local Tracks_NAME=${Tracks_NAME}-W200-RPKM
-	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
-	$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+
+	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes_mm10} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
+	$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes_mm10} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
 
 ###	Creating hub.txt
 	cd $OUTPUTDIR_tracks_hub
@@ -412,7 +474,7 @@ RUN_Wig2BigWig (){
 ########################################################################
 
 ###	Creating genomes.txt	
-	trackDb_NAME="mm9"
+
 	local filename=genomes.txt
 	if [ ! -f $filename ];then
 	echo "genome $trackDb_NAME" >>$filename
@@ -438,37 +500,35 @@ RUN_Wig2BigWig (){
 	}
 
 RUN_BigGraph2BigWig (){
-	##RUN_BigGraph2BigWig   $INPUT_FOLDER $INPUT_NAME
+	##RUN_BigGraph2BigWig   $INPUT_FOLDER $INPUT_NAME $Track_hub_label
 #### convert .wig to .bigwig and create the track hubs profiles.
 #### Usage: RUN_Wig2BigWig $Sample_Wig_NAME
-	CHECK_arguments $# 2
+	CHECK_arguments $# 3
 	local Data_provider=Haihui
-	local Data_label=Lef1_MACS2
-		
-	local Tracks_NAME=$2
-	#local Contro_Tracks_NAME=$2
-	local Tracks_NAME_Lable=${Tracks_NAME: 7:-12} ##Skip out of Sample_ (7) and _20160827000 (-12)
-	#local Contro_Tracks_NAME_Lable=${Contro_Tracks_NAME: 7:-12}
 	
+	local bdg_DIR=${1}
+	local Tracks_NAME=${2}
+	local Data_label=${3}_MACS2
+	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
+
 	####INPUT
 	local UCSC_DIR=/home/lxiang/Software/UCSC
 	local Reference_genome_sizes=$UCSC_DIR/genome_sizes/mm9.chrom.sizes
-	local bdg_DIR=$1
 	cd ${bdg_DIR}
+
 #### OUTPUT
 	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
 	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigWigs
 	
 ########################################################################
-#### Modified Tracks_NAME
-	#local Tracks_NAME=${Tracks_NAME}_treat_pileup
-	##control sample
-	local Tracks_NAME=${Tracks_NAME}_control_lambda
-	
 	
 	if [ ! -f ${Tracks_NAME}_sorted.bdg ];then
 	echo "sort -k1,1 -k2,2n ${Tracks_NAME}.bdg > ${Tracks_NAME}_sorted.bdg"
 	sort -k1,1 -k2,2n ${Tracks_NAME}.bdg > ${Tracks_NAME}_sorted.bdg
+	fi
+	
+	if [ -f ${Tracks_NAME}.bdg ];then
+	rm ${Tracks_NAME}.bdg
 	fi
 	
 	echo "$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
@@ -480,7 +540,7 @@ RUN_BigGraph2BigWig (){
 	if [ ! -f $filename ];then
 	echo "hub ${Data_label}" >>$filename
 	echo "shortLabel ${Data_label}" >>$filename
-	echo "longLabel ${Data_label}_/${Data_provider}" >>$filename
+	echo "longLabel ${Data_label}/${Data_provider}" >>$filename
 	echo "genomesFile genomes.txt" >>$filename
 	echo "email lux@gwu.edu" >>$filename
 	echo "descriptionUrl descriptionUrl" >>$filename
@@ -512,6 +572,9 @@ RUN_BigGraph2BigWig (){
 	echo "autoScale on" >>$filename
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
 }
+
+#RUN_Two_Conditions_diagonal_plot(){}
+
 ##END OF FUNDEMENTAL FUNCTIONS
 
 ######################################
@@ -529,15 +592,18 @@ RUN_BOWTIE2(){
 	echo "RUN_BOWTIE2"
 	CHECK_arguments $# 1
 	BOWTIEINDEXS_mm9="/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
-	
+	BOWTIEINDEXS_mm10="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome"
+
 	#BOWTIEINDEXS_mm9_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/mm9_pMXs_combo/mm9_pMXs_combo"
 	#BOWTIEINDEXS_mm9_combo_MMLV_pMXs="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/mm9_comdo_MMLV_pMXs/mm9_comdo_MMLV_pMXs"
-	BOWTIEINDEXS_MMLV_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_pMXs_combo/MMLV_pMXs_combo"
-	BOWTIEINDEXS_MMLV="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_index/MMLV"
+	#BOWTIEINDEXS_MMLV_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_pMXs_combo/MMLV_pMXs_combo"
+	#BOWTIEINDEXS_MMLV="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_index/MMLV"
+	BOWTIEINDEXS_mm10_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MM10_pMXs_combo/mm10_pMXs_combo"
+
 
 	local INPUT_NAME=$1
-	local BOWTIEINDEXS_name="BOWTIEINDEXS_mm9"
-	local BOWTIEINDEXS="${BOWTIEINDEXS_mm9}"
+	local BOWTIEINDEXS_name="BOWTIEINDEXS_mm10_pMXs_combo"
+	local BOWTIEINDEXS="${BOWTIEINDEXS_mm10_pMXs_combo}"
 	echo "Bowtie2 ref= $BOWTIEINDEXS_name"
 
 	local SPECIES="mm9"
@@ -547,21 +613,23 @@ RUN_BOWTIE2(){
 	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
 ########################################################################
 	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
+	local OUTPUT_BOWTIE2_unaligned="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_unaligned.sam"
+	
 	echo ""
 
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
 	
-	 echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S $OUTPUT_BOWTIE2"
-	 bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S $OUTPUT_BOWTIE2
+	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S $OUTPUT_BOWTIE2"
+	bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S $OUTPUT_BOWTIE2
 	
 	#### concordantly pair output
-	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS_MMLV -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
-	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS_MMLV -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
+	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
 	#### using un concordantly pair-ends do bowtie2 again.
-	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS_MMLV_pMXs_combo -1 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R1.fastq.gz -2 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R2.fastq.gz -S $OUTPUT_BOWTIE2"
-	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS_MMLV_pMXs_combo -1 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R1.fastq.gz -2 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R2.fastq.gz -S $OUTPUT_BOWTIE2
+	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R1.fastq.gz -2 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R2.fastq.gz -S ${OUTPUT_BOWTIE2_unaligned}"
+	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R1.fastq.gz -2 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R2.fastq.gz -S ${OUTPUT_BOWTIE2_unaligned}
 	
 	else
 	echo "Single End Mode."
@@ -569,20 +637,33 @@ RUN_BOWTIE2(){
 	bowtie2 -p $THREADS --no-unal --non-deterministic -x $BOWTIEINDEXS -U ${__FASTQ_DIR_R1[0]} -S $OUTPUT_BOWTIE2
 	fi
 
-echo ""
+	echo ""
+###sam2bam
+	if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
+	echo "samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
+	samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
+	fi
+
+###bam2bed
+
+	#echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
+	#bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed
+
+###bamToBedGraph
+
+	#samtools sort ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
+
+
 ###sam2bed
-echo "samtools view $OUTPUT_BOWTIE2 -Sb | bamToBed -i stdin > $OUTPUT_BOWTIE2_FOLDER/$INPUT_NAME.bed"
-samtools view $OUTPUT_BOWTIE2 -Sb | bamToBed -i stdin > $OUTPUT_BOWTIE2_FOLDER/$INPUT_NAME.bed 
+#echo "samtools view $OUTPUT_BOWTIE2 -Sb | bamToBed -i stdin > $OUTPUT_BOWTIE2_FOLDER/$INPUT_NAME.bed"
+#samtools view $OUTPUT_BOWTIE2 -Sb | bamToBed -i stdin > $OUTPUT_BOWTIE2_FOLDER/$INPUT_NAME.bed 
 
-echo ""
-###bed2wigs
-echo "RUN_bed2wig $OUTPUT_BOWTIE2_FOLDER $INPUT_NAME"
-RUN_bed2wig $OUTPUT_BOWTIE2_FOLDER $INPUT_NAME
 
-echo ""
-###Wig2Bigwig
-echo "RUN_Wig2BigWig $OUTPUT_BOWTIE2_FOLDER $INPUT_NAME"
-RUN_Wig2BigWig $OUTPUT_BOWTIE2_FOLDER $INPUT_NAME
+###bed2bedgraph
+	#echo "bedtools genomecov -ibam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam -bga > ${INPUT_NAME}.bdg"
+	#bedtools genomecov -ibam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam -bga > ${INPUT_NAME}.bdg
+
+	#RUN_BigGraph2BigWig ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} "34bc"
 
 	}
 
@@ -592,27 +673,24 @@ echo "RUN_SICER"
 CHECK_arguments $# 2
 local EXEDIR="/home/lxiang/Software/SICER1.1/SICER"
 
-#HIS_MODS_SET=(H3K27Ac H3K27Me3 H3K4Me1 H3K4Me3)
-#GAP_SET=(400 600 400 200)
-
 local GAP_SET=(400) # 600 400 200)
 local REDUNDANCY=1
 local INPUT_NAME=$1
 local INPUI_CON=$2
-local FRAGMENT_SIZE=150
+local FRAGMENT_SIZE=1
 local WINDOW_SIZE=200
 local EFFECTIVEGENOME=0.85 
-local FDR=0.0001
+local FDR=0.05
 
 
 
 
 
 local IN_SICER_FOLDER=${__EXE_PATH}/${INPUT_NAME}/bowtie2_results
-local IN_SICER_FILES=${INPUT_NAME}.bed
+local IN_SICER_FILES=${INPUT_NAME}_Merged_width_one.bed
 
 local CONTRO_SICER_DIR=${__EXE_PATH}/${INPUI_CON}/bowtie2_results
-local CONTRO_SICER_FILE=${INPUI_CON}.bed
+local CONTRO_SICER_FILE=${INPUI_CON}_Merged_width_one.bed
 
 local OUT_SICER_FOLDER=${__EXE_PATH}/${INPUT_NAME}/SICER_results
 DIR_CHECK_CREATE ${OUT_SICER_FOLDER}
@@ -622,6 +700,10 @@ cd ${OUT_SICER_FOLDER}
 echo "sh ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm9 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
 sh ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm9 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
 
+
+
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME}-W200-normalized
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized
 
 
 	}
@@ -654,29 +736,40 @@ python ${EXEDIR}/macs14 --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_D
 	}
 
 RUN_MACS2(){
-#### Usage: RUN_MACS2 $1 $2 ($1 is input for MACS. $2 is the CONTRO Library)
+#### Usage: RUN_MACS2 $1 $2 ($1 is input for MACS. $2 is the CONTRO Library) 
 echo "RUN_MACS"
 CHECK_arguments $# 2
 local EXEDIR="/home/lxiang/Software/python_tools/MACS2-2.1.1.20160309/bin"
 
-local INPUT_NAME=$1
-local INPUI_CON=$2
+local INPUT_NAME=${1}
+local INPUI_CON=${2}
+local INPUT_LABEL=${INPUT_NAME: 7:10}
+##Skip out of Sample_ (7), and forward with 4 more digits.
 
 #local FDR=0.05
 local p_value=0.00001
 
 local IN_FOLDER=${__EXE_PATH}/${INPUT_NAME}/bowtie2_results
-local IN_FILES=${INPUT_NAME}.bed
+local IN_FILES=${INPUT_NAME}.bam
 
 local CONTRO_DIR=${__EXE_PATH}/${INPUI_CON}/bowtie2_results
-local CONTRO_FILE=${INPUI_CON}.bed
+local CONTRO_FILE=${INPUI_CON}.bam
 
-local OUT_FOLDER=${__EXE_PATH}/${INPUT_NAME}/MACS2_results
+local OUT_FOLDER=${__EXE_PATH}/${INPUT_NAME}/MACS2_results_BAMPE
 DIR_CHECK_CREATE ${OUT_FOLDER}
+cd ${OUT_FOLDER}
 
-echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
-python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
+### --BAMPE
+echo "python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
+python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 
+### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
+#echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
+#python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
+####      ${INPUT_NAME}_treat_pileup  for input
+
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_treat_pileup ${INPUT_LABEL}
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_control_lambda ${INPUT_LABEL}
 }
 
 RUN_MACS2_Diff(){
@@ -895,10 +988,10 @@ RUN_HiC_Iterative_Mapping(){
 ########################################################################
 	local BOWTIE_PATH="/usr/local/bowtie2-2.2.6/bin/bowtie2"
 	local BOWTIE_INDEX_PATH="/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
-	
+	local BOWTIE_INDEX_PATH="/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome"
 	DIR_CHECK_CREATE ${EXEDIR} ${OUTPUT_BAM_PATH}
 	
-	local IM_PARAMETERS=(30 10 0 50) # min_seq_len, len_step, seq_start, seq_end
+	local IM_PARAMETERS=(25 10 0 50) # min_seq_len, len_step, seq_start, seq_end
 	
 	# ${__FASTQ_DIR_R1[0]}
 	
@@ -980,18 +1073,23 @@ EMAIL_ME(){
 
 FUNC_Download (){
 ### Download Login information and the download directory.
-	web_address="ftp://ftp-trace.ncbi.nlm.nih.gov/sra/sra-instant/reads/ByExp/sra/SRX/SRX184/SRX184860"
-	user="xue"
-	password="ayooxuxue"
-	cd $__RAW_DATA_PATH_DIR
+	web_address="http://dnacore454.healthcare.uiowa.edu/20180212-0109_Xue_0118kxGMcdfCPYuWEYbHCbdgsHZPLuHyyblaJidYdlam/results/Project_Xue_ShaojunPool_0118/"
+	#user="xue"
+	#password="ayooxuxue"
+	cd ${__RAW_DATA_PATH_DIR}
 	DOWNLOAD_TARGET_NAME=$1;
 ########################################################################
 	for ((i = 0; i <= $(expr $SAMPLE_NUM - 1); i++))
 	do
 ####If download file is a folder. IT MUST END WITH trailing slash  "/"
 	Down_dir=$__RAW_DATA_PATH_DIR/$DOWNLOAD_TARGET_NAME/;
-	echo "wget --no-check-certificate -r -c -nH --user=$user --password=$pass_word --accept=gz --no-parent $web_address/${INPUT_SAMPLE_DIR_List[$i]}/"
-	wget --no-check-certificate -r -c -nH --user=$user --password=$password --accept=gz --no-parent $web_adress
+	#echo "wget --no-check-certificate -r -c -nH --user=$user --password=$pass_word --accept=gz --no-parent $web_address"
+	#wget --no-check-certificate -r -c -nH --user=$user --password=$password --accept=gz --no-parent $web_adress
+
+	echo "wget --no-check-certificate -r -c -nH --accept=gz --no-parent ${web_address}"
+	wget --no-check-certificate -r -c -nH --accept=gz --no-parent ${web_address}
+
+
 	echo "$DOWNLOAD_TARGET_NAME Downloaded Completed"
 	echo ""
 	done
@@ -1007,7 +1105,7 @@ CHECK_arguments(){
 	fi
 	} 
 
-DIR_CHECK_CREATE (){
+DIR_CHECK_CREATE(){
 ### Saving DIR Check and Create
 #### Usage: DIR_CHECK_CREATE $@
 	echo "Input Dir: $@"
@@ -1072,10 +1170,39 @@ FUNC_CUT_Columns (){
 	local start=${2}
 	local end=${3}
 	local delimiter="	"
-	cut -f ${start}-${end} ${File_Path} > ${__RAW_DATA_PATH_DIR}/${1}_13.${File_type}
+	cut -f ${start}-${end} ${File_Path} > ${__RAW_DATA_PATH_DIR}/${1}_Columns_${start}_${end}.${File_type}
 	echo ""
 	echo ""
 	}
+
+FUNC_CUT_Rows (){
+	####FUNC_CUT_Rows $Filename $start $end
+	
+	#### Normally sam file format, '1,24d' is removing all header.
+	#CHECK_arguments $# 3
+	local File_type='sam'
+	local File_Path=${__RAW_DATA_PATH_DIR}/${1}.${File_type}
+	local start=${2}
+	local end=${3}
+	sed '${start},${end}d' ${File_Path} > ${__RAW_DATA_PATH_DIR}/${1}_Row_${start}_${end}.${File_type}
+	echo ""
+	echo ""
+}
+
+FUNC_CUT_Rows_Redirect (){
+	####FUNC_CUT_Rows $Filename $start $end
+	
+	#### Normally sam file format, '1,24d' is removing all header.
+	#CHECK_arguments $# 3
+	local File_type='sam'
+	local File_Path=${__RAW_DATA_PATH_DIR}/${1}.${File_type}
+	local start=${2}
+	local end=${3}
+	sed -e '${start},${end}d' ${File_Path} > ${__RAW_DATA_PATH_DIR}/${1}_Row_${start}_${end}.${File_type}
+	echo "a"
+	echo ""
+}
+
 
 FUNC_Max(){
 ## Usage: Larger_value = $(RUN_Max $num_a $num_b)

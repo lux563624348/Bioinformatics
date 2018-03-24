@@ -38,13 +38,14 @@ def violin_plot(aaaa):
 	### generate two figure for comparing.
 	fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(9, 4))
 
-	df1.iloc[:,:]=np.log10(df1.iloc[:,:])
-	df2.iloc[:,:]=np.log10(df2.iloc[:,:])
+	df1.iloc[:,0]=np.log10(df1.iloc[:,0])
+	df2.iloc[:,0]=np.log10(df2.iloc[:,0])
 
 	# plot violin plot
-	axes[0].violinplot(df1.iloc[:,0],
+	axes[0].violinplot(df1.iloc[:,0], 
 					   showmeans=False,
 					   showmedians=True)
+					   
 	axes[0].set_title('Solo Peaks Violin Plot')
 
 
@@ -57,8 +58,9 @@ def violin_plot(aaaa):
 	for ax in axes:
 		ax.yaxis.grid(True)
 		#ax.set_xticks([y + 1 for y in range(max(df1))])
+		ax.set_ylim(0.8,2.2)
 		ax.set_xlabel('Frequency')
-		ax.set_ylabel('Log10(Log10 pvalues)')
+		ax.set_ylabel('Log10Log10(- pvalues)')
 
 
 	plt.savefig('violin.png')
