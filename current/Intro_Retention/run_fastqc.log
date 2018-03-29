@@ -1,0 +1,295 @@
+fastqc -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/fastqc SRR4838321.fastq.gz SRR4838322.fastq.gz
+Started analysis of SRR4838321.fastq.gz
+Approx 5% complete for SRR4838321.fastq.gz
+Approx 10% complete for SRR4838321.fastq.gz
+Approx 15% complete for SRR4838321.fastq.gz
+Approx 20% complete for SRR4838321.fastq.gz
+Approx 25% complete for SRR4838321.fastq.gz
+Approx 30% complete for SRR4838321.fastq.gz
+Approx 35% complete for SRR4838321.fastq.gz
+Approx 40% complete for SRR4838321.fastq.gz
+Approx 45% complete for SRR4838321.fastq.gz
+Approx 50% complete for SRR4838321.fastq.gz
+Approx 55% complete for SRR4838321.fastq.gz
+Approx 60% complete for SRR4838321.fastq.gz
+Approx 65% complete for SRR4838321.fastq.gz
+Approx 70% complete for SRR4838321.fastq.gz
+Approx 75% complete for SRR4838321.fastq.gz
+Approx 80% complete for SRR4838321.fastq.gz
+Approx 85% complete for SRR4838321.fastq.gz
+Approx 90% complete for SRR4838321.fastq.gz
+Approx 95% complete for SRR4838321.fastq.gz
+Analysis complete for SRR4838321.fastq.gz
+Started analysis of SRR4838322.fastq.gz
+Approx 5% complete for SRR4838322.fastq.gz
+Approx 10% complete for SRR4838322.fastq.gz
+Approx 15% complete for SRR4838322.fastq.gz
+Approx 20% complete for SRR4838322.fastq.gz
+Approx 25% complete for SRR4838322.fastq.gz
+Approx 30% complete for SRR4838322.fastq.gz
+Approx 35% complete for SRR4838322.fastq.gz
+Approx 40% complete for SRR4838322.fastq.gz
+Approx 45% complete for SRR4838322.fastq.gz
+Approx 50% complete for SRR4838322.fastq.gz
+Approx 55% complete for SRR4838322.fastq.gz
+Approx 60% complete for SRR4838322.fastq.gz
+Approx 65% complete for SRR4838322.fastq.gz
+Approx 70% complete for SRR4838322.fastq.gz
+Approx 75% complete for SRR4838322.fastq.gz
+Approx 80% complete for SRR4838322.fastq.gz
+Approx 85% complete for SRR4838322.fastq.gz
+Approx 90% complete for SRR4838322.fastq.gz
+Approx 95% complete for SRR4838322.fastq.gz
+Approx 100% complete for SRR4838322.fastq.gz
+It seems our guess for the total number of records wasn't very good.  Sorry about that.
+Still going at 105% complete for SRR4838322.fastq.gz
+Still going at 110% complete for SRR4838322.fastq.gz
+Still going at 115% complete for SRR4838322.fastq.gz
+Still going at 120% complete for SRR4838322.fastq.gz
+Still going at 125% complete for SRR4838322.fastq.gz
+Still going at 130% complete for SRR4838322.fastq.gz
+Still going at 135% complete for SRR4838322.fastq.gz
+Still going at 140% complete for SRR4838322.fastq.gz
+Still going at 145% complete for SRR4838322.fastq.gz
+Still going at 150% complete for SRR4838322.fastq.gz
+Still going at 155% complete for SRR4838322.fastq.gz
+Still going at 160% complete for SRR4838322.fastq.gz
+Still going at 165% complete for SRR4838322.fastq.gz
+Still going at 170% complete for SRR4838322.fastq.gz
+Still going at 175% complete for SRR4838322.fastq.gz
+Still going at 180% complete for SRR4838322.fastq.gz
+Still going at 185% complete for SRR4838322.fastq.gz
+Still going at 190% complete for SRR4838322.fastq.gz
+Still going at 195% complete for SRR4838322.fastq.gz
+Still going at 200% complete for SRR4838322.fastq.gz
+Still going at 205% complete for SRR4838322.fastq.gz
+Still going at 210% complete for SRR4838322.fastq.gz
+Still going at 215% complete for SRR4838322.fastq.gz
+Still going at 220% complete for SRR4838322.fastq.gz
+Still going at 225% complete for SRR4838322.fastq.gz
+Still going at 230% complete for SRR4838322.fastq.gz
+Still going at 235% complete for SRR4838322.fastq.gz
+Still going at 240% complete for SRR4838322.fastq.gz
+Still going at 245% complete for SRR4838322.fastq.gz
+Still going at 250% complete for SRR4838322.fastq.gz
+Still going at 255% complete for SRR4838322.fastq.gz
+Still going at 260% complete for SRR4838322.fastq.gz
+Still going at 265% complete for SRR4838322.fastq.gz
+Still going at 270% complete for SRR4838322.fastq.gz
+Still going at 275% complete for SRR4838322.fastq.gz
+Still going at 280% complete for SRR4838322.fastq.gz
+Still going at 285% complete for SRR4838322.fastq.gz
+Still going at 290% complete for SRR4838322.fastq.gz
+Still going at 295% complete for SRR4838322.fastq.gz
+Still going at 300% complete for SRR4838322.fastq.gz
+Still going at 305% complete for SRR4838322.fastq.gz
+Still going at 310% complete for SRR4838322.fastq.gz
+Still going at 315% complete for SRR4838322.fastq.gz
+Still going at 320% complete for SRR4838322.fastq.gz
+Still going at 325% complete for SRR4838322.fastq.gz
+Still going at 330% complete for SRR4838322.fastq.gz
+Still going at 335% complete for SRR4838322.fastq.gz
+Still going at 340% complete for SRR4838322.fastq.gz
+Still going at 345% complete for SRR4838322.fastq.gz
+Still going at 350% complete for SRR4838322.fastq.gz
+Still going at 355% complete for SRR4838322.fastq.gz
+Still going at 360% complete for SRR4838322.fastq.gz
+Still going at 365% complete for SRR4838322.fastq.gz
+Still going at 370% complete for SRR4838322.fastq.gz
+Still going at 375% complete for SRR4838322.fastq.gz
+Still going at 380% complete for SRR4838322.fastq.gz
+Still going at 385% complete for SRR4838322.fastq.gz
+Still going at 390% complete for SRR4838322.fastq.gz
+Still going at 395% complete for SRR4838322.fastq.gz
+Still going at 400% complete for SRR4838322.fastq.gz
+Still going at 405% complete for SRR4838322.fastq.gz
+Still going at 410% complete for SRR4838322.fastq.gz
+Still going at 415% complete for SRR4838322.fastq.gz
+Still going at 420% complete for SRR4838322.fastq.gz
+Still going at 425% complete for SRR4838322.fastq.gz
+Still going at 430% complete for SRR4838322.fastq.gz
+Still going at 435% complete for SRR4838322.fastq.gz
+Still going at 440% complete for SRR4838322.fastq.gz
+Still going at 445% complete for SRR4838322.fastq.gz
+Still going at 450% complete for SRR4838322.fastq.gz
+Still going at 455% complete for SRR4838322.fastq.gz
+Still going at 460% complete for SRR4838322.fastq.gz
+Still going at 465% complete for SRR4838322.fastq.gz
+Still going at 470% complete for SRR4838322.fastq.gz
+Still going at 475% complete for SRR4838322.fastq.gz
+Still going at 480% complete for SRR4838322.fastq.gz
+Still going at 485% complete for SRR4838322.fastq.gz
+Still going at 490% complete for SRR4838322.fastq.gz
+Still going at 495% complete for SRR4838322.fastq.gz
+Still going at 500% complete for SRR4838322.fastq.gz
+Still going at 505% complete for SRR4838322.fastq.gz
+Still going at 510% complete for SRR4838322.fastq.gz
+Still going at 515% complete for SRR4838322.fastq.gz
+Still going at 520% complete for SRR4838322.fastq.gz
+Still going at 525% complete for SRR4838322.fastq.gz
+Still going at 530% complete for SRR4838322.fastq.gz
+Still going at 535% complete for SRR4838322.fastq.gz
+Still going at 540% complete for SRR4838322.fastq.gz
+Still going at 545% complete for SRR4838322.fastq.gz
+Still going at 550% complete for SRR4838322.fastq.gz
+Still going at 555% complete for SRR4838322.fastq.gz
+Still going at 560% complete for SRR4838322.fastq.gz
+Still going at 565% complete for SRR4838322.fastq.gz
+Still going at 570% complete for SRR4838322.fastq.gz
+Still going at 575% complete for SRR4838322.fastq.gz
+Still going at 580% complete for SRR4838322.fastq.gz
+Still going at 585% complete for SRR4838322.fastq.gz
+Still going at 590% complete for SRR4838322.fastq.gz
+Still going at 595% complete for SRR4838322.fastq.gz
+Still going at 600% complete for SRR4838322.fastq.gz
+Still going at 605% complete for SRR4838322.fastq.gz
+Still going at 610% complete for SRR4838322.fastq.gz
+Still going at 615% complete for SRR4838322.fastq.gz
+Still going at 620% complete for SRR4838322.fastq.gz
+Still going at 625% complete for SRR4838322.fastq.gz
+Still going at 630% complete for SRR4838322.fastq.gz
+Still going at 635% complete for SRR4838322.fastq.gz
+Still going at 640% complete for SRR4838322.fastq.gz
+Still going at 645% complete for SRR4838322.fastq.gz
+Still going at 650% complete for SRR4838322.fastq.gz
+Still going at 655% complete for SRR4838322.fastq.gz
+Still going at 660% complete for SRR4838322.fastq.gz
+Still going at 665% complete for SRR4838322.fastq.gz
+Still going at 670% complete for SRR4838322.fastq.gz
+Still going at 675% complete for SRR4838322.fastq.gz
+Still going at 680% complete for SRR4838322.fastq.gz
+Still going at 685% complete for SRR4838322.fastq.gz
+Still going at 690% complete for SRR4838322.fastq.gz
+Still going at 695% complete for SRR4838322.fastq.gz
+Still going at 700% complete for SRR4838322.fastq.gz
+Still going at 705% complete for SRR4838322.fastq.gz
+Still going at 710% complete for SRR4838322.fastq.gz
+Still going at 715% complete for SRR4838322.fastq.gz
+Still going at 720% complete for SRR4838322.fastq.gz
+Still going at 725% complete for SRR4838322.fastq.gz
+Still going at 730% complete for SRR4838322.fastq.gz
+Still going at 735% complete for SRR4838322.fastq.gz
+Still going at 740% complete for SRR4838322.fastq.gz
+Still going at 745% complete for SRR4838322.fastq.gz
+Still going at 750% complete for SRR4838322.fastq.gz
+Still going at 755% complete for SRR4838322.fastq.gz
+Still going at 760% complete for SRR4838322.fastq.gz
+Still going at 765% complete for SRR4838322.fastq.gz
+Still going at 770% complete for SRR4838322.fastq.gz
+Still going at 775% complete for SRR4838322.fastq.gz
+Still going at 780% complete for SRR4838322.fastq.gz
+Still going at 785% complete for SRR4838322.fastq.gz
+Still going at 790% complete for SRR4838322.fastq.gz
+Still going at 795% complete for SRR4838322.fastq.gz
+Still going at 800% complete for SRR4838322.fastq.gz
+Still going at 805% complete for SRR4838322.fastq.gz
+Still going at 810% complete for SRR4838322.fastq.gz
+Still going at 815% complete for SRR4838322.fastq.gz
+Still going at 820% complete for SRR4838322.fastq.gz
+Still going at 825% complete for SRR4838322.fastq.gz
+Still going at 830% complete for SRR4838322.fastq.gz
+Still going at 835% complete for SRR4838322.fastq.gz
+Still going at 840% complete for SRR4838322.fastq.gz
+Still going at 845% complete for SRR4838322.fastq.gz
+Still going at 850% complete for SRR4838322.fastq.gz
+Still going at 855% complete for SRR4838322.fastq.gz
+Still going at 860% complete for SRR4838322.fastq.gz
+Still going at 865% complete for SRR4838322.fastq.gz
+Still going at 870% complete for SRR4838322.fastq.gz
+Still going at 875% complete for SRR4838322.fastq.gz
+Still going at 880% complete for SRR4838322.fastq.gz
+Still going at 885% complete for SRR4838322.fastq.gz
+Still going at 890% complete for SRR4838322.fastq.gz
+Still going at 895% complete for SRR4838322.fastq.gz
+Still going at 900% complete for SRR4838322.fastq.gz
+Still going at 905% complete for SRR4838322.fastq.gz
+Still going at 910% complete for SRR4838322.fastq.gz
+Still going at 915% complete for SRR4838322.fastq.gz
+Still going at 920% complete for SRR4838322.fastq.gz
+Still going at 925% complete for SRR4838322.fastq.gz
+Still going at 930% complete for SRR4838322.fastq.gz
+Still going at 935% complete for SRR4838322.fastq.gz
+Still going at 940% complete for SRR4838322.fastq.gz
+Still going at 945% complete for SRR4838322.fastq.gz
+Still going at 950% complete for SRR4838322.fastq.gz
+Still going at 955% complete for SRR4838322.fastq.gz
+Still going at 960% complete for SRR4838322.fastq.gz
+Still going at 965% complete for SRR4838322.fastq.gz
+Still going at 970% complete for SRR4838322.fastq.gz
+Still going at 975% complete for SRR4838322.fastq.gz
+Still going at 980% complete for SRR4838322.fastq.gz
+Still going at 985% complete for SRR4838322.fastq.gz
+Still going at 990% complete for SRR4838322.fastq.gz
+Still going at 995% complete for SRR4838322.fastq.gz
+Still going at 1000% complete for SRR4838322.fastq.gz
+Still going at 1005% complete for SRR4838322.fastq.gz
+Still going at 1010% complete for SRR4838322.fastq.gz
+Still going at 1015% complete for SRR4838322.fastq.gz
+Still going at 1020% complete for SRR4838322.fastq.gz
+Still going at 1025% complete for SRR4838322.fastq.gz
+Still going at 1030% complete for SRR4838322.fastq.gz
+Still going at 1035% complete for SRR4838322.fastq.gz
+Still going at 1040% complete for SRR4838322.fastq.gz
+Still going at 1045% complete for SRR4838322.fastq.gz
+Still going at 1050% complete for SRR4838322.fastq.gz
+Still going at 1055% complete for SRR4838322.fastq.gz
+Still going at 1060% complete for SRR4838322.fastq.gz
+Still going at 1065% complete for SRR4838322.fastq.gz
+Still going at 1070% complete for SRR4838322.fastq.gz
+Still going at 1075% complete for SRR4838322.fastq.gz
+Still going at 1080% complete for SRR4838322.fastq.gz
+Still going at 1085% complete for SRR4838322.fastq.gz
+Still going at 1090% complete for SRR4838322.fastq.gz
+Still going at 1095% complete for SRR4838322.fastq.gz
+Still going at 1100% complete for SRR4838322.fastq.gz
+Still going at 1105% complete for SRR4838322.fastq.gz
+Still going at 1110% complete for SRR4838322.fastq.gz
+Still going at 1115% complete for SRR4838322.fastq.gz
+Still going at 1120% complete for SRR4838322.fastq.gz
+Still going at 1125% complete for SRR4838322.fastq.gz
+Still going at 1130% complete for SRR4838322.fastq.gz
+Still going at 1135% complete for SRR4838322.fastq.gz
+Still going at 1140% complete for SRR4838322.fastq.gz
+Still going at 1145% complete for SRR4838322.fastq.gz
+Still going at 1150% complete for SRR4838322.fastq.gz
+Still going at 1155% complete for SRR4838322.fastq.gz
+Still going at 1160% complete for SRR4838322.fastq.gz
+Still going at 1165% complete for SRR4838322.fastq.gz
+Still going at 1170% complete for SRR4838322.fastq.gz
+Still going at 1175% complete for SRR4838322.fastq.gz
+Still going at 1180% complete for SRR4838322.fastq.gz
+Still going at 1185% complete for SRR4838322.fastq.gz
+Still going at 1190% complete for SRR4838322.fastq.gz
+Still going at 1195% complete for SRR4838322.fastq.gz
+Still going at 1200% complete for SRR4838322.fastq.gz
+Still going at 1205% complete for SRR4838322.fastq.gz
+Still going at 1210% complete for SRR4838322.fastq.gz
+Still going at 1215% complete for SRR4838322.fastq.gz
+Still going at 1220% complete for SRR4838322.fastq.gz
+Still going at 1225% complete for SRR4838322.fastq.gz
+Still going at 1230% complete for SRR4838322.fastq.gz
+Still going at 1235% complete for SRR4838322.fastq.gz
+Still going at 1240% complete for SRR4838322.fastq.gz
+Still going at 1245% complete for SRR4838322.fastq.gz
+Still going at 1250% complete for SRR4838322.fastq.gz
+Still going at 1255% complete for SRR4838322.fastq.gz
+Still going at 1260% complete for SRR4838322.fastq.gz
+Still going at 1265% complete for SRR4838322.fastq.gz
+Still going at 1270% complete for SRR4838322.fastq.gz
+Still going at 1275% complete for SRR4838322.fastq.gz
+Still going at 1280% complete for SRR4838322.fastq.gz
+Still going at 1285% complete for SRR4838322.fastq.gz
+Still going at 1290% complete for SRR4838322.fastq.gz
+Still going at 1295% complete for SRR4838322.fastq.gz
+Still going at 1300% complete for SRR4838322.fastq.gz
+Still going at 1305% complete for SRR4838322.fastq.gz
+Still going at 1310% complete for SRR4838322.fastq.gz
+Still going at 1315% complete for SRR4838322.fastq.gz
+Still going at 1320% complete for SRR4838322.fastq.gz
+Still going at 1325% complete for SRR4838322.fastq.gz
+Still going at 1330% complete for SRR4838322.fastq.gz
+Still going at 1335% complete for SRR4838322.fastq.gz
+Analysis complete for SRR4838322.fastq.gz
+
+
+done

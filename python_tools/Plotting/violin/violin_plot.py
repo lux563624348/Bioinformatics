@@ -60,7 +60,7 @@ def violin_plot(aaaa):
 		#ax.set_xticks([y + 1 for y in range(max(df1))])
 		ax.set_ylim(0.8,2.2)
 		ax.set_xlabel('Frequency')
-		ax.set_ylabel('Log10Log10(- pvalues)')
+		ax.set_ylabel('Log10(- pvalues)')
 
 
 	plt.savefig('violin.png')

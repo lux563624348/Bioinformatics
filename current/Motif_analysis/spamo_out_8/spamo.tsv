@@ -1,0 +1,240 @@
+prim_db	prim_id	prim_alt	prim_cons	sec_db	sec_id	sec_alt	sec_cons	trim_left	trim_right	red_db	red_id	red_alt	E-value	gap	orient	count	total	adj_p-value	p-value
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0091.1	TAL1::TCF3	NSAMCATCTGKT	2	0	.	.	.	1.76e-03	130	5	4	6	2.62e-10	2.36e-09
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0091.1	TAL1::TCF3	NSAMCATCTGKT	2	0	.	.	.	1.76e-03	130	8	4	6	4.17e-09	3.75e-08
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0091.1	TAL1::TCF3	NSAMCATCTGKT	2	0	.	.	.	1.76e-03	130	0	3	6	1.23e-08	1.11e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0091.1	TAL1::TCF3	NSAMCATCTGKT	2	0	.	.	.	1.76e-03	130	4	3	6	9.83e-08	8.85e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0031.1	FOXD1	GTAAACAW	0	1	.	.	.	3.98e-03	92	1	3	3	5.81e-10	5.23e-09
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0031.1	FOXD1	GTAAACAW	0	1	.	.	.	3.98e-03	92	4	3	3	4.65e-09	4.19e-08
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0031.1	FOXD1	GTAAACAW	0	1	.	.	.	3.98e-03	92	6	3	3	4.65e-09	4.19e-08
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0031.1	FOXD1	GTAAACAW	0	1	.	.	.	3.98e-03	92	8	3	3	3.72e-08	3.35e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0117.2	Mafb	AWWNTGCTGACD	0	1	.	.	.	1.01e-02	21	3	4	15	1.52e-09	1.37e-08
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0117.2	Mafb	AWWNTGCTGACD	0	1	.	.	.	1.01e-02	21	5	4	15	2.39e-08	2.15e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0117.2	Mafb	AWWNTGCTGACD	0	1	.	.	.	1.01e-02	21	7	4	15	2.39e-08	2.15e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0117.2	Mafb	AWWNTGCTGACD	0	1	.	.	.	1.01e-02	21	8	4	15	3.71e-07	3.34e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0466.2	CEBPB	RTTRCGCAAY	0	0	.	.	.	1.66e-02	135	0	3	4	2.47e-09	2.23e-08
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0466.2	CEBPB	RTTRCGCAAY	0	0	.	.	.	1.66e-02	135	4	3	4	1.98e-08	1.78e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0466.2	CEBPB	RTTRCGCAAY	0	0	.	.	.	1.66e-02	135	5	3	4	1.98e-08	1.78e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0466.2	CEBPB	RTTRCGCAAY	0	0	.	.	.	1.66e-02	135	8	3	4	1.58e-07	1.42e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0837.1	CEBPE	VTTRCGCAAY	0	0	.	.	.	1.66e-02	135	0	3	4	2.47e-09	2.23e-08
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0837.1	CEBPE	VTTRCGCAAY	0	0	.	.	.	1.66e-02	135	4	3	4	1.98e-08	1.78e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0837.1	CEBPE	VTTRCGCAAY	0	0	.	.	.	1.66e-02	135	5	3	4	1.98e-08	1.78e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0837.1	CEBPE	VTTRCGCAAY	0	0	.	.	.	1.66e-02	135	8	3	4	1.58e-07	1.42e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0078.1	Sox17	NHYATTGTS	2	0	.	.	.	4.04e-02	48	3	4	21	5.90e-09	5.31e-08
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0078.1	Sox17	NHYATTGTS	2	0	.	.	.	4.04e-02	48	5	4	21	9.22e-08	8.30e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0078.1	Sox17	NHYATTGTS	2	0	.	.	.	4.04e-02	48	7	4	21	9.22e-08	8.30e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0078.1	Sox17	NHYATTGTS	2	0	.	.	.	4.04e-02	48	8	4	21	1.41e-06	1.27e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0040.1	Foxq1	HATTGTTTATW	1	0	.	.	.	4.14e-02	91	0	3	5	6.18e-09	5.56e-08
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0040.1	Foxq1	HATTGTTTATW	1	0	.	.	.	4.14e-02	91	4	3	5	4.93e-08	4.44e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0040.1	Foxq1	HATTGTTTATW	1	0	.	.	.	4.14e-02	91	5	3	5	4.93e-08	4.44e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0040.1	Foxq1	HATTGTTTATW	1	0	.	.	.	4.14e-02	91	8	3	5	3.92e-07	3.53e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0669.1	NEUROG2	RACATATGTC	0	0	.	.	.	4.14e-02	130	1	3	5	6.18e-09	5.56e-08
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0669.1	NEUROG2	RACATATGTC	0	0	.	.	.	4.14e-02	130	4	3	5	4.93e-08	4.44e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0669.1	NEUROG2	RACATATGTC	0	0	.	.	.	4.14e-02	130	6	3	5	4.93e-08	4.44e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0669.1	NEUROG2	RACATATGTC	0	0	.	.	.	4.14e-02	130	8	3	5	3.92e-07	3.53e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0826.1	OLIG1	AMCATATGKT	0	0	.	.	.	4.14e-02	130	1	3	5	6.18e-09	5.56e-08
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0826.1	OLIG1	AMCATATGKT	0	0	.	.	.	4.14e-02	130	4	3	5	4.93e-08	4.44e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0826.1	OLIG1	AMCATATGKT	0	0	.	.	.	4.14e-02	130	6	3	5	4.93e-08	4.44e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0826.1	OLIG1	AMCATATGKT	0	0	.	.	.	4.14e-02	130	8	3	5	3.92e-07	3.53e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0506.1	NRF1	GCGCVTGCGCR	0	0	.	.	.	8.39e-02	13	2	3	6	1.26e-08	1.13e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0506.1	NRF1	GCGCVTGCGCR	0	0	.	.	.	8.39e-02	13	6	3	6	1.00e-07	9.04e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0506.1	NRF1	GCGCVTGCGCR	0	0	.	.	.	8.39e-02	13	7	3	6	1.00e-07	9.04e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0506.1	NRF1	GCGCVTGCGCR	0	0	.	.	.	8.39e-02	13	8	3	6	7.97e-07	7.17e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0682.1	Pitx1	YTAATCCH	1	1	.	.	.	9.50e-02	125	8	5	18	1.38e-08	1.24e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0682.1	Pitx1	YTAATCCH	1	1	.	.	.	9.50e-02	125	0	3	18	4.56e-07	4.10e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0682.1	Pitx1	YTAATCCH	1	1	.	.	.	9.50e-02	125	4	3	18	3.58e-06	3.22e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0682.1	Pitx1	YTAATCCH	1	1	.	.	.	9.50e-02	125	5	3	18	3.58e-06	3.22e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0895.1	HMBOX1	MYTAGTTAMS	1	1	.	.	.	1.41e-01	108	0	3	7	2.07e-08	1.86e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0895.1	HMBOX1	MYTAGTTAMS	1	1	.	.	.	1.41e-01	108	4	3	7	1.65e-07	1.48e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0895.1	HMBOX1	MYTAGTTAMS	1	1	.	.	.	1.41e-01	108	5	3	7	1.65e-07	1.48e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0895.1	HMBOX1	MYTAGTTAMS	1	1	.	.	.	1.41e-01	108	8	3	7	1.30e-06	1.17e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0852.2	FOXK1	NRDGTAAACAAGNN	3	2	.	.	.	1.43e-01	92	1	3	7	2.11e-08	1.90e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0852.2	FOXK1	NRDGTAAACAAGNN	3	2	.	.	.	1.43e-01	92	4	3	7	1.68e-07	1.51e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0852.2	FOXK1	NRDGTAAACAAGNN	3	2	.	.	.	1.43e-01	92	6	3	7	1.68e-07	1.51e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0852.2	FOXK1	NRDGTAAACAAGNN	3	2	.	.	.	1.43e-01	92	8	3	7	1.33e-06	1.20e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0131.2	HINFP	CARCGTCCGCKN	0	2	.	.	.	1.45e-01	13	2	3	7	2.16e-08	1.94e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0131.2	HINFP	CARCGTCCGCKN	0	2	.	.	.	1.45e-01	13	6	3	7	1.72e-07	1.54e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0131.2	HINFP	CARCGTCCGCKN	0	2	.	.	.	1.45e-01	13	7	3	7	1.72e-07	1.54e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0131.2	HINFP	CARCGTCCGCKN	0	2	.	.	.	1.45e-01	13	8	3	7	1.36e-06	1.22e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0520.1	Stat6	BDBTTCCWSAGAAVY	3	2	.	.	.	1.45e-01	6	2	3	7	2.16e-08	1.94e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0520.1	Stat6	BDBTTCCWSAGAAVY	3	2	.	.	.	1.45e-01	6	6	3	7	1.72e-07	1.54e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0520.1	Stat6	BDBTTCCWSAGAAVY	3	2	.	.	.	1.45e-01	6	7	3	7	1.72e-07	1.54e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0520.1	Stat6	BDBTTCCWSAGAAVY	3	2	.	.	.	1.45e-01	6	8	3	7	1.36e-06	1.22e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0842.1	NRL	DWWNTGCTGAC	4	0	.	.	.	1.53e-01	117	6	5	37	2.23e-08	2.01e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0842.1	NRL	DWWNTGCTGAC	4	0	.	.	.	1.53e-01	117	1	4	37	6.37e-08	5.73e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0842.1	NRL	DWWNTGCTGAC	4	0	.	.	.	1.53e-01	117	8	5	37	6.50e-07	5.85e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0842.1	NRL	DWWNTGCTGAC	4	0	.	.	.	1.53e-01	117	4	4	37	9.73e-07	8.76e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0842.1	NRL	DWWNTGCTGAC	4	0	.	.	.	1.53e-01	53	1	3	37	4.32e-06	3.89e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	meme.xml	CMAGATATCTGSGYACCTKCCCTGYAAGAR	MEME-3	CMAGATATCTGSGYACCTKCCCTGYAAGAR	0	0	.	.	.	1.96e-01	3	3	3	7	3.41e-08	3.07e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	meme.xml	CMAGATATCTGSGYACCTKCCCTGYAAGAR	MEME-3	CMAGATATCTGSGYACCTKCCCTGYAAGAR	0	0	.	.	.	1.96e-01	3	5	3	7	2.71e-07	2.44e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	meme.xml	CMAGATATCTGSGYACCTKCCCTGYAAGAR	MEME-3	CMAGATATCTGSGYACCTKCCCTGYAAGAR	0	0	.	.	.	1.96e-01	3	7	3	7	2.71e-07	2.44e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	meme.xml	CMAGATATCTGSGYACCTKCCCTGYAAGAR	MEME-3	CMAGATATCTGSGYACCTKCCCTGYAAGAR	0	0	.	.	.	1.96e-01	3	8	3	7	2.14e-06	1.93e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0668.1	NEUROD2	RMCATATGBY	0	0	.	.	.	2.31e-01	130	0	3	8	3.45e-08	3.10e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0668.1	NEUROD2	RMCATATGBY	0	0	.	.	.	2.31e-01	130	4	3	8	2.74e-07	2.46e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0668.1	NEUROD2	RMCATATGBY	0	0	.	.	.	2.31e-01	130	5	3	8	2.74e-07	2.46e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0668.1	NEUROD2	RMCATATGBY	0	0	.	.	.	2.31e-01	130	8	3	8	2.16e-06	1.95e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0678.1	OLIG2	AMCATATGKT	0	0	.	.	.	2.31e-01	130	0	3	8	3.45e-08	3.10e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0678.1	OLIG2	AMCATATGKT	0	0	.	.	.	2.31e-01	130	4	3	8	2.74e-07	2.46e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0678.1	OLIG2	AMCATATGKT	0	0	.	.	.	2.31e-01	130	5	3	8	2.74e-07	2.46e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0678.1	OLIG2	AMCATATGKT	0	0	.	.	.	2.31e-01	130	8	3	8	2.16e-06	1.95e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0884.1	DUXA	NTRAYYTAATCAD	1	1	.	.	.	2.34e-01	66	1	3	8	3.52e-08	3.17e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0884.1	DUXA	NTRAYYTAATCAD	1	1	.	.	.	2.34e-01	66	4	3	8	2.80e-07	2.52e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0884.1	DUXA	NTRAYYTAATCAD	1	1	.	.	.	2.34e-01	66	6	3	8	2.80e-07	2.52e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0884.1	DUXA	NTRAYYTAATCAD	1	1	.	.	.	2.34e-01	66	8	3	8	2.21e-06	1.99e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0481.2	FOXP1	NDGTAAACAGNN	2	3	.	.	.	3.32e-01	92	1	3	9	4.85e-08	4.36e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0481.2	FOXP1	NDGTAAACAGNN	2	3	.	.	.	3.32e-01	92	4	3	9	3.85e-07	3.46e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0481.2	FOXP1	NDGTAAACAGNN	2	3	.	.	.	3.32e-01	92	6	3	9	3.85e-07	3.46e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0481.2	FOXP1	NDGTAAACAGNN	2	3	.	.	.	3.32e-01	92	8	3	9	3.03e-06	2.73e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0461.2	Atoh1	RMCATATGBY	0	0	.	.	.	3.46e-01	130	1	3	9	5.16e-08	4.64e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0461.2	Atoh1	RMCATATGBY	0	0	.	.	.	3.46e-01	130	4	3	9	4.10e-07	3.69e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0461.2	Atoh1	RMCATATGBY	0	0	.	.	.	3.46e-01	130	6	3	9	4.10e-07	3.69e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0461.2	Atoh1	RMCATATGBY	0	0	.	.	.	3.46e-01	130	8	3	9	3.22e-06	2.90e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0827.1	OLIG3	AMCATATGBY	0	0	.	.	.	3.82e-01	130	8	4	10	5.71e-08	5.13e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0827.1	OLIG3	AMCATATGBY	0	0	.	.	.	3.82e-01	130	1	3	10	7.36e-08	6.63e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0827.1	OLIG3	AMCATATGBY	0	0	.	.	.	3.82e-01	130	4	3	10	5.84e-07	5.25e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0827.1	OLIG3	AMCATATGBY	0	0	.	.	.	3.82e-01	130	6	3	10	5.84e-07	5.25e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1103.1	FOXK2	WDGTAAACANV	2	2	.	.	.	4.73e-01	92	1	3	10	6.91e-08	6.22e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1103.1	FOXK2	WDGTAAACANV	2	2	.	.	.	4.73e-01	92	4	3	10	5.48e-07	4.93e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1103.1	FOXK2	WDGTAAACANV	2	2	.	.	.	4.73e-01	92	6	3	10	5.48e-07	4.93e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1103.1	FOXK2	WDGTAAACANV	2	2	.	.	.	4.73e-01	92	8	3	10	4.31e-06	3.87e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0748.1	YY2	RWCCGCCATTW	2	0	.	.	.	4.87e-01	133	0	3	10	7.21e-08	6.49e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0748.1	YY2	RWCCGCCATTW	2	0	.	.	.	4.87e-01	133	4	3	10	5.71e-07	5.14e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0748.1	YY2	RWCCGCCATTW	2	0	.	.	.	4.87e-01	133	5	3	10	5.71e-07	5.14e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0771.1	HSF4	TTCTAGAABNTTC	0	0	.	.	.	5.15e-01	83	0	3	10	7.85e-08	7.07e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0771.1	HSF4	TTCTAGAABNTTC	0	0	.	.	.	5.15e-01	83	4	3	10	6.22e-07	5.60e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0771.1	HSF4	TTCTAGAABNTTC	0	0	.	.	.	5.15e-01	83	5	3	10	6.22e-07	5.60e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0711.1	OTX1	HTAATCCS	1	1	.	.	.	6.41e-01	125	0	3	11	9.30e-08	8.37e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0711.1	OTX1	HTAATCCS	1	1	.	.	.	6.41e-01	125	4	3	11	7.36e-07	6.63e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0711.1	OTX1	HTAATCCS	1	1	.	.	.	6.41e-01	125	5	3	11	7.36e-07	6.63e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0712.1	OTX2	YTAATCCB	1	1	.	.	.	6.41e-01	125	0	3	11	9.30e-08	8.37e-07
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0712.1	OTX2	YTAATCCB	1	1	.	.	.	6.41e-01	125	4	3	11	7.36e-07	6.63e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0712.1	OTX2	YTAATCCB	1	1	.	.	.	6.41e-01	125	5	3	11	7.36e-07	6.63e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0635.1	BARHL2	VHTAAAYGRT	2	2	.	.	.	8.53e-01	93	1	3	12	1.24e-07	1.11e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0635.1	BARHL2	VHTAAAYGRT	2	2	.	.	.	8.53e-01	93	4	3	12	9.79e-07	8.81e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0635.1	BARHL2	VHTAAAYGRT	2	2	.	.	.	8.53e-01	93	6	3	12	9.79e-07	8.81e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0648.1	GSC	VYTAATCCSY	2	2	.	.	.	8.53e-01	125	0	3	12	1.24e-07	1.11e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0648.1	GSC	VYTAATCCSY	2	2	.	.	.	8.53e-01	125	4	3	12	9.79e-07	8.81e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0648.1	GSC	VYTAATCCSY	2	2	.	.	.	8.53e-01	125	5	3	12	9.79e-07	8.81e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0891.1	GSC2	NYTAATCCBH	2	2	.	.	.	1.11e+00	125	0	3	13	1.61e-07	1.45e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0891.1	GSC2	NYTAATCCBH	2	2	.	.	.	1.11e+00	125	4	3	13	1.27e-06	1.14e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0891.1	GSC2	NYTAATCCBH	2	2	.	.	.	1.11e+00	125	5	3	13	1.27e-06	1.14e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0037.3	GATA3	WGATAASR	0	1	.	.	.	1.12e+00	125	1	3	13	1.64e-07	1.48e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0037.3	GATA3	WGATAASR	0	1	.	.	.	1.12e+00	125	4	3	13	1.30e-06	1.17e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0037.3	GATA3	WGATAASR	0	1	.	.	.	1.12e+00	125	6	3	13	1.30e-06	1.17e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0084.1	SRY	NWWAACAAT	2	0	.	.	.	1.12e+00	83	1	3	13	1.64e-07	1.48e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0084.1	SRY	NWWAACAAT	2	0	.	.	.	1.12e+00	83	4	3	13	1.30e-06	1.17e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0084.1	SRY	NWWAACAAT	2	0	.	.	.	1.12e+00	83	6	3	13	1.30e-06	1.17e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0847.1	FOXD2	GTAAACA	0	0	.	.	.	1.12e+00	92	1	3	13	1.64e-07	1.48e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0847.1	FOXD2	GTAAACA	0	0	.	.	.	1.12e+00	92	4	3	13	1.30e-06	1.17e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0847.1	FOXD2	GTAAACA	0	0	.	.	.	1.12e+00	92	6	3	13	1.30e-06	1.17e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1112.1	NR4A1	NAAAGGTCAN	1	1	.	.	.	1.14e+00	141	1	3	13	1.68e-07	1.51e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1112.1	NR4A1	NAAAGGTCAN	1	1	.	.	.	1.14e+00	141	4	3	13	1.32e-06	1.19e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1112.1	NR4A1	NAAAGGTCAN	1	1	.	.	.	1.14e+00	141	6	3	13	1.32e-06	1.19e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0714.1	PITX3	NYTAATCCC	2	1	.	.	.	1.41e+00	125	0	3	14	2.04e-07	1.84e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0714.1	PITX3	NYTAATCCC	2	1	.	.	.	1.41e+00	125	4	3	14	1.61e-06	1.45e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0714.1	PITX3	NYTAATCCC	2	1	.	.	.	1.41e+00	125	5	3	14	1.61e-06	1.45e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1109.1	NEUROD1	NRACAGATGGYNN	2	3	.	.	.	1.81e+00	131	1	3	15	2.66e-07	2.39e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1109.1	NEUROD1	NRACAGATGGYNN	2	3	.	.	.	1.81e+00	131	4	3	15	2.09e-06	1.88e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1109.1	NEUROD1	NRACAGATGGYNN	2	3	.	.	.	1.81e+00	131	6	3	15	2.09e-06	1.88e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0676.1	Nr2e1	AAAAGTCAA	0	0	.	.	.	1.83e+00	97	1	3	15	2.72e-07	2.44e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0676.1	Nr2e1	AAAAGTCAA	0	0	.	.	.	1.83e+00	97	4	3	15	2.14e-06	1.92e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0676.1	Nr2e1	AAAAGTCAA	0	0	.	.	.	1.83e+00	97	6	3	15	2.14e-06	1.92e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0483.1	Gfi1b	AAATCWCWGCH	0	1	.	.	.	1.86e+00	121	0	3	15	2.77e-07	2.50e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0483.1	Gfi1b	AAATCWCWGCH	0	1	.	.	.	1.86e+00	121	4	3	15	2.18e-06	1.97e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0483.1	Gfi1b	AAATCWCWGCH	0	1	.	.	.	1.86e+00	121	5	3	15	2.18e-06	1.97e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1114.1	PBX3	NNNTGAGTGACAGGBNN	3	3	.	.	.	1.88e+00	38	0	3	15	2.83e-07	2.55e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1114.1	PBX3	NNNTGAGTGACAGGBNN	3	3	.	.	.	1.88e+00	38	4	3	15	2.23e-06	2.01e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1114.1	PBX3	NNNTGAGTGACAGGBNN	3	3	.	.	.	1.88e+00	38	5	3	15	2.23e-06	2.01e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1148.1	PPARA::RXRA	AWNTRGGTYAAAGGTCAN	0	1	.	.	.	2.05e+00	132	1	3	15	3.23e-07	2.91e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1148.1	PPARA::RXRA	AWNTRGGTYAAAGGTCAN	0	1	.	.	.	2.05e+00	132	4	3	15	2.54e-06	2.29e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1148.1	PPARA::RXRA	AWNTRGGTYAAAGGTCAN	0	1	.	.	.	2.05e+00	132	6	3	15	2.54e-06	2.29e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0618.1	LBX1	TTAATTAG	1	0	.	.	.	2.19e+00	109	1	3	16	3.20e-07	2.88e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0618.1	LBX1	TTAATTAG	1	0	.	.	.	2.19e+00	109	4	3	16	2.52e-06	2.27e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0618.1	LBX1	TTAATTAG	1	0	.	.	.	2.19e+00	109	6	3	16	2.52e-06	2.27e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0636.1	BHLHE41	RTCACGTGAC	0	0	.	.	.	2.34e+00	39	1	2	2	3.49e-07	3.14e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0636.1	BHLHE41	RTCACGTGAC	0	0	.	.	.	2.34e+00	39	4	2	2	1.40e-06	1.26e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0636.1	BHLHE41	RTCACGTGAC	0	0	.	.	.	2.34e+00	39	6	2	2	1.40e-06	1.26e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0797.1	TGIF2	TGACAGSTGTCA	0	0	.	.	.	2.37e+00	30	1	2	2	3.59e-07	3.23e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0797.1	TGIF2	TGACAGSTGTCA	0	0	.	.	.	2.37e+00	30	4	2	2	1.44e-06	1.29e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0797.1	TGIF2	TGACAGSTGTCA	0	0	.	.	.	2.37e+00	30	6	2	2	1.44e-06	1.29e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0009.2	T	TCACACMTAKGTGTGA	0	0	.	.	.	2.44e+00	88	3	2	2	3.81e-07	3.43e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0009.2	T	TCACACMTAKGTGTGA	0	0	.	.	.	2.44e+00	88	5	2	2	1.52e-06	1.37e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0009.2	T	TCACACMTAKGTGTGA	0	0	.	.	.	2.44e+00	88	7	2	2	1.52e-06	1.37e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0804.1	TBX19	DTTMRCACMTAGGTGTGAAW	1	1	.	.	.	2.48e+00	87	3	2	2	3.93e-07	3.53e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0804.1	TBX19	DTTMRCACMTAGGTGTGAAW	1	1	.	.	.	2.48e+00	87	5	2	2	1.57e-06	1.41e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0804.1	TBX19	DTTMRCACMTAGGTGTGAAW	1	1	.	.	.	2.48e+00	87	7	2	2	1.57e-06	1.41e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0607.1	Bhlha15	SCATATGT	0	0	.	.	.	2.66e+00	131	4	3	9	3.93e-07	3.53e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0607.1	Bhlha15	SCATATGT	0	0	.	.	.	2.66e+00	131	8	3	9	3.09e-06	2.78e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0519.1	Stat5a::Stat5b	DTTTCCMAGAA	2	0	.	.	.	3.27e+00	7	3	3	18	4.85e-07	4.37e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0519.1	Stat5a::Stat5b	DTTTCCMAGAA	2	0	.	.	.	3.27e+00	46	4	3	18	3.80e-06	3.42e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0519.1	Stat5a::Stat5b	DTTTCCMAGAA	2	0	.	.	.	3.27e+00	7	5	3	18	3.80e-06	3.42e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0519.1	Stat5a::Stat5b	DTTTCCMAGAA	2	0	.	.	.	3.27e+00	7	7	3	18	3.80e-06	3.42e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0513.1	SMAD2::SMAD3::SMAD4	CTGTCTGDCACCT	1	0	.	.	.	4.04e+00	53	0	3	19	6.13e-07	5.52e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0513.1	SMAD2::SMAD3::SMAD4	CTGTCTGDCACCT	1	0	.	.	.	4.04e+00	40	1	3	19	6.13e-07	5.52e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1111.1	NR2F2	NAAAGGTCANR	2	2	.	.	.	4.42e+00	142	1	3	20	6.48e-07	5.83e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0623.1	Neurog1	DCCATATGKB	1	1	.	.	.	4.48e+00	131	1	3	20	6.62e-07	5.96e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0830.1	TCF4	HRCACCTGBN	1	1	.	.	.	4.48e+00	131	0	3	20	6.62e-07	5.96e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0702.1	LMX1A	YTAATTAA	1	0	.	.	.	5.15e+00	141	2	3	21	7.55e-07	6.80e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0092.1	Hand1::Tcf3	BRTCTGGMWT	1	0	.	.	.	5.51e+00	56	4	4	35	8.20e-07	7.38e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0092.1	Hand1::Tcf3	BRTCTGGMWT	1	0	.	.	.	5.51e+00	128	0	3	35	3.80e-06	3.42e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0087.1	Sox5	ATTGTTD	0	1	.	.	.	5.87e+00	84	0	3	22	8.56e-07	7.70e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0707.1	MNX1	DNYAATTAAA	2	1	.	.	.	6.83e+00	141	2	3	23	1.00e-06	9.03e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	dreme.xml	ACACAGRA	DREME-3	ACACAGGA	0	0	.	.	.	6.88e+00	28	1	2	3	1.02e-06	9.16e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	dreme.xml	ACACAGRA	DREME-3	ACACAGGA	0	0	.	.	.	6.88e+00	28	4	2	3	4.07e-06	3.66e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	dreme.xml	ACACAGRA	DREME-3	ACACAGGA	0	0	.	.	.	6.88e+00	28	6	2	3	4.07e-06	3.66e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	dreme.xml	GCCCCGGS	DREME-2	GCCCCGGS	0	0	.	.	.	6.88e+00	5	3	2	3	1.02e-06	9.16e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	dreme.xml	GCCCCGGS	DREME-2	GCCCCGGS	0	0	.	.	.	6.88e+00	5	5	2	3	4.07e-06	3.66e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	dreme.xml	GCCCCGGS	DREME-2	GCCCCGGS	0	0	.	.	.	6.88e+00	5	7	2	3	4.07e-06	3.66e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0651.1	HOXC11	RGTCGTAAAAN	1	1	.	.	.	6.93e+00	113	2	2	3	1.03e-06	9.29e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0651.1	HOXC11	RGTCGTAAAAN	1	1	.	.	.	6.93e+00	113	6	2	3	4.12e-06	3.71e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0651.1	HOXC11	RGTCGTAAAAN	1	1	.	.	.	6.93e+00	113	7	2	3	4.12e-06	3.71e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0905.1	HOXC10	GTCRTAAAAH	0	1	.	.	.	6.93e+00	113	2	2	3	1.03e-06	9.29e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0905.1	HOXC10	GTCRTAAAAH	0	1	.	.	.	6.93e+00	113	6	2	3	4.12e-06	3.71e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0905.1	HOXC10	GTCRTAAAAH	0	1	.	.	.	6.93e+00	113	7	2	3	4.12e-06	3.71e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0908.1	HOXD11	RTCGTAAAAH	0	1	.	.	.	6.93e+00	113	2	2	3	1.03e-06	9.29e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0908.1	HOXD11	RTCGTAAAAH	0	1	.	.	.	6.93e+00	113	6	2	3	4.12e-06	3.71e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0908.1	HOXD11	RTCGTAAAAH	0	1	.	.	.	6.93e+00	113	7	2	3	4.12e-06	3.71e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0911.1	Hoxa11	RGTCGTAAAANT	1	2	.	.	.	6.93e+00	113	2	2	3	1.03e-06	9.29e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0911.1	Hoxa11	RGTCGTAAAANT	1	2	.	.	.	6.93e+00	113	6	2	3	4.12e-06	3.71e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0911.1	Hoxa11	RGTCGTAAAANT	1	2	.	.	.	6.93e+00	113	7	2	3	4.12e-06	3.71e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0472.2	EGR2	MCGCCCACGCA	0	0	.	.	.	7.02e+00	90	2	2	3	1.06e-06	9.55e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0472.2	EGR2	MCGCCCACGCA	0	0	.	.	.	7.02e+00	90	6	2	3	4.24e-06	3.82e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0472.2	EGR2	MCGCCCACGCA	0	0	.	.	.	7.02e+00	90	7	2	3	4.24e-06	3.82e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1421.1	TCF7L1	AAAGATCAAAGG	0	0	.	.	.	7.07e+00	132	3	2	3	1.08e-06	9.69e-06
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1421.1	TCF7L1	AAAGATCAAAGG	0	0	.	.	.	7.07e+00	132	5	2	3	4.30e-06	3.87e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA1421.1	TCF7L1	AAAGATCAAAGG	0	0	.	.	.	7.07e+00	132	7	2	3	4.30e-06	3.87e-05
+dreme.xml	CWGGCAA	DREME-5	CWGGCAA	JASPAR2018_CORE_vertebrates_non-redundant	MA0606.1	NFAT5	NTTTTCCAYN	1	1	.	.	.	7.89e+00	78	1	3	24	1.17e-06	1.05e-05
+##
+# Detailed descriptions of columns in this file:
+#
+# prim_db:	The name of the database (file name) that contains the primary motif.
+# prim_id:	A name for the primary motif that is unique in the motif database file.
+# prim_alt:	An alternate name of the primary motif that may be provided
+#		in the motif database file.
+# prim_cons:	A consensus sequence computed from the primary motif (see doc/motif-consensus.html).
+# sec_db:	The name of the database (file name) that contains the secondary motif.
+# sec_id:	A name for the motif that is unique in the motif database file.
+# sec_alt:	An alternate name of the secondary motif that may be provided
+#		in the motif database file.
+# sec_cons:	A consensus sequence computed from the secondary motif (see doc/motif-consensus.html).
+# trim_left:	Number of positions trimmed from left of secondary motif
+# trim_right:	Number of positions trimmed from right of secondary motif
+# If the next three fields are not blank, the motif is redundant with a more significant ('parent') motif.
+# red_db:	The database (file name) that contains the parent motif.
+# red_id:	A name for the parent motif that is unique in the motif database file.
+# red_alt:	An alternate name of the parent motif that may be provided
+#		in the motif database file.
+# E-value:	The expected number motifs that would have least one
+#		spacing as enriched as the best spacing for this secondary.
+#		The E-value is the best spacing p-value multiplied by the number of motifs in the
+#		input database(s).
+# gap:		The distance between the edge of the primary and the (trimmed) secondary motif.
+# orient:	The (combination) of quadrants for which occurrences
+#		of this spacing are combined.
+# count:	The number of occurrences of the secondary motif with the
+#		given spacing and orientation to the primary motif.
+# total:	The total number of occurrences of the secondary motif within the
+#		margins around the best primary motif occurrence.
+# adj_p-value:	The p-value of the gap and orientation, adjusted for
+#		nine combinations of quadrants times the number of gaps tested
+#		(as controlled by the -range switch).
+# p-value:	The p-value of the gap and orientation adjusted only for the number of gaps tested.

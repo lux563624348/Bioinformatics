@@ -36,7 +36,7 @@ PRE_READS_DIR(){
 	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
 	CHECK_arguments $# 2
 	echo "Entering one Library of RAW_DATA_DIR: $__RAW_DATA_PATH_DIR/$1"
-	echo "Searching file type of $2"
+	echo "Searching file type as: $2"
 	local Current_DATA_DIR="${__RAW_DATA_PATH_DIR}/$1"
 	cd ${Current_DATA_DIR}
 	
@@ -45,8 +45,8 @@ PRE_READS_DIR(){
 	#local DIRLIST_R1="$( find -name "*R1.fastq" | sort -n | xargs)"
 	#local DIRLIST_R2="$( find -name "*R2.fastq" | sort -n | xargs)" #
 	
-	local DIRLIST_R1_gz="$( find -name "*R1*.$2" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*R2*.$2" | sort -n | xargs)"
+	local DIRLIST_R1_gz="$( find -name "*R1.$2" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*R2.$2" | sort -n | xargs)"
 
 
 #### R1 Saving		
@@ -77,6 +77,21 @@ RUN_SRA2FASTQ(){
 	echo "SRA to FASTQ"
 	echo "fastq-dump -I --split-files --gzip $1"
 	fastq-dump -I --split-files --gzip $1 
+	}
+
+RUN_COPY_AND_CHANGE_NAME(){
+	### RUN_COPY_AND_CHANGE_NAME $1 $2 $3 ($1 is INPUT_NAME $2> OUTPUT_NAME $3 "fastq.gz")
+	CHECK_arguments $# 3
+	local INPUT_DATA_PATH="${__RAW_DATA_PATH_DIR}/${1}"
+	local OUTPUT_DATA_PATH="${__EXE_PATH}/${2}"
+	
+	mkdir -p ${OUTPUT_DATA_PATH}
+	
+	cp ${INPUT_DATA_PATH}.${3} ${OUTPUT_DATA_PATH}/${2}.${3}
+	echo "Finished Copying File: ${2}"
+	
+	
+	
 	}
 
 RUN_FAST_QC (){
@@ -417,18 +432,28 @@ RUN_Counting_READS_Pair_End(){
 	fi
 	}
 
-#RUN_Sam2
+#RUN_Sam2Wig
 
-RUN_bed2wig(){
-	#### Usage: RUN_bed2wig <Output_DIR> <Output_name>
-local SICER="/home/zzeng/Software/SICER1.1/SICER"
+RUN_Sam2Wig(){
+	#### Usage: RUN_Sam2Wig $1 $2 ($1 = Input_Name, $2 = FRAGMENT_SIZE)
+CHECK_arguments $# 2
+local INPUT_PATH=${__RAW_DATA_PATH_DIR}/${1}/bowtie2_results/${1}
+local OUT_PATH=${__EXE_PATH}/${1}
+local FRAGMENT_SIZE=${2}
+########################################################################
+
+local SICER="/home/lxiang/Software/SICER1.1/SICER"
 local EXEDIR="${SICER}/extra/tools/wiggle"
 local WINDOW_SIZE=200
-local FRAGMENT_SIZE=100
-local OUTPUTDIR=$1
-local OUTPUT=$2
+local SPECIES=mm10
 
-sh $EXEDIR/bed2wig.sh $OUTPUTDIR $OUTPUT $WINDOW_SIZE $FRAGMENT_SIZE $SPECIES
+
+#samtools view ${INPUT_PATH}.sam -Sb | bamToBed -i stdin > ${INPUT_PATH}.bed
+
+bamToBed -i ${INPUT_PATH}.bam > ${INPUT_PATH}.bed
+
+sh $EXEDIR/bed2wig.sh ${__RAW_DATA_PATH_DIR}/${1}/bowtie2_results ${1} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
+	
 	}
 
 RUN_Wig2BigWig (){
@@ -436,18 +461,19 @@ RUN_Wig2BigWig (){
 #### convert .wig to .bigwig and create the track hubs profiles.
 #### Usage: RUN_Wig2BigWig $1 $2 $3
 	CHECK_arguments $# 3
-	local Data_provider=34bc
-	trackDb_NAME="mm10"
+	local Data_provider=Online
+	trackDb_NAME="hg19"
 	
 	local Wig_DIR=${1}
-	local Tracks_NAME=${2}
+	local Tracks_NAME=${2}-W10-RPKM
 	local Data_label=${3}
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
 	
 	####INPUT
 	local UCSC_DIR=/home/lxiang/Software/UCSC
-	local chrom_sizes_mm10=${UCSC_DIR}/genome_sizes/mm10.chrom.sizes
-	local chrom_sizes_mm9=${UCSC_DIR}/genome_sizes/mm9.chrom.sizes
+	#local chrom_sizes_mm10=${UCSC_DIR}/genome_sizes/mm10.chrom.sizes
+	#local chrom_sizes_mm9=${UCSC_DIR}/genome_sizes/mm9.chrom.sizes
+	local chrom_sizes_hg19=${UCSC_DIR}/genome_sizes/hg19.chrom.sizes
 
 	
 
@@ -457,8 +483,8 @@ RUN_Wig2BigWig (){
 	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigWigs
 
 
-	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes_mm10} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
-	$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes_mm10} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes_hg19} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
+	$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes_hg19} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
 
 ###	Creating hub.txt
 	cd $OUTPUTDIR_tracks_hub
@@ -592,18 +618,18 @@ RUN_BOWTIE2(){
 	echo "RUN_BOWTIE2"
 	CHECK_arguments $# 1
 	BOWTIEINDEXS_mm9="/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
-	BOWTIEINDEXS_mm10="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome"
+	#BOWTIEINDEXS_mm10="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome"
 
 	#BOWTIEINDEXS_mm9_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/mm9_pMXs_combo/mm9_pMXs_combo"
 	#BOWTIEINDEXS_mm9_combo_MMLV_pMXs="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/mm9_comdo_MMLV_pMXs/mm9_comdo_MMLV_pMXs"
 	#BOWTIEINDEXS_MMLV_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_pMXs_combo/MMLV_pMXs_combo"
 	#BOWTIEINDEXS_MMLV="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_index/MMLV"
-	BOWTIEINDEXS_mm10_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MM10_pMXs_combo/mm10_pMXs_combo"
+	#BOWTIEINDEXS_mm10_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MM10_pMXs_combo/mm10_pMXs_combo"
 
 
 	local INPUT_NAME=$1
-	local BOWTIEINDEXS_name="BOWTIEINDEXS_mm10_pMXs_combo"
-	local BOWTIEINDEXS="${BOWTIEINDEXS_mm10_pMXs_combo}"
+	local BOWTIEINDEXS_name="BOWTIEINDEXS_mm9"
+	local BOWTIEINDEXS="${BOWTIEINDEXS_mm9}"
 	echo "Bowtie2 ref= $BOWTIEINDEXS_name"
 
 	local SPECIES="mm9"
@@ -743,7 +769,8 @@ local EXEDIR="/home/lxiang/Software/python_tools/MACS2-2.1.1.20160309/bin"
 
 local INPUT_NAME=${1}
 local INPUI_CON=${2}
-local INPUT_LABEL=${INPUT_NAME: 7:10}
+local INPUT_LABEL="TCF1_032018"
+#local INPUT_LABEL=${INPUT_NAME: 7:3}
 ##Skip out of Sample_ (7), and forward with 4 more digits.
 
 #local FDR=0.05
@@ -761,7 +788,7 @@ cd ${OUT_FOLDER}
 
 ### --BAMPE
 echo "python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
-python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
+#python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 
 ### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
 #echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
@@ -791,31 +818,31 @@ local p_value=0.00001
 ## Customized Part DIR
 ########################################################################
 local CON1_FOLDER=${__EXE_PATH}/bowtie2_results
-local CON1_FILE=${CON1_TREAT}.bed
+local CON1_FILE=${CON1_TREAT}.bam
 
 local CON1_CONTRO_FOLDER=${__EXE_PATH}/bowtie2_results
-local CON1_CONTRO_FILE=${CON1_CONTRO}.bed
+local CON1_CONTRO_FILE=${CON1_CONTRO}.bam
 
 local CON2_FOLDER=${__EXE_PATH}/bowtie2_results
-local CON2_FILE=${CON2_TREAT}.bed
+local CON2_FILE=${CON2_TREAT}.bam
 
 local CON2_CONTRO_FOLDER=${__EXE_PATH}/bowtie2_results
-local CON2_CONTRO_FILE=${CON2_CONTRO}.bed
+local CON2_CONTRO_FILE=${CON2_CONTRO}.bam
 	fi
 
 ########################################################################
 ########################################################################
 local CON1_FOLDER=${__EXE_PATH}/${CON1_TREAT}/bowtie2_results
-local CON1_FILE=${CON1_TREAT}.bed
+local CON1_FILE=${CON1_TREAT}.bam
 
 local CON1_CONTRO_FOLDER=${__EXE_PATH}/${CON1_CONTRO}/bowtie2_results
-local CON1_CONTRO_FILE=${CON1_CONTRO}.bed
+local CON1_CONTRO_FILE=${CON1_CONTRO}.bam
 
 local CON2_FOLDER=${__EXE_PATH}/${CON2_TREAT}/bowtie2_results
-local CON2_FILE=${CON2_TREAT}.bed
+local CON2_FILE=${CON2_TREAT}.bam
 
 local CON2_CONTRO_FOLDER=${__EXE_PATH}/${CON2_CONTRO}/bowtie2_results
-local CON2_CONTRO_FILE=${CON2_CONTRO}.bed
+local CON2_CONTRO_FILE=${CON2_CONTRO}.bam
 
 ########################################################################
 
@@ -823,11 +850,11 @@ local CON2_CONTRO_FILE=${CON2_CONTRO}.bed
 local OUT_FOLDER=${__EXE_PATH}/MACS2_Diff_results/${CON1_NAME}_vs_${CON2_NAME}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 
-echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' --nomodel --extsize 200"
-python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' -p ${p_value} # --nomodel --extsize 200 
+echo "python ${EXEDIR}/macs2 callpeak --format BAMPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' --nomodel --extsize 200"
+python ${EXEDIR}/macs2 callpeak --format BAMPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' -p ${p_value} # --nomodel --extsize 200 
 
-echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' --nomodel --extsize 200"
-python ${EXEDIR}/macs2 callpeak --format BEDPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' -p ${p_value} # --nomodel --extsize 200 
+echo "python ${EXEDIR}/macs2 callpeak --format BAMPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' --nomodel --extsize 200"
+python ${EXEDIR}/macs2 callpeak --format BAMPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' -p ${p_value} # --nomodel --extsize 200 
 
 cd ${OUT_FOLDER}
 
@@ -885,86 +912,88 @@ echo "CuffDiff Completed!"
 	}
 
 RUN_TOPHAT (){
-#### Usage: RUN_TOPHAT 1.$RAW_DATA_PATH_DIR 2.$EXE_PATH 3.${INPUT_SAMPLE_DIR_List[*]} 4.OUT_SAMPLE_NAME_List
+#### Usage: RUN_TOPHAT 1.${INPUT_SAMPLE_DIR_List[*]}
 ### Tophat Input and Output DIR setting ...	
-SICER_DIR=/home/lxiang/Software/SICER1.1/SICER
-EXEDIR=$SICER_DIR/extra/tools/wiggle
-GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
-BOWTIEINDEXS=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+
+echo "RUN_TOPHAT_ANALYSIS"
+CHECK_arguments $# 1
+
 ### Operation PARAMETERS Setting
-THREADS=4
-SPECIES=mm9
-WINDOW_SIZE=10
-FRAGMENT_SIZE=0
+#local SPECIES=mm9
+local SPECIES=hg19
+local WINDOW_SIZE=10
+local FRAGMENT_SIZE=0
+local THREADS=6
+local INPUT_NAME=${1}
 ########################################################################
-RAW_DATA_PATH_DIR=$1/$3
-EXE_PATH_tophat_analysis=$2/tophat_analysis
-INPUT_SAMPLE_DIR=$3
-OUT_SAMPLE_DIR=$4
-	
-DIR_CHECK_CREATE $EXE_PATH_tophat_analysis
-	
-	echo "Entering RAW_DATA_DIR: $RAW_DATA_PATH_DIR"
-	cd $RAW_DATA_PATH_DIR
-	echo "Entered folder: $INPUT_SAMPLE_DIR"
-	DIRLIST_R1="$( find -name "*R1*.gz" | xargs)"
-	DIRLIST_R2="$( find -name "*R2*.gz" | xargs)"
-#### R1 Saving		
-	i=0
-	for FILE_DIR in $DIRLIST_R1
-	do
-		FASTQ_DIR_R1[$i]=$RAW_DATA_PATH_DIR/${FILE_DIR: 2}
-		echo "Saving R1 reads of ${FILE_DIR: 2}"
-		i=`expr $i + 1`
-	done
-	
-#### R2 Saving	
-	i=0
-	for FILE_DIR in $DIRLIST_R2
-	do
-		FASTQ_DIR_R2[$i]=$RAW_DATA_PATH_DIR/${FILE_DIR: 2}
-		echo "Saving R2 reads of ${FILE_DIR: 2}"
-		i=`expr $i + 1`
-	done
-	echo ""
+#### mm9
+#local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
+#local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+
+#### hg19
+local GTFFILE=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
+local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+
+########################################################################
+local SICER_DIR=/home/lxiang/Software/SICER1.1/SICER
+local EXEDIR=$SICER_DIR/extra/tools/wiggle
+local OUTPUT_TOPHAT_FOLDER="${__EXE_PATH}/${INPUT_NAME}/Tophat_results"
+DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
+########################################################################
+
 
 #### Decide single end or pair ends mode
 #### NOW it is only compatible with single file. Not with pieces files.
-	if [ -n "${FASTQ_DIR_R1[0]}" -a -n "${FASTQ_DIR_R2[0]}" ]
+	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
-	echo "tophat -p $THREADS -o $EXE_PATH_tophat_analysis/$OUT_SAMPLE_DIR --GTF $GTFFILE $BOWTIEINDEXS ${FASTQ_DIR_R1[0]} ${FASTQ_DIR_R2[0]}"
-	tophat -p $THREADS -o $EXE_PATH_tophat_analysis/$OUT_SAMPLE_DIR --GTF $GTFFILE $BOWTIEINDEXS ${FASTQ_DIR_R1[0]} ${FASTQ_DIR_R2[0]}
+	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} ${__FASTQ_DIR_R1[0]} ${__FASTQ_DIR_R2[0]}"
+	tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} ${__FASTQ_DIR_R1[0]} ${__FASTQ_DIR_R2[0]}
 	else
 	echo "Single End Mode."
-	echo "tophat -p $THREADS -o $EXE_PATH_tophat_analysis/$OUT_SAMPLE_DIR --GTF $GTFFILE $BOWTIEINDEXS ${FASTQ_DIR_R1[0]}"
-	tophat -p $THREADS -o $EXE_PATH_tophat_analysis/$OUT_SAMPLE_DIR --GTF $GTFFILE $BOWTIEINDEXS ${FASTQ_DIR_R1[0]}
+	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} ${__FASTQ_DIR_R1[0]}"
+	#tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} ${__FASTQ_DIR_R1[0]}
 	fi
 
-	echo "cd $EXE_PATH_tophat_analysis/$OUT_SAMPLE_DIR"	
-	cd $EXE_PATH_tophat_analysis/$OUT_SAMPLE_DIR
-	mv accepted_hits.bam $OUT_SAMPLE_DIR.bam
+	echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
+	#mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
 	
-	echo "sh $EXEDIR/bam2wig.sh $EXE_PATH_tophat_analysis/$OUT_SAMPLE_DIR $OUT_SAMPLE_DIR $WINDOW_SIZE $FRAGMENT_SIZE $SPECIES"
-	echo ""
-	sh $EXEDIR/bam2wig.sh $EXE_PATH_tophat_analysis/$OUT_SAMPLE_DIR $OUT_SAMPLE_DIR $WINDOW_SIZE $FRAGMENT_SIZE $SPECIES
+	echo "bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
+	#bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
 	
-	RUN_Wig2BigWig $OUT_SAMPLE_DIR
+	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${1} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
+	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${1} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
 	
-	rm $OUT_SAMPLE_DIR.bed
+	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} "Intron_Retention"
+	
 	echo "One tophat is completed."
 	echo ""
 	}
 
+RUN_Quant_IRI(){
+	#### Usage: RUN_Quant_IRI 1.INPUT_FOLDER 2.${INPUT_SAMPLE_DIR_List[*]}
+	INPUT_FOLDER=${1}
+	INPUT_NAME=${2}
+	echo "RUN_Quant_IRI"
+	CHECK_arguments $# 2
+	local MAPDIR=/home/lxiang/cloud_research/PengGroup/ZZeng/Annotation/mappability
+	local MAPFILE=hg19_wgEncodeCrgMapabilityAlign50mer.bigWig
+	
+	echo "IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e hg19 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}"
+	IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e hg19 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}
+	echo "Quant for Library: ${INPUT_NAME} is finished."
+	}
+
 RUN_Peaks_Distribution_Analysis(){
+	####RUN_Peaks_Distribution_Analysis $1
 	CHECK_arguments $# 1
 	
 	EXEDIR=/home/lxiang/Software/python_tools
 
 	GTFDIR=/home/lxiang/cloud_research/PengGroup/XLi/Annotation/gtf_files
 	GTFFILE=mm9_genes.gtf
-
-	PROMOTER_UPSTREAM_EXTENSION=1001
+### This parameter means that Promoter [-1k TSS, +1k TSS] Gene_body[+1k TSS. TES]
+	PROMOTER_UPSTREAM_EXTENSION=1001   # Upstream extension, the distance from TSS.
 	TSS_REGION_LENGTH=2000
 
 

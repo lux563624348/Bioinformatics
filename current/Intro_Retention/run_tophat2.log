@@ -1,0 +1,925 @@
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Rest --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838321.fastq.gz
+
+[2017-06-06 02:15:21] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 02:15:21] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 02:15:21] Checking for Bowtie index files (genome)..
+[2017-06-06 02:15:21] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 02:15:21] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Rest/tmp/genome.fa
+[2017-06-06 02:17:15] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 02:17:32] Reading known junctions from GTF file
+[2017-06-06 02:17:36] Preparing reads
+	 left reads: min. length=36, max. length=36, 32265529 kept reads (2874 discarded)
+[2017-06-06 02:21:36] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Rest/tmp/genes
+[2017-06-06 02:23:06] Building Bowtie index from genes.fa
+[2017-06-06 02:32:07] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 02:44:45] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 02:44:45] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 02:54:54] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 06:43:07] Retrieving sequences for splices
+[2017-06-06 06:45:10] Indexing splices
+Building a SMALL index
+[2017-06-06 06:51:20] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 06:52:17] Joining segment hits
+[2017-06-06 06:59:31] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 07:15:08] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Rest/align_summary.txt
+[2017-06-06 07:15:08] Run complete: 04:59:47 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Rest Naive_CD4_Rest 10 0 hg19
+
+bamToBed -i Naive_CD4_Rest.bam > Naive_CD4_Rest.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Rest Naive_CD4_Rest 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Rest/Naive_CD4_Rest.bed -w 10 -i 0 -o Naive_CD4_Rest-W10.graph 
+total tag count in chr1.bed is: 4151461.0 = 2064523.0+2086938.0
+total tag count in chr2.bed is: 2292408.0 = 1146237.0+1146171.0
+total tag count in chr3.bed is: 1856118.0 = 926584.0+929534.0
+total tag count in chr4.bed is: 1170321.0 = 582764.0+587557.0
+total tag count in chr5.bed is: 1912558.0 = 965434.0+947124.0
+total tag count in chr6.bed is: 2167216.0 = 1084414.0+1082802.0
+total tag count in chr7.bed is: 1687377.0 = 843357.0+844020.0
+total tag count in chr8.bed is: 1183796.0 = 591553.0+592243.0
+total tag count in chr9.bed is: 1207381.0 = 605826.0+601555.0
+total tag count in chr10.bed is: 1143737.0 = 574319.0+569418.0
+total tag count in chr11.bed is: 2105581.0 = 1051499.0+1054082.0
+total tag count in chr12.bed is: 1858536.0 = 925247.0+933289.0
+total tag count in chr13.bed is: 743196.0 = 372952.0+370244.0
+total tag count in chr14.bed is: 975431.0 = 487735.0+487696.0
+total tag count in chr15.bed is: 1160186.0 = 578662.0+581524.0
+total tag count in chr16.bed is: 2047370.0 = 1023256.0+1024114.0
+total tag count in chr17.bed is: 2070782.0 = 1036102.0+1034680.0
+total tag count in chr18.bed is: 458810.0 = 235492.0+223318.0
+total tag count in chr19.bed is: 2367888.0 = 1186583.0+1181305.0
+total tag count in chr20.bed is: 689214.0 = 345401.0+343813.0
+total tag count in chr21.bed is: 345620.0 = 174055.0+171565.0
+total tag count in chr22.bed is: 872289.0 = 435100.0+437189.0
+total tag count in chrX.bed is: 1222535.0 = 613686.0+608849.0
+total tag count in chrY.bed is: 216565.0 = 106968.0+109597.0
+
+
+Normalize summary graph to RPKM for Naive_CD4_Rest.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i Naive_CD4_Rest-W10.graph -a 3 -t 100000000 -o Naive_CD4_Rest-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh Naive_CD4_Rest-W10-normalized.graph Naive_CD4_Rest-W10-RPKM.wig Naive_CD4_Rest 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_40min --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838322.fastq.gz
+
+[2017-06-06 07:41:37] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 07:41:37] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 07:41:37] Checking for Bowtie index files (genome)..
+[2017-06-06 07:41:37] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 07:41:37] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_40min/tmp/genome.fa
+[2017-06-06 07:43:22] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 07:43:24] Reading known junctions from GTF file
+[2017-06-06 07:43:27] Preparing reads
+	 left reads: min. length=36, max. length=36, 25195552 kept reads (4895 discarded)
+[2017-06-06 07:46:20] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_40min/tmp/genes
+[2017-06-06 07:47:33] Building Bowtie index from genes.fa
+[2017-06-06 07:56:25] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 08:06:06] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 08:06:06] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 08:12:35] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 10:38:34] Retrieving sequences for splices
+[2017-06-06 10:40:37] Indexing splices
+Building a SMALL index
+[2017-06-06 10:47:13] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 10:48:09] Joining segment hits
+[2017-06-06 10:53:34] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 11:05:43] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_40min/align_summary.txt
+[2017-06-06 11:05:43] Run complete: 03:24:06 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_40min Naive_CD4_Active_40min 10 0 hg19
+
+bamToBed -i Naive_CD4_Active_40min.bam > Naive_CD4_Active_40min.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_40min Naive_CD4_Active_40min 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_40min/Naive_CD4_Active_40min.bed -w 10 -i 0 -o Naive_CD4_Active_40min-W10.graph 
+total tag count in chr1.bed is: 2756076.0 = 1374722.0+1381354.0
+total tag count in chr2.bed is: 1708940.0 = 852439.0+856501.0
+total tag count in chr3.bed is: 1290797.0 = 645307.0+645490.0
+total tag count in chr4.bed is: 823912.0 = 409696.0+414216.0
+total tag count in chr5.bed is: 1409629.0 = 708109.0+701520.0
+total tag count in chr6.bed is: 1750086.0 = 871857.0+878229.0
+total tag count in chr7.bed is: 1171921.0 = 585526.0+586395.0
+total tag count in chr8.bed is: 916302.0 = 457071.0+459231.0
+total tag count in chr9.bed is: 865652.0 = 434449.0+431203.0
+total tag count in chr10.bed is: 842949.0 = 422709.0+420240.0
+total tag count in chr11.bed is: 1541687.0 = 770002.0+771685.0
+total tag count in chr12.bed is: 1484185.0 = 736732.0+747453.0
+total tag count in chr13.bed is: 511369.0 = 257059.0+254310.0
+total tag count in chr14.bed is: 773117.0 = 386873.0+386244.0
+total tag count in chr15.bed is: 805102.0 = 401430.0+403672.0
+total tag count in chr16.bed is: 1542536.0 = 773582.0+768954.0
+total tag count in chr17.bed is: 1569645.0 = 785957.0+783688.0
+total tag count in chr18.bed is: 322007.0 = 164015.0+157992.0
+total tag count in chr19.bed is: 2281543.0 = 1146369.0+1135174.0
+total tag count in chr20.bed is: 514083.0 = 257348.0+256735.0
+total tag count in chr21.bed is: 248544.0 = 125675.0+122869.0
+total tag count in chr22.bed is: 642523.0 = 320290.0+322233.0
+total tag count in chrX.bed is: 902554.0 = 452126.0+450428.0
+total tag count in chrY.bed is: 169360.0 = 84299.0+85061.0
+
+
+Normalize summary graph to RPKM for Naive_CD4_Active_40min.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i Naive_CD4_Active_40min-W10.graph -a 3 -t 100000000 -o Naive_CD4_Active_40min-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh Naive_CD4_Active_40min-W10-normalized.graph Naive_CD4_Active_40min-W10-RPKM.wig Naive_CD4_Active_40min 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_150min --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838323.fastq.gz
+
+[2017-06-06 11:25:56] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 11:25:56] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 11:25:56] Checking for Bowtie index files (genome)..
+[2017-06-06 11:25:56] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 11:25:56] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_150min/tmp/genome.fa
+[2017-06-06 11:27:43] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 11:27:44] Reading known junctions from GTF file
+[2017-06-06 11:27:47] Preparing reads
+	 left reads: min. length=36, max. length=36, 29887111 kept reads (3829 discarded)
+[2017-06-06 11:31:18] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_150min/tmp/genes
+[2017-06-06 11:32:34] Building Bowtie index from genes.fa
+[2017-06-06 11:41:29] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 11:53:13] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 11:53:13] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 11:58:59] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 13:33:01] Retrieving sequences for splices
+[2017-06-06 13:35:06] Indexing splices
+Building a SMALL index
+[2017-06-06 13:41:19] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 13:42:16] Joining segment hits
+[2017-06-06 13:47:17] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 14:01:01] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_150min/align_summary.txt
+[2017-06-06 14:01:01] Run complete: 02:35:05 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_150min Naive_CD4_Active_150min 10 0 hg19
+
+bamToBed -i Naive_CD4_Active_150min.bam > Naive_CD4_Active_150min.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_150min Naive_CD4_Active_150min 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_150min/Naive_CD4_Active_150min.bed -w 10 -i 0 -o Naive_CD4_Active_150min-W10.graph 
+total tag count in chr1.bed is: 3473547.0 = 1732458.0+1741089.0
+total tag count in chr2.bed is: 2009618.0 = 1001404.0+1008214.0
+total tag count in chr3.bed is: 1424852.0 = 711901.0+712951.0
+total tag count in chr4.bed is: 884369.0 = 441037.0+443332.0
+total tag count in chr5.bed is: 1475107.0 = 741941.0+733166.0
+total tag count in chr6.bed is: 2208769.0 = 1105427.0+1103342.0
+total tag count in chr7.bed is: 1345186.0 = 672201.0+672985.0
+total tag count in chr8.bed is: 1237059.0 = 618676.0+618383.0
+total tag count in chr9.bed is: 1150422.0 = 577234.0+573188.0
+total tag count in chr10.bed is: 1182846.0 = 595721.0+587125.0
+total tag count in chr11.bed is: 1920172.0 = 959361.0+960811.0
+total tag count in chr12.bed is: 1830646.0 = 909339.0+921307.0
+total tag count in chr13.bed is: 531784.0 = 267221.0+264563.0
+total tag count in chr14.bed is: 853326.0 = 425227.0+428099.0
+total tag count in chr15.bed is: 957390.0 = 478047.0+479343.0
+total tag count in chr16.bed is: 2177790.0 = 1095203.0+1082587.0
+total tag count in chr17.bed is: 2090652.0 = 1047293.0+1043359.0
+total tag count in chr18.bed is: 354778.0 = 180922.0+173856.0
+total tag count in chr19.bed is: 2626750.0 = 1317884.0+1308866.0
+total tag count in chr20.bed is: 647393.0 = 324616.0+322777.0
+total tag count in chr21.bed is: 311583.0 = 157503.0+154080.0
+total tag count in chr22.bed is: 854946.0 = 425517.0+429429.0
+total tag count in chrX.bed is: 1068106.0 = 533821.0+534285.0
+total tag count in chrY.bed is: 123749.0 = 61202.0+62547.0
+
+
+Normalize summary graph to RPKM for Naive_CD4_Active_150min.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i Naive_CD4_Active_150min-W10.graph -a 3 -t 100000000 -o Naive_CD4_Active_150min-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh Naive_CD4_Active_150min-W10-normalized.graph Naive_CD4_Active_150min-W10-RPKM.wig Naive_CD4_Active_150min 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_15h --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838324.fastq.gz
+
+[2017-06-06 14:23:27] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 14:23:27] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 14:23:27] Checking for Bowtie index files (genome)..
+[2017-06-06 14:23:27] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 14:23:27] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_15h/tmp/genome.fa
+[2017-06-06 14:25:07] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 14:25:08] Reading known junctions from GTF file
+[2017-06-06 14:25:11] Preparing reads
+	 left reads: min. length=36, max. length=36, 11357107 kept reads (3097 discarded)
+[2017-06-06 14:26:26] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_15h/tmp/genes
+[2017-06-06 14:27:42] Building Bowtie index from genes.fa
+[2017-06-06 14:36:34] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 14:41:06] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 14:41:06] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 14:42:38] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 14:52:52] Retrieving sequences for splices
+[2017-06-06 14:54:47] Indexing splices
+Building a SMALL index
+[2017-06-06 14:59:28] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 15:00:03] Joining segment hits
+[2017-06-06 15:02:39] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 15:09:14] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_15h/align_summary.txt
+[2017-06-06 15:09:14] Run complete: 00:45:46 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_15h Naive_CD4_Active_15h 10 0 hg19
+
+bamToBed -i Naive_CD4_Active_15h.bam > Naive_CD4_Active_15h.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_15h Naive_CD4_Active_15h 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/Naive_CD4_Active_15h/Naive_CD4_Active_15h.bed -w 10 -i 0 -o Naive_CD4_Active_15h-W10.graph 
+total tag count in chr1.bed is: 1253772.0 = 627261.0+626511.0
+total tag count in chr2.bed is: 726958.0 = 361860.0+365098.0
+total tag count in chr3.bed is: 530502.0 = 265483.0+265019.0
+total tag count in chr4.bed is: 313927.0 = 157932.0+155995.0
+total tag count in chr5.bed is: 514438.0 = 257425.0+257013.0
+total tag count in chr6.bed is: 828494.0 = 416540.0+411954.0
+total tag count in chr7.bed is: 604379.0 = 301859.0+302520.0
+total tag count in chr8.bed is: 363252.0 = 182360.0+180892.0
+total tag count in chr9.bed is: 435295.0 = 218508.0+216787.0
+total tag count in chr10.bed is: 365353.0 = 182211.0+183142.0
+total tag count in chr11.bed is: 683105.0 = 341958.0+341147.0
+total tag count in chr12.bed is: 758799.0 = 378089.0+380710.0
+total tag count in chr13.bed is: 159559.0 = 79786.0+79773.0
+total tag count in chr14.bed is: 330059.0 = 164878.0+165181.0
+total tag count in chr15.bed is: 387672.0 = 195419.0+192253.0
+total tag count in chr16.bed is: 954750.0 = 478034.0+476716.0
+total tag count in chr17.bed is: 882843.0 = 439804.0+443039.0
+total tag count in chr18.bed is: 107571.0 = 54677.0+52894.0
+total tag count in chr19.bed is: 1177679.0 = 589099.0+588580.0
+total tag count in chr20.bed is: 268160.0 = 133540.0+134620.0
+total tag count in chr21.bed is: 117636.0 = 59134.0+58502.0
+total tag count in chr22.bed is: 368922.0 = 185096.0+183826.0
+total tag count in chrX.bed is: 368370.0 = 183352.0+185018.0
+total tag count in chrY.bed is: 46824.0 = 23106.0+23718.0
+
+
+Normalize summary graph to RPKM for Naive_CD4_Active_15h.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i Naive_CD4_Active_15h-W10.graph -a 3 -t 100000000 -o Naive_CD4_Active_15h-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh Naive_CD4_Active_15h-W10-normalized.graph Naive_CD4_Active_15h-W10-RPKM.wig Naive_CD4_Active_15h 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Rest --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838325.fastq.gz
+
+[2017-06-06 15:17:48] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 15:17:48] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 15:17:49] Checking for Bowtie index files (genome)..
+[2017-06-06 15:17:49] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 15:17:49] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Rest/tmp/genome.fa
+[2017-06-06 15:19:34] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 15:19:37] Reading known junctions from GTF file
+[2017-06-06 15:19:40] Preparing reads
+	 left reads: min. length=36, max. length=36, 7867481 kept reads (70050 discarded)
+[2017-06-06 15:20:45] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Rest/tmp/genes
+[2017-06-06 15:22:03] Building Bowtie index from genes.fa
+[2017-06-06 15:31:24] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 15:35:59] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 15:35:59] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 15:38:22] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 15:55:50] Retrieving sequences for splices
+[2017-06-06 15:58:03] Indexing splices
+Building a SMALL index
+[2017-06-06 16:04:36] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 16:05:28] Joining segment hits
+[2017-06-06 16:08:20] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 16:13:18] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Rest/align_summary.txt
+[2017-06-06 16:13:18] Run complete: 00:55:29 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Rest TCM_CD4_Rest 10 0 hg19
+
+bamToBed -i TCM_CD4_Rest.bam > TCM_CD4_Rest.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Rest TCM_CD4_Rest 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Rest/TCM_CD4_Rest.bed -w 10 -i 0 -o TCM_CD4_Rest-W10.graph 
+total tag count in chr1.bed is: 934593.0 = 464203.0+470390.0
+total tag count in chr2.bed is: 504147.0 = 250872.0+253275.0
+total tag count in chr3.bed is: 387904.0 = 192766.0+195138.0
+total tag count in chr4.bed is: 222071.0 = 110148.0+111923.0
+total tag count in chr5.bed is: 394020.0 = 198849.0+195171.0
+total tag count in chr6.bed is: 564625.0 = 286154.0+278471.0
+total tag count in chr7.bed is: 371386.0 = 185843.0+185543.0
+total tag count in chr8.bed is: 270148.0 = 135218.0+134930.0
+total tag count in chr9.bed is: 286886.0 = 144601.0+142285.0
+total tag count in chr10.bed is: 274802.0 = 137934.0+136868.0
+total tag count in chr11.bed is: 527385.0 = 262587.0+264798.0
+total tag count in chr12.bed is: 432119.0 = 215223.0+216896.0
+total tag count in chr13.bed is: 146213.0 = 73077.0+73136.0
+total tag count in chr14.bed is: 234869.0 = 117061.0+117808.0
+total tag count in chr15.bed is: 266726.0 = 131535.0+135191.0
+total tag count in chr16.bed is: 527122.0 = 264439.0+262683.0
+total tag count in chr17.bed is: 540094.0 = 269513.0+270581.0
+total tag count in chr18.bed is: 94391.0 = 48612.0+45779.0
+total tag count in chr19.bed is: 751200.0 = 374806.0+376394.0
+total tag count in chr20.bed is: 171517.0 = 85142.0+86375.0
+total tag count in chr21.bed is: 75633.0 = 38251.0+37382.0
+total tag count in chr22.bed is: 234235.0 = 117272.0+116963.0
+total tag count in chrX.bed is: 300597.0 = 150803.0+149794.0
+total tag count in chrY.bed is: 64184.0 = 32233.0+31951.0
+
+
+Normalize summary graph to RPKM for TCM_CD4_Rest.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i TCM_CD4_Rest-W10.graph -a 3 -t 100000000 -o TCM_CD4_Rest-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh TCM_CD4_Rest-W10-normalized.graph TCM_CD4_Rest-W10-RPKM.wig TCM_CD4_Rest 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_40min --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838326.fastq.gz
+
+[2017-06-06 16:19:56] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 16:19:56] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 16:19:56] Checking for Bowtie index files (genome)..
+[2017-06-06 16:19:56] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 16:19:56] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_40min/tmp/genome.fa
+[2017-06-06 16:21:39] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 16:21:42] Reading known junctions from GTF file
+[2017-06-06 16:21:45] Preparing reads
+	 left reads: min. length=36, max. length=36, 5803410 kept reads (3025 discarded)
+[2017-06-06 16:22:24] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_40min/tmp/genes
+[2017-06-06 16:23:41] Building Bowtie index from genes.fa
+[2017-06-06 16:32:34] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 16:34:57] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 16:34:57] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 16:35:59] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 16:41:45] Retrieving sequences for splices
+[2017-06-06 16:43:35] Indexing splices
+Building a SMALL index
+[2017-06-06 16:45:03] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 16:45:17] Joining segment hits
+[2017-06-06 16:47:33] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 16:51:25] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_40min/align_summary.txt
+[2017-06-06 16:51:25] Run complete: 00:31:28 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_40min TCM_CD4_Active_40min 10 0 hg19
+
+bamToBed -i TCM_CD4_Active_40min.bam > TCM_CD4_Active_40min.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_40min TCM_CD4_Active_40min 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_40min/TCM_CD4_Active_40min.bed -w 10 -i 0 -o TCM_CD4_Active_40min-W10.graph 
+total tag count in chr1.bed is: 632495.0 = 314783.0+317712.0
+total tag count in chr2.bed is: 353842.0 = 174288.0+179554.0
+total tag count in chr3.bed is: 255993.0 = 127898.0+128095.0
+total tag count in chr4.bed is: 125797.0 = 62756.0+63041.0
+total tag count in chr5.bed is: 274157.0 = 138248.0+135909.0
+total tag count in chr6.bed is: 480063.0 = 241810.0+238253.0
+total tag count in chr7.bed is: 255270.0 = 127099.0+128171.0
+total tag count in chr8.bed is: 200006.0 = 100931.0+99075.0
+total tag count in chr9.bed is: 203796.0 = 102521.0+101275.0
+total tag count in chr10.bed is: 195335.0 = 98128.0+97207.0
+total tag count in chr11.bed is: 398283.0 = 199125.0+199158.0
+total tag count in chr12.bed is: 322814.0 = 161226.0+161588.0
+total tag count in chr13.bed is: 97978.0 = 49782.0+48196.0
+total tag count in chr14.bed is: 184149.0 = 92835.0+91314.0
+total tag count in chr15.bed is: 190166.0 = 95743.0+94423.0
+total tag count in chr16.bed is: 414371.0 = 206869.0+207502.0
+total tag count in chr17.bed is: 421812.0 = 209383.0+212429.0
+total tag count in chr18.bed is: 59316.0 = 30229.0+29087.0
+total tag count in chr19.bed is: 776548.0 = 387296.0+389252.0
+total tag count in chr20.bed is: 125785.0 = 62043.0+63742.0
+total tag count in chr21.bed is: 54102.0 = 27141.0+26961.0
+total tag count in chr22.bed is: 188501.0 = 94368.0+94133.0
+total tag count in chrX.bed is: 211338.0 = 105252.0+106086.0
+total tag count in chrY.bed is: 27532.0 = 13524.0+14008.0
+
+
+Normalize summary graph to RPKM for TCM_CD4_Active_40min.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i TCM_CD4_Active_40min-W10.graph -a 3 -t 100000000 -o TCM_CD4_Active_40min-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh TCM_CD4_Active_40min-W10-normalized.graph TCM_CD4_Active_40min-W10-RPKM.wig TCM_CD4_Active_40min 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_150min --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838327.fastq.gz
+
+[2017-06-06 16:56:04] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 16:56:04] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 16:56:04] Checking for Bowtie index files (genome)..
+[2017-06-06 16:56:04] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 16:56:04] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_150min/tmp/genome.fa
+[2017-06-06 16:57:51] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 16:57:53] Reading known junctions from GTF file
+[2017-06-06 16:57:56] Preparing reads
+	 left reads: min. length=36, max. length=36, 9805878 kept reads (2783 discarded)
+[2017-06-06 16:59:01] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_150min/tmp/genes
+[2017-06-06 17:00:18] Building Bowtie index from genes.fa
+[2017-06-06 17:09:11] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 17:13:10] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 17:13:10] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 17:14:48] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 17:27:00] Retrieving sequences for splices
+[2017-06-06 17:29:05] Indexing splices
+Building a SMALL index
+[2017-06-06 17:34:30] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 17:35:11] Joining segment hits
+[2017-06-06 17:37:48] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 17:43:02] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_150min/align_summary.txt
+[2017-06-06 17:43:02] Run complete: 00:46:58 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_150min TCM_CD4_Active_150min 10 0 hg19
+
+bamToBed -i TCM_CD4_Active_150min.bam > TCM_CD4_Active_150min.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_150min TCM_CD4_Active_150min 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_150min/TCM_CD4_Active_150min.bed -w 10 -i 0 -o TCM_CD4_Active_150min-W10.graph 
+total tag count in chr1.bed is: 1122503.0 = 559700.0+562803.0
+total tag count in chr2.bed is: 629013.0 = 312400.0+316613.0
+total tag count in chr3.bed is: 471938.0 = 236213.0+235725.0
+total tag count in chr4.bed is: 262497.0 = 131528.0+130969.0
+total tag count in chr5.bed is: 483312.0 = 242362.0+240950.0
+total tag count in chr6.bed is: 852129.0 = 429346.0+422783.0
+total tag count in chr7.bed is: 408356.0 = 203847.0+204509.0
+total tag count in chr8.bed is: 401851.0 = 202367.0+199484.0
+total tag count in chr9.bed is: 390016.0 = 196006.0+194010.0
+total tag count in chr10.bed is: 443081.0 = 222025.0+221056.0
+total tag count in chr11.bed is: 631879.0 = 316035.0+315844.0
+total tag count in chr12.bed is: 602837.0 = 300672.0+302165.0
+total tag count in chr13.bed is: 170907.0 = 85949.0+84958.0
+total tag count in chr14.bed is: 292026.0 = 145957.0+146069.0
+total tag count in chr15.bed is: 336577.0 = 169034.0+167543.0
+total tag count in chr16.bed is: 623279.0 = 311648.0+311631.0
+total tag count in chr17.bed is: 652262.0 = 325113.0+327149.0
+total tag count in chr18.bed is: 112851.0 = 57141.0+55710.0
+total tag count in chr19.bed is: 909694.0 = 456053.0+453641.0
+total tag count in chr20.bed is: 224358.0 = 111963.0+112395.0
+total tag count in chr21.bed is: 96797.0 = 48862.0+47935.0
+total tag count in chr22.bed is: 292397.0 = 147338.0+145059.0
+total tag count in chrX.bed is: 359925.0 = 179171.0+180754.0
+total tag count in chrY.bed is: 39935.0 = 19663.0+20272.0
+
+
+Normalize summary graph to RPKM for TCM_CD4_Active_150min.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i TCM_CD4_Active_150min-W10.graph -a 3 -t 100000000 -o TCM_CD4_Active_150min-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh TCM_CD4_Active_150min-W10-normalized.graph TCM_CD4_Active_150min-W10-RPKM.wig TCM_CD4_Active_150min 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_15h --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838328.fastq.gz
+
+[2017-06-06 17:50:36] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 17:50:36] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 17:50:36] Checking for Bowtie index files (genome)..
+[2017-06-06 17:50:36] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 17:50:36] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_15h/tmp/genome.fa
+[2017-06-06 17:52:23] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 17:52:25] Reading known junctions from GTF file
+[2017-06-06 17:52:28] Preparing reads
+	 left reads: min. length=36, max. length=36, 7750805 kept reads (65472 discarded)
+[2017-06-06 17:53:24] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_15h/tmp/genes
+[2017-06-06 17:54:41] Building Bowtie index from genes.fa
+[2017-06-06 18:03:34] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 18:06:32] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 18:06:32] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 18:07:29] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 18:13:30] Retrieving sequences for splices
+[2017-06-06 18:15:19] Indexing splices
+Building a SMALL index
+[2017-06-06 18:16:47] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 18:17:01] Joining segment hits
+[2017-06-06 18:19:12] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 18:23:44] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_15h/align_summary.txt
+[2017-06-06 18:23:44] Run complete: 00:33:08 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_15h TCM_CD4_Active_15h 10 0 hg19
+
+bamToBed -i TCM_CD4_Active_15h.bam > TCM_CD4_Active_15h.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_15h TCM_CD4_Active_15h 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TCM_CD4_Active_15h/TCM_CD4_Active_15h.bed -w 10 -i 0 -o TCM_CD4_Active_15h-W10.graph 
+total tag count in chr1.bed is: 852588.0 = 426327.0+426261.0
+total tag count in chr2.bed is: 491663.0 = 244701.0+246962.0
+total tag count in chr3.bed is: 360541.0 = 180167.0+180374.0
+total tag count in chr4.bed is: 207103.0 = 104138.0+102965.0
+total tag count in chr5.bed is: 347975.0 = 174241.0+173734.0
+total tag count in chr6.bed is: 582988.0 = 293170.0+289818.0
+total tag count in chr7.bed is: 393717.0 = 197150.0+196567.0
+total tag count in chr8.bed is: 232774.0 = 116864.0+115910.0
+total tag count in chr9.bed is: 285329.0 = 143164.0+142165.0
+total tag count in chr10.bed is: 255994.0 = 127812.0+128182.0
+total tag count in chr11.bed is: 463146.0 = 232048.0+231098.0
+total tag count in chr12.bed is: 508815.0 = 254416.0+254399.0
+total tag count in chr13.bed is: 107798.0 = 54333.0+53465.0
+total tag count in chr14.bed is: 229227.0 = 114910.0+114317.0
+total tag count in chr15.bed is: 263261.0 = 132288.0+130973.0
+total tag count in chr16.bed is: 569433.0 = 284347.0+285086.0
+total tag count in chr17.bed is: 585273.0 = 292279.0+292994.0
+total tag count in chr18.bed is: 72640.0 = 37061.0+35579.0
+total tag count in chr19.bed is: 736285.0 = 367954.0+368331.0
+total tag count in chr20.bed is: 177537.0 = 88397.0+89140.0
+total tag count in chr21.bed is: 73487.0 = 36885.0+36602.0
+total tag count in chr22.bed is: 238141.0 = 118912.0+119229.0
+total tag count in chrX.bed is: 253634.0 = 126156.0+127478.0
+total tag count in chrY.bed is: 27304.0 = 13621.0+13683.0
+
+
+Normalize summary graph to RPKM for TCM_CD4_Active_15h.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i TCM_CD4_Active_15h-W10.graph -a 3 -t 100000000 -o TCM_CD4_Active_15h-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh TCM_CD4_Active_15h-W10-normalized.graph TCM_CD4_Active_15h-W10-RPKM.wig TCM_CD4_Active_15h 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Rest --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838329.fastq.gz
+
+[2017-06-06 18:29:35] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 18:29:35] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 18:29:36] Checking for Bowtie index files (genome)..
+[2017-06-06 18:29:36] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 18:29:36] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Rest/tmp/genome.fa
+[2017-06-06 18:31:22] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 18:31:24] Reading known junctions from GTF file
+[2017-06-06 18:31:27] Preparing reads
+	 left reads: min. length=36, max. length=36, 7767243 kept reads (63572 discarded)
+[2017-06-06 18:32:23] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Rest/tmp/genes
+[2017-06-06 18:33:37] Building Bowtie index from genes.fa
+[2017-06-06 18:42:29] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 18:45:25] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 18:45:25] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 18:47:10] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 19:02:06] Retrieving sequences for splices
+[2017-06-06 19:04:08] Indexing splices
+Building a SMALL index
+[2017-06-06 19:09:41] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 19:10:26] Joining segment hits
+[2017-06-06 19:13:09] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 19:17:43] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Rest/align_summary.txt
+[2017-06-06 19:17:43] Run complete: 00:48:07 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Rest TEM_CD4_Rest 10 0 hg19
+
+bamToBed -i TEM_CD4_Rest.bam > TEM_CD4_Rest.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Rest TEM_CD4_Rest 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Rest/TEM_CD4_Rest.bed -w 10 -i 0 -o TEM_CD4_Rest-W10.graph 
+total tag count in chr1.bed is: 804040.0 = 402658.0+401382.0
+total tag count in chr2.bed is: 425402.0 = 211605.0+213797.0
+total tag count in chr3.bed is: 325802.0 = 163550.0+162252.0
+total tag count in chr4.bed is: 175383.0 = 86716.0+88667.0
+total tag count in chr5.bed is: 332681.0 = 166940.0+165741.0
+total tag count in chr6.bed is: 502096.0 = 250845.0+251251.0
+total tag count in chr7.bed is: 311672.0 = 155326.0+156346.0
+total tag count in chr8.bed is: 226762.0 = 113357.0+113405.0
+total tag count in chr9.bed is: 241930.0 = 121040.0+120890.0
+total tag count in chr10.bed is: 222485.0 = 112281.0+110204.0
+total tag count in chr11.bed is: 463801.0 = 230789.0+233012.0
+total tag count in chr12.bed is: 361095.0 = 179114.0+181981.0
+total tag count in chr13.bed is: 120637.0 = 60213.0+60424.0
+total tag count in chr14.bed is: 204501.0 = 102378.0+102123.0
+total tag count in chr15.bed is: 227080.0 = 112727.0+114353.0
+total tag count in chr16.bed is: 439359.0 = 220020.0+219339.0
+total tag count in chr17.bed is: 470055.0 = 233902.0+236153.0
+total tag count in chr18.bed is: 77057.0 = 39196.0+37861.0
+total tag count in chr19.bed is: 684343.0 = 344570.0+339773.0
+total tag count in chr20.bed is: 144207.0 = 71749.0+72458.0
+total tag count in chr21.bed is: 61504.0 = 31155.0+30349.0
+total tag count in chr22.bed is: 200073.0 = 99481.0+100592.0
+total tag count in chrX.bed is: 256913.0 = 128524.0+128389.0
+total tag count in chrY.bed is: 37776.0 = 18417.0+19359.0
+
+
+Normalize summary graph to RPKM for TEM_CD4_Rest.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i TEM_CD4_Rest-W10.graph -a 3 -t 100000000 -o TEM_CD4_Rest-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh TEM_CD4_Rest-W10-normalized.graph TEM_CD4_Rest-W10-RPKM.wig TEM_CD4_Rest 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_40min --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838330.fastq.gz
+
+[2017-06-06 19:23:17] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 19:23:17] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 19:23:17] Checking for Bowtie index files (genome)..
+[2017-06-06 19:23:17] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 19:23:17] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_40min/tmp/genome.fa
+[2017-06-06 19:25:01] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 19:25:03] Reading known junctions from GTF file
+[2017-06-06 19:25:06] Preparing reads
+	 left reads: min. length=36, max. length=36, 12387400 kept reads (2710 discarded)
+[2017-06-06 19:26:29] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_40min/tmp/genes
+[2017-06-06 19:27:47] Building Bowtie index from genes.fa
+[2017-06-06 19:36:41] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 19:41:27] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 19:41:27] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 19:43:45] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 19:59:11] Retrieving sequences for splices
+[2017-06-06 20:01:38] Indexing splices
+Building a SMALL index
+[2017-06-06 20:13:27] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 20:15:58] Joining segment hits
+[2017-06-06 20:23:43] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 20:42:18] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_40min/align_summary.txt
+[2017-06-06 20:42:18] Run complete: 01:19:01 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_40min TEM_CD4_Active_40min 10 0 hg19
+
+bamToBed -i TEM_CD4_Active_40min.bam > TEM_CD4_Active_40min.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_40min TEM_CD4_Active_40min 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_40min/TEM_CD4_Active_40min.bed -w 10 -i 0 -o TEM_CD4_Active_40min-W10.graph 
+total tag count in chr1.bed is: 1400475.0 = 697033.0+703442.0
+total tag count in chr2.bed is: 753044.0 = 373479.0+379565.0
+total tag count in chr3.bed is: 536988.0 = 268261.0+268727.0
+total tag count in chr4.bed is: 259137.0 = 129249.0+129888.0
+total tag count in chr5.bed is: 593679.0 = 298730.0+294949.0
+total tag count in chr6.bed is: 1030835.0 = 517667.0+513168.0
+total tag count in chr7.bed is: 505215.0 = 251991.0+253224.0
+total tag count in chr8.bed is: 410470.0 = 205506.0+204964.0
+total tag count in chr9.bed is: 409886.0 = 205920.0+203966.0
+total tag count in chr10.bed is: 424537.0 = 213188.0+211349.0
+total tag count in chr11.bed is: 808612.0 = 402762.0+405850.0
+total tag count in chr12.bed is: 700055.0 = 347653.0+352402.0
+total tag count in chr13.bed is: 200187.0 = 100573.0+99614.0
+total tag count in chr14.bed is: 380750.0 = 190722.0+190028.0
+total tag count in chr15.bed is: 384171.0 = 192204.0+191967.0
+total tag count in chr16.bed is: 824943.0 = 414844.0+410099.0
+total tag count in chr17.bed is: 859482.0 = 428957.0+430525.0
+total tag count in chr18.bed is: 124758.0 = 64184.0+60574.0
+total tag count in chr19.bed is: 1529332.0 = 767073.0+762259.0
+total tag count in chr20.bed is: 250132.0 = 124524.0+125608.0
+total tag count in chr21.bed is: 102416.0 = 51816.0+50600.0
+total tag count in chr22.bed is: 361553.0 = 180651.0+180902.0
+total tag count in chrX.bed is: 439345.0 = 219192.0+220153.0
+total tag count in chrY.bed is: 52319.0 = 25743.0+26576.0
+
+
+Normalize summary graph to RPKM for TEM_CD4_Active_40min.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i TEM_CD4_Active_40min-W10.graph -a 3 -t 100000000 -o TEM_CD4_Active_40min-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh TEM_CD4_Active_40min-W10-normalized.graph TEM_CD4_Active_40min-W10-RPKM.wig TEM_CD4_Active_40min 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_150min --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838331.fastq.gz
+
+[2017-06-06 20:59:40] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 20:59:40] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 20:59:40] Checking for Bowtie index files (genome)..
+[2017-06-06 20:59:40] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 20:59:40] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_150min/tmp/genome.fa
+[2017-06-06 21:01:30] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 21:01:33] Reading known junctions from GTF file
+[2017-06-06 21:01:36] Preparing reads
+	 left reads: min. length=36, max. length=36, 20934264 kept reads (1988 discarded)
+[2017-06-06 21:04:03] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_150min/tmp/genes
+[2017-06-06 21:07:01] Building Bowtie index from genes.fa
+[2017-06-06 21:16:18] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 21:22:48] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 21:22:48] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 21:26:36] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 21:36:50] Retrieving sequences for splices
+[2017-06-06 21:39:12] Indexing splices
+Building a SMALL index
+[2017-06-06 21:41:04] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 21:41:34] Joining segment hits
+[2017-06-06 21:45:01] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 21:51:44] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_150min/align_summary.txt
+[2017-06-06 21:51:44] Run complete: 00:52:04 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_150min TEM_CD4_Active_150min 10 0 hg19
+
+bamToBed -i TEM_CD4_Active_150min.bam > TEM_CD4_Active_150min.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_150min TEM_CD4_Active_150min 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_150min/TEM_CD4_Active_150min.bed -w 10 -i 0 -o TEM_CD4_Active_150min-W10.graph 
+total tag count in chr1.bed is: 841190.0 = 418461.0+422729.0
+total tag count in chr2.bed is: 456297.0 = 226947.0+229350.0
+total tag count in chr3.bed is: 343356.0 = 171206.0+172150.0
+total tag count in chr4.bed is: 193433.0 = 97176.0+96257.0
+total tag count in chr5.bed is: 378833.0 = 190933.0+187900.0
+total tag count in chr6.bed is: 632614.0 = 319275.0+313339.0
+total tag count in chr7.bed is: 290954.0 = 145441.0+145513.0
+total tag count in chr8.bed is: 286580.0 = 144454.0+142126.0
+total tag count in chr9.bed is: 282728.0 = 142885.0+139843.0
+total tag count in chr10.bed is: 336133.0 = 168506.0+167627.0
+total tag count in chr11.bed is: 455090.0 = 227314.0+227776.0
+total tag count in chr12.bed is: 438032.0 = 219004.0+219028.0
+total tag count in chr13.bed is: 123330.0 = 61790.0+61540.0
+total tag count in chr14.bed is: 209603.0 = 104668.0+104935.0
+total tag count in chr15.bed is: 249089.0 = 124521.0+124568.0
+total tag count in chr16.bed is: 464139.0 = 233144.0+230995.0
+total tag count in chr17.bed is: 467191.0 = 233682.0+233509.0
+total tag count in chr18.bed is: 78875.0 = 40403.0+38472.0
+total tag count in chr19.bed is: 640464.0 = 320335.0+320129.0
+total tag count in chr20.bed is: 163534.0 = 81614.0+81920.0
+total tag count in chr21.bed is: 68534.0 = 34379.0+34155.0
+total tag count in chr22.bed is: 206451.0 = 103662.0+102789.0
+total tag count in chrX.bed is: 262984.0 = 131196.0+131788.0
+total tag count in chrY.bed is: 26777.0 = 13244.0+13533.0
+
+
+Normalize summary graph to RPKM for TEM_CD4_Active_150min.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i TEM_CD4_Active_150min-W10.graph -a 3 -t 100000000 -o TEM_CD4_Active_150min-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh TEM_CD4_Active_150min-W10-normalized.graph TEM_CD4_Active_150min-W10-RPKM.wig TEM_CD4_Active_150min 10
+tophat -p 4 -o /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_15h --GTF /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/raw_data/SRR4838332.fastq.gz
+
+[2017-06-06 21:59:07] Beginning TopHat run (v2.1.0)
+-----------------------------------------------
+[2017-06-06 21:59:07] Checking for Bowtie
+		  Bowtie version:	 2.2.6.0
+[2017-06-06 21:59:07] Checking for Bowtie index files (genome)..
+[2017-06-06 21:59:07] Checking for reference FASTA file
+	Warning: Could not find FASTA file /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome.fa
+[2017-06-06 21:59:07] Reconstituting reference FASTA file from Bowtie index
+  Executing: /usr/local/bowtie2-2.2.6/bin/bowtie2-inspect /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome > /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_15h/tmp/genome.fa
+[2017-06-06 22:00:53] Generating SAM header for /home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+[2017-06-06 22:00:56] Reading known junctions from GTF file
+[2017-06-06 22:00:59] Preparing reads
+	 left reads: min. length=36, max. length=36, 4166668 kept reads (61953 discarded)
+[2017-06-06 22:01:32] Building transcriptome data files /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_15h/tmp/genes
+[2017-06-06 22:03:12] Building Bowtie index from genes.fa
+[2017-06-06 22:12:25] Mapping left_kept_reads to transcriptome genes with Bowtie2 
+[2017-06-06 22:15:05] Resuming TopHat pipeline with unmapped reads
+Warning: you have only one segment per read.
+	If the read length is greater than or equal to 45bp,
+	we strongly recommend that you decrease --segment-length to about half the read length because TopHat will work better with multiple segments
+[2017-06-06 22:15:05] Mapping left_kept_reads.m2g_um to genome genome with Bowtie2 
+[2017-06-06 22:15:52] Searching for junctions via segment mapping
+	Coverage-search algorithm is turned on, making this step very slow
+	Please try running TopHat again with the option (--no-coverage-search) if this step takes too much time or memory.
+[2017-06-06 22:19:45] Retrieving sequences for splices
+[2017-06-06 22:21:55] Indexing splices
+Building a SMALL index
+[2017-06-06 22:22:30] Mapping left_kept_reads.m2g_um_unmapped to genome segment_juncs with Bowtie2 (1/1)
+[2017-06-06 22:22:37] Joining segment hits
+[2017-06-06 22:25:01] Reporting output tracks
+-----------------------------------------------
+[2017-06-06 22:29:01] A summary of the alignment counts can be found in /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_15h/align_summary.txt
+[2017-06-06 22:29:01] Run complete: 00:29:54 elapsed
+
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bam2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_15h TEM_CD4_Active_15h 10 0 hg19
+
+bamToBed -i TEM_CD4_Active_15h.bam > TEM_CD4_Active_15h.bed
+
+sh /home/zzeng/Software/SICER1.1/SICER/extra/tools/wiggle/bed2wig.sh /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_15h TEM_CD4_Active_15h 10 0 hg19
+
+Partion the genome in windows and generate summary files ...
+python /home/zzeng/Software/SICER1.1/SICER/src/run-make-graph-file-by-chrom.py -s hg19 -b /home/zzeng/cloud_research/PengGroup/ZZeng/Data/intron_retention/Human/CD4/tophat_analysis/TEM_CD4_Active_15h/TEM_CD4_Active_15h.bed -w 10 -i 0 -o TEM_CD4_Active_15h-W10.graph 
+total tag count in chr1.bed is: 457303.0 = 227853.0+229450.0
+total tag count in chr2.bed is: 259958.0 = 128722.0+131236.0
+total tag count in chr3.bed is: 191897.0 = 95920.0+95977.0
+total tag count in chr4.bed is: 103432.0 = 51871.0+51561.0
+total tag count in chr5.bed is: 188059.0 = 94630.0+93429.0
+total tag count in chr6.bed is: 322313.0 = 162402.0+159911.0
+total tag count in chr7.bed is: 211194.0 = 105668.0+105526.0
+total tag count in chr8.bed is: 121860.0 = 61220.0+60640.0
+total tag count in chr9.bed is: 152342.0 = 76481.0+75861.0
+total tag count in chr10.bed is: 138620.0 = 69370.0+69250.0
+total tag count in chr11.bed is: 246165.0 = 123441.0+122724.0
+total tag count in chr12.bed is: 265323.0 = 132429.0+132894.0
+total tag count in chr13.bed is: 54359.0 = 27328.0+27031.0
+total tag count in chr14.bed is: 120900.0 = 60521.0+60379.0
+total tag count in chr15.bed is: 138087.0 = 69276.0+68811.0
+total tag count in chr16.bed is: 312782.0 = 156501.0+156281.0
+total tag count in chr17.bed is: 316688.0 = 157815.0+158873.0
+total tag count in chr18.bed is: 38455.0 = 19674.0+18781.0
+total tag count in chr19.bed is: 404573.0 = 202408.0+202165.0
+total tag count in chr20.bed is: 94726.0 = 47106.0+47620.0
+total tag count in chr21.bed is: 37498.0 = 18772.0+18726.0
+total tag count in chr22.bed is: 130999.0 = 65497.0+65502.0
+total tag count in chrX.bed is: 140671.0 = 70311.0+70360.0
+total tag count in chrY.bed is: 15742.0 = 7782.0+7960.0
+
+
+Normalize summary graph to RPKM for TEM_CD4_Active_15h.bed ...
+python /home/zzeng/Software/SICER1.1/SICER/src/normalize.py -i TEM_CD4_Active_15h-W10.graph -a 3 -t 100000000 -o TEM_CD4_Active_15h-W10-normalized.graph
+
+
+Convert the normalized sample summary graph into wig vstep format...
+sh /home/zzeng/Software/SICER1.1/SICER/src/variableStep.sh TEM_CD4_Active_15h-W10-normalized.graph TEM_CD4_Active_15h-W10-RPKM.wig TEM_CD4_Active_15h 10
+done
