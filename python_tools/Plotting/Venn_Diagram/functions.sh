@@ -178,7 +178,7 @@ RUN_BedToFasta(){
 	bedtools getfasta -fo ${Input_1}.fa -fi ${MM9_FASTA} -bed ${Input_1}.bed
 	}
 
-RUN_Bedtools_Merge(){
+RUN_Venn_Diagram(){
 	#### Usage: RUN_Bedtools_Merge $1 $2
 	#CHECK_arguments $# 2
 	local Current_DATA_DIR=${1}

@@ -1,2 +1,0 @@
-Can't locate JSON.pm in @INC (you may need to install the JSON module) (@INC contains: /etc/perl /usr/local/lib/perl/5.18.2 /usr/local/share/perl/5.18.2 /usr/lib/perl5 /usr/share/perl5 /usr/lib/perl/5.18 /usr/share/perl/5.18 /usr/local/lib/site_perl .) at /home/lxiang/meme/bin/meme-chip_html_to_tsv line 18.
-BEGIN failed--compilation aborted at /home/lxiang/meme/bin/meme-chip_html_to_tsv line 18.

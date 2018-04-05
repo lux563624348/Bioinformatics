@@ -178,7 +178,7 @@ RUN_BedToFasta(){
 	bedtools getfasta -fo ${Input_1}.fa -fi ${MM9_FASTA} -bed ${Input_1}.bed
 	}
 
-RUN_Bedtools_Merge(){
+RUN_Venn_Diagram(){
 	#### Usage: RUN_Bedtools_Merge $1 $2
 	#CHECK_arguments $# 2
 	local Current_DATA_DIR=${1}
@@ -191,21 +191,22 @@ RUN_Bedtools_Merge(){
 	echo "cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin > union_all_0.txt"
 	cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin > union_all_0.txt
 	
-	cp union_all.txt
 	
 	local k=0
 	for FILE_DIR in ${DIRLIST}
 	do
-		__DIR[k]="${Current_DATA_DIR}/${FILE_DIR: 2}"
-		j=$(expr $k + 1)
+		local __DIR[k]="${FILE_DIR: 2}"
+		local j=$(expr $k + 1)
 		echo "bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt"
 		bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt
 		rm union_all_${k}.txt
 		k=$(expr $k + 1)
 	done
 	
+	#### Manually 
 	#bedtools intersect -c -a union_all.${FILE_TYPE} -b TLE3-Tfh_peaks.bed | bedtools intersect -c -a stdin -b TLE3-Th1_peaks.bed | bedtools intersect -c -a stdin -b TLE3-CD4_peaks.bed > combine_sorted_count.bed 
-	#python 
+	
+	python Venn_Diagram_plot.py "union_all_${j}.txt" "${__DIR[0]::-4}" "${__DIR[1]::-4}" "${__DIR[2]::-4}"
 	
 	
 	}

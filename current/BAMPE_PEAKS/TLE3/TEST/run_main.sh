@@ -83,7 +83,7 @@ echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
 	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
-	RUN_Bedtools_Merge ${__RAW_DATA_PATH_DIR} "bed"
+	RUN_Venn_Diagram ${__RAW_DATA_PATH_DIR} "bed"
 	break
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
 	
