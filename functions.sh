@@ -164,10 +164,57 @@ mv "${FN}" "${FN%bad}bash"
 done
 	}
 
-RUN_bed_intersect(){
-	#### usage RUN_bed_intersect $1 $2
+RUN_BedToFasta(){
+	#### usage RUN_BedToFasta $1 $2  ($1 is folder $2 is name)
+	#CHECK_arguments $# 2
+	
+	####Fasta files:
+	local MM9_FASTA="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM9/genome.fa"
+	local MM10_FASTA="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM10/mm10.fa"
+	####
+	local Input_1=${1}/${2}
+	
+	echo "bedtools getfasta -fi ${MM9_FASTA} -bed ${Input_1}"
+	bedtools getfasta -fo ${Input_1}.fa -fi ${MM9_FASTA} -bed ${Input_1}.bed
+	}
+
+RUN_Venn_Diagram(){
+	#### Usage: RUN_Bedtools_Merge $1 $2
+	#CHECK_arguments $# 2
+	local Current_DATA_DIR=${1}
+	local FILE_TYPE=${2}
+########################################################################
+	cd ${Current_DATA_DIR}
+	local DIRLIST="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
+	
+	echo "Merge All files into one file!"
+	echo "cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin > union_all_0.txt"
+	cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin > union_all_0.txt
+	
+	
+	local k=0
+	for FILE_DIR in ${DIRLIST}
+	do
+		local __DIR[k]="${FILE_DIR: 2}"
+		local j=$(expr $k + 1)
+		echo "bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt"
+		bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt
+		rm union_all_${k}.txt
+		k=$(expr $k + 1)
+	done
+	
+	#### Manually 
+	#bedtools intersect -c -a union_all.${FILE_TYPE} -b TLE3-Tfh_peaks.bed | bedtools intersect -c -a stdin -b TLE3-Th1_peaks.bed | bedtools intersect -c -a stdin -b TLE3-CD4_peaks.bed > combine_sorted_count.bed 
+	
+	python Venn_Diagram_plot.py "union_all_${j}.txt" "${__DIR[0]::-4}" "${__DIR[1]::-4}" "${__DIR[2]::-4}"
+	
+	
+	}
+
+RUN_Bedtools_Intersect(){
+	#### usage RUN_Bedtools_Intersect $1 $2
 	CHECK_arguments $# 2
-	FILE_TYPE='bed'
+	local FILE_TYPE='bed'
 	local Input_A1=${__RAW_DATA_PATH_DIR}/${1}.${FILE_TYPE}
 	local Input_B1=${__RAW_DATA_PATH_DIR}/${2}.${FILE_TYPE}
 	DIR_CHECK_CREATE "${__EXE_PATH}/Common"
