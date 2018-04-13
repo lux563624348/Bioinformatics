@@ -30,31 +30,20 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Project_Xue_TCF1_620/Peaks/data/tcf1_foxp3
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Raw_Data/Haihui/RNA-seq/HP/Mar2018
 #### Execution or Output directory
-__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Project_Xue_TCF1_620/Peaks/data/tcf1_foxp3
+__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/RNA-seq/HP/Mar2018
 ########################################################################
-#echo "__INPUT_SAMPLE_DIR_List=(1_input_Bruce4 2_H3K4me3_Bruce4 3_H3K9me3_Bruce4 4_input_WT 5_H3K4me3_WT 6_input_mir34bc_KO 7_H3K4me3_mir34bc_KO 8_H3K9me3_WT_Dec 8_H3K9me3_WT_April 9_H3K9me3_mir34bc_KO_Dec 9_H3K9me3_mir34bc_KO_April 10_New_H3K9me3_WT 11_New_H3K9me3_mir34bc_KO)"
-
 
 __INPUT_SAMPLE_DIR_List=(
-Naive_CD4_Rest      #0
-Naive_CD4_Active_40min #1
-Naive_CD4_Active_150min #2
-Naive_CD4_Active_15h
-TCM_CD4_Rest   #4
-TCM_CD4_Active_40min
-TCM_CD4_Active_150min
-TCM_CD4_Active_15h
-TEM_CD4_Rest   #8
-TEM_CD4_Active_40min
-TEM_CD4_Active_150min
-TEM_CD4_Active_15h #11
+Sample_20051	#Ctrl-3n
+Sample_20052	#Ctrl-4n
+Sample_20053	#dKO-3n
+Sample_20054	#dKO-4n
+Sample_20055	#Ctrl-3s
+Sample_20056	#dKO-3s
 )
-__INPUT_SAMPLE_DIR_List=(
-Common_peaks_Treg_Foxp3
-Solo_peaks_Treg_Foxp3
-)
+
 
 
 echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
@@ -82,10 +71,14 @@ echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
-	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
-	RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
+	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
+	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
+	#FUNC_Download "flowcell_HFNLTBCX2"
+	RUN_FAST_QC ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]}
 	
+	RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
+	#break
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]}
 	
 #### FOR a full cycle, it must be clear its READS_DIR in the end.

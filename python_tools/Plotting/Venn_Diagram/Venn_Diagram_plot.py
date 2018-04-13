@@ -3,7 +3,26 @@
 #
 #  
 #  Copyright 2017 Xiang <Xiang@LAPTOP-Q0TSHFKK>
-#  
+#
+'''
+For example:
+Chr	 start	 end
+File A: Chr1 	1	20
+File B: Chr1	15	30
+File C: Chr1	45	60
+> Union> File: union.bed
+Chr	 start	 end
+Chr1 	1	30
+Chr1	45	60
+
+Overlap union.bed with A, B and C one by one.
+				‘A’	‘B’	‘C’
+Chr1 	1	30	1	1	0  
+Chr1	45	60	0	0	0
+
+Because chr1	1	30 has overlap both in ‘A’ and ‘B’, then we says that this peak is common in A and B.
+'''
+
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')

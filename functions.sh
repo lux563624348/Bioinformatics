@@ -45,8 +45,8 @@ PRE_READS_DIR(){
 	#local DIRLIST_R1="$( find -name "*R1.fastq" | sort -n | xargs)"
 	#local DIRLIST_R2="$( find -name "*R2.fastq" | sort -n | xargs)" #
 	
-	local DIRLIST_R1_gz="$( find -name "*R1.$2" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*R2.$2" | sort -n | xargs)"
+	local DIRLIST_R1_gz="$( find -name "*R1*.$2" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*R2*.$2" | sort -n | xargs)"
 
 
 #### R1 Saving		
@@ -103,13 +103,13 @@ RUN_FAST_QC (){
 	DIR_CHECK_CREATE ${Output_fastqc}
 	cd $__RAW_DATA_PATH_DIR
 	
-	for fastq_file in $__FASTQ_DIR_R1
+	for fastq_file in ${__FASTQ_DIR_R1}
 	do
 	echo "fastqc -o ${Output_fastqc} $fastq_file"
 	fastqc -o ${Output_fastqc} ${fastq_file}
 	done
 	
-	for fastq_file in $__FASTQ_DIR_R2
+	for fastq_file in ${__FASTQ_DIR_R2}
 	do
 	echo "fastqc -o ${Output_fastqc} $fastq_file"
 	fastqc -o ${Output_fastqc} ${fastq_file}
@@ -180,7 +180,26 @@ RUN_BedToFasta(){
 
 RUN_Venn_Diagram(){
 	#### Usage: RUN_Bedtools_Merge $1 $2
-	#CHECK_arguments $# 2
+	:'
+	For example:
+	Chr	 start	 end
+	File A: Chr1 	1	20
+	File B: Chr1	15	30
+	File C: Chr1	45	60
+	> Union> File: union.bed
+	Chr	 start	 end
+	Chr1 	1	30
+	Chr1	45	60
+
+	Overlap union.bed with A, B and C one by one.
+				‘A’	‘B’	‘C’
+	Chr1 	1	30	1	1	0  
+	Chr1	45	60	0	0	0
+
+	Because chr1	1	30 has overlap both in ‘A’ and ‘B’, then we says that this peak is common in A and B.
+	'
+	
+	CHECK_arguments $# 2
 	local Current_DATA_DIR=${1}
 	local FILE_TYPE=${2}
 ########################################################################
@@ -200,7 +219,7 @@ RUN_Venn_Diagram(){
 		echo "bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt"
 		bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt
 		rm union_all_${k}.txt
-		k=$(expr $k + 1)
+		local k=$(expr $k + 1)
 	done
 	
 	#### Manually 
@@ -694,8 +713,8 @@ RUN_BOWTIE2(){
 	then
 	echo "Pair End Mode"
 	
-	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S $OUTPUT_BOWTIE2"
-	bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S $OUTPUT_BOWTIE2
+	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2"
+	bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2
 	
 	#### concordantly pair output
 	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
@@ -706,8 +725,8 @@ RUN_BOWTIE2(){
 	
 	else
 	echo "Single End Mode."
-	echo "bowtie2 -p $THREADS --no-unal --non-deterministic -x $BOWTIEINDEXS -U ${__FASTQ_DIR_R1[0]} -S $OUTPUT_BOWTIE2"
-	bowtie2 -p $THREADS --no-unal --non-deterministic -x $BOWTIEINDEXS -U ${__FASTQ_DIR_R1[0]} -S $OUTPUT_BOWTIE2
+	echo "bowtie2 -p $THREADS --no-unal --non-deterministic -x $BOWTIEINDEXS -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S $OUTPUT_BOWTIE2"
+	bowtie2 -p $THREADS --no-unal --non-deterministic -x $BOWTIEINDEXS -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S $OUTPUT_BOWTIE2
 	fi
 
 	echo ""
@@ -966,20 +985,20 @@ echo "RUN_TOPHAT_ANALYSIS"
 CHECK_arguments $# 1
 
 ### Operation PARAMETERS Setting
-#local SPECIES=mm9
-local SPECIES=hg19
+local SPECIES=mm9
+#local SPECIES=hg19
 local WINDOW_SIZE=10
 local FRAGMENT_SIZE=0
 local THREADS=6
 local INPUT_NAME=${1}
 ########################################################################
 #### mm9
-#local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
-#local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
+local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
 
 #### hg19
-local GTFFILE=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
-local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+#local GTFFILE=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
+#local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
 
 ########################################################################
 local SICER_DIR=/home/lxiang/Software/SICER1.1/SICER
@@ -994,24 +1013,24 @@ DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
-	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} ${__FASTQ_DIR_R1[0]} ${__FASTQ_DIR_R2[0]}"
-	tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} ${__FASTQ_DIR_R1[0]} ${__FASTQ_DIR_R2[0]}
+	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
+	tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
 	else
 	echo "Single End Mode."
-	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} ${__FASTQ_DIR_R1[0]}"
-	#tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} ${__FASTQ_DIR_R1[0]}
+	echo "	tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
+	tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
 	fi
 
 	echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
-	#mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+	mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
 	
 	echo "bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
-	#bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
+	bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
 	
 	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${1} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
 	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${1} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
 	
-	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} "Intron_Retention"
+	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} "HP_RNA-seq"
 	
 	echo "One tophat is completed."
 	echo ""
@@ -1148,22 +1167,23 @@ EMAIL_ME(){
 	}
 
 FUNC_Download (){
+	CHECK_arguments $# 1
 ### Download Login information and the download directory.
-	web_address="http://dnacore454.healthcare.uiowa.edu/20180212-0109_Xue_0118kxGMcdfCPYuWEYbHCbdgsHZPLuHyyblaJidYdlam/results/Project_Xue_ShaojunPool_0118/"
-	#user="xue"
-	#password="ayooxuxue"
+	local Web_Address="https://jumpgate.caltech.edu/runfolders/volvox02/180314_SN787_0783_AHFNLTBCX2/Unaligned.singleIndex/"
+	local USER="gec"
+	local PASSWORD="aardvark dryer rummage"
 	cd ${__RAW_DATA_PATH_DIR}
-	DOWNLOAD_TARGET_NAME=$1;
+	local DOWNLOAD_TARGET_NAME=${1};
 ########################################################################
 	for ((i = 0; i <= $(expr $SAMPLE_NUM - 1); i++))
 	do
 ####If download file is a folder. IT MUST END WITH trailing slash  "/"
-	Down_dir=$__RAW_DATA_PATH_DIR/$DOWNLOAD_TARGET_NAME/;
-	#echo "wget --no-check-certificate -r -c -nH --user=$user --password=$pass_word --accept=gz --no-parent $web_address"
-	#wget --no-check-certificate -r -c -nH --user=$user --password=$password --accept=gz --no-parent $web_adress
+	local Down_dir=${__RAW_DATA_PATH_DIR}/${DOWNLOAD_TARGET_NAME}/;
+	echo "wget --no-check-certificate -r -c -nH --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}"
+	wget --no-check-certificate -r -c -nH --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}
 
-	echo "wget --no-check-certificate -r -c -nH --accept=gz --no-parent ${web_address}"
-	wget --no-check-certificate -r -c -nH --accept=gz --no-parent ${web_address}
+	#echo "wget --no-check-certificate -r -c -nH --accept=gz --no-parent ${web_address}"
+	#wget --no-check-certificate -r -c -nH --accept=gz --no-parent ${web_address}
 
 
 	echo "$DOWNLOAD_TARGET_NAME Downloaded Completed"
