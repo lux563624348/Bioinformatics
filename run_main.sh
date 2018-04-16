@@ -71,14 +71,17 @@ echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
-	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
+	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
 	#FUNC_Download "flowcell_HFNLTBCX2"
-	RUN_FAST_QC ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]}
+	#RUN_FAST_QC ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]}
 	
-	RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
-	#break
+	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "HP" "mm9" "Haihui"
+	
+	
+	RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
+	break
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]}
 	
 #### FOR a full cycle, it must be clear its READS_DIR in the end.

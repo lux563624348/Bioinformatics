@@ -523,23 +523,25 @@ sh $EXEDIR/bed2wig.sh ${__RAW_DATA_PATH_DIR}/${1}/bowtie2_results ${1} ${WINDOW_
 	}
 
 RUN_Wig2BigWig (){
-	###RUN_Wig2BigWig $1 $2 $3 ($1=INPUT_FOLDER $2=INPUT_NAME $3=Track_hub_label)
+	###RUN_Wig2BigWig $1 $2 $3 $4 $5 
+	#### ($1=INPUT_FOLDER $2=INPUT_NAME $3=Track_hub_label, $4 Species $5 Data Provider)
 #### convert .wig to .bigwig and create the track hubs profiles.
 #### Usage: RUN_Wig2BigWig $1 $2 $3
-	CHECK_arguments $# 3
-	local Data_provider=Online
-	trackDb_NAME="hg19"
+	CHECK_arguments $# 5
+	
+	local Data_provider=${5}
+	local trackDb_NAME=${4}
 	
 	local Wig_DIR=${1}
-	local Tracks_NAME=${2}-W10-RPKM
+	local Tracks_NAME=${2}-W200-RPKM
 	local Data_label=${3}
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
 	
 	####INPUT
 	local UCSC_DIR=/home/lxiang/Software/UCSC
 	#local chrom_sizes_mm10=${UCSC_DIR}/genome_sizes/mm10.chrom.sizes
-	#local chrom_sizes_mm9=${UCSC_DIR}/genome_sizes/mm9.chrom.sizes
-	local chrom_sizes_hg19=${UCSC_DIR}/genome_sizes/hg19.chrom.sizes
+	local chrom_sizes_mm9=${UCSC_DIR}/genome_sizes/mm9.chrom.sizes
+	#local chrom_sizes_hg19=${UCSC_DIR}/genome_sizes/hg19.chrom.sizes
 
 	
 
@@ -585,7 +587,7 @@ RUN_Wig2BigWig (){
 	echo "shortLabel ${Tracks_NAME: 0:18}" >>$filename
 	echo "longLabel ${Tracks_NAME}" >>$filename
 	echo "visibility full" >>$filename
-	echo "maxHeightPixels 60" >>$filename
+	echo "maxHeightPixels 128" >>$filename
 	echo "color 256,0,0" >>$filename
 	echo "autoScale on" >>$filename
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
@@ -659,7 +661,7 @@ RUN_BigGraph2BigWig (){
 	echo "shortLabel ${Tracks_NAME: 0:18}" >>$filename
 	echo "longLabel ${Tracks_NAME}" >>$filename
 	echo "visibility full" >>$filename
-	echo "maxHeightPixels 60" >>$filename
+	echo "maxHeightPixels 128" >>$filename
 	echo "color 256,0,0" >>$filename
 	echo "autoScale on" >>$filename
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
@@ -951,26 +953,40 @@ macs2 bdgdiff --t1 ${CON1_NAME}_treat_pileup.bdg --c1 ${CON1_NAME}_control_lambd
 }
 
 RUN_CUFFDIFF(){
-	
-OUTPUT_tophat=$1/tophat_anlysis
-OUT_SAMPLE_NAME=$2
-DIR_CHECK_CREATE $OUTPUT_tophat/cuffdiff
-SAMPLE_NUM=${#OUT_SAMPLE_NAME{*}}
+	### RUN_CUFFDIFF $1 $2
+	####
+CHECK_arguments $# 6
+local INPUT_Args=("$@")
+local SAMPLE_NUM=${#INPUT_Args[*]}
+local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
+local OUTPUT_Cuffdiff=${__EXE_PATH}/Cuffdiff_Results
+local THREADS=6
+DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}
 
 #### Preparing the .bam files for cuffdiff
-for ((i = 0; i <= $(expr $SAMPLE_NUM - 1); i++))
+for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do	
-	DATA_BAM[$i]=$OUTPUT_tophat/${OUT_SAMPLE_NAME[i]}/${OUT_SAMPLE_NAME[i]}.bam
+	local DATA_BAM[$i]=${__EXE_PATH}/${INPUT_Args[i]}/Tophat_results/${INPUT_Args[i]}.bam
 	echo ${DATA_BAM[$i]}
 done
 
 ### TWO GROUP, Four DATA FILES, 
 ########################################################################
-if [ $SAMPLE_NUM -eq "4" ]
+if [ ${SAMPLE_NUM} -eq "6" ]
 then
-	echo "$SAMPLE_NUM Data files are loading..."
-	echo "cuffdiff -o $OUTPUTDIR_CuffDiff -p $THREADS -L ${SAMPLENAME_GROUP[0]},${SAMPLENAME_GROUP[1]} $GTFFILE ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}"
-	cuffdiff -o $OUTPUTDIR_CuffDiff -p $THREADS -L ${SAMPLENAME_GROUP[0]},${SAMPLENAME_GROUP[1]} $GTFFILE ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}
+	echo "${INPUT_Args} Data files are loading..."
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff} -p ${THREADS} -L "Ctrl-n","dKO-n" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff} -p ${THREADS} -L "Ctrl-n","dKO-n" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}
+
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff} -p ${THREADS} -L "Ctrl-n","Ctrl-s" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff} -p ${THREADS} -L "Ctrl-n","Ctrl-s" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]}
+
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff} -p ${THREADS} -L "dKO-n","dKO-s" ${GTFFILE} ${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[5]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff} -p ${THREADS} -L "dKO-n","dKO-s" ${GTFFILE} ${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[5]}
+
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff} -p ${THREADS} -L "Ctrl-s","dKO-s" ${GTFFILE} ${DATA_BAM[4]} ${DATA_BAM[5]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff} -p ${THREADS} -L "Ctrl-s","dKO-s" ${GTFFILE} ${DATA_BAM[4]} ${DATA_BAM[5]}
+
 fi
 ########################################################################
 
@@ -978,19 +994,23 @@ echo "CuffDiff Completed!"
 	}
 
 RUN_TOPHAT (){
-#### Usage: RUN_TOPHAT 1.${INPUT_SAMPLE_DIR_List[*]}
+#### Usage: RUN_TOPHAT $1 $2 $3 $4
+#### $1={INPUT_SAMPLE_DIR_List[*]}
 ### Tophat Input and Output DIR setting ...	
 
 echo "RUN_TOPHAT_ANALYSIS"
-CHECK_arguments $# 1
+CHECK_arguments $# 4
 
 ### Operation PARAMETERS Setting
-local SPECIES=mm9
-#local SPECIES=hg19
-local WINDOW_SIZE=10
-local FRAGMENT_SIZE=0
-local THREADS=6
 local INPUT_NAME=${1}
+local PROJECT_NAME=${2}
+local SPECIES=${3}
+local Data_Provider=${4}
+
+#local SPECIES=hg19
+local WINDOW_SIZE=200
+local FRAGMENT_SIZE=50
+local THREADS=6
 ########################################################################
 #### mm9
 local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
@@ -1027,10 +1047,10 @@ DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
 	echo "bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
 	bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
 	
-	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${1} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
-	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${1} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
+	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
+	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
 	
-	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} "HP_RNA-seq"
+	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
 	
 	echo "One tophat is completed."
 	echo ""
