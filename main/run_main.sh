@@ -45,11 +45,8 @@ Sample_20056	#dKO-3s
 )
 
 __INPUT_SAMPLE_DIR_List=(
-CKO_CD8_Day0_CBF-W200-normalized
-Effector_CD8_Runx3_peaks
-Naive_CD8_Runx3_peaks
-WT_CD8_Day0_CBF_C1_P1E-5_peaks
-WT_CD8_Day0_CBF_C1-W200-normalized
+Naive_CD8_Runx3_Control-W200-RPKM
+Naive_CD8_Runx3-W200-RPKM
 )
 
 
