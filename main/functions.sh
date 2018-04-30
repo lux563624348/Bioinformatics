@@ -99,9 +99,9 @@ RUN_FAST_QC (){
 ####	Usage: RUN_FAST_QC $INPUT_DATA_DIR
 ########################################################################
 ### FASTQC Output DIR setting ...
-	local Output_fastqc=${__RAW_DATA_PATH_DIR}/fastqc
+	local Output_fastqc=${__EXE_PATH}/fastqc
 	DIR_CHECK_CREATE ${Output_fastqc}
-	cd ${__RAW_DATA_PATH_DIR}
+	cd ${__EXE_PATH}
 	
 	for fastq_file in ${__FASTQ_DIR_R1}
 	do
@@ -565,7 +565,7 @@ RUN_Wig2BigWig (){
 	CHECK_arguments $# 5
 	
 	local Data_provider=${5}
-	local trackDb_NAME=${4}
+	local SPECIES=${4}
 	
 	local Wig_DIR=${1}
 	local Tracks_NAME=${2}
@@ -573,11 +573,25 @@ RUN_Wig2BigWig (){
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
 	
 	####INPUT
+case ${SPECIES} in 
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/mm9.chrom.sizes"
+	;;
+	"mm10") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/mm10.chrom.sizes"
+	;;
+	"hg19")
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/hg19.chrom.sizes"
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
 	local UCSC_DIR=/home/lxiang/Software/UCSC
-	#local chrom_sizes_mm10=${UCSC_DIR}/genome_sizes/mm10.chrom.sizes
-	local chrom_sizes_mm9=${UCSC_DIR}/genome_sizes/mm9.chrom.sizes
-	#local chrom_sizes_hg19=${UCSC_DIR}/genome_sizes/hg19.chrom.sizes
-	
 	
 	cd ${Wig_DIR}
 #### OUTPUT
@@ -585,8 +599,8 @@ RUN_Wig2BigWig (){
 	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigWigs
 
 
-	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes_mm9} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
-	$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes_mm9} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
+	$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
 
 ###	Creating hub.txt
 	cd $OUTPUTDIR_tracks_hub
@@ -605,13 +619,13 @@ RUN_Wig2BigWig (){
 
 	local filename=genomes.txt
 	if [ ! -f $filename ];then
-	echo "genome $trackDb_NAME" >>$filename
-	echo "trackDb $trackDb_NAME/trackDb.txt" >>$filename
+	echo "genome $SPECIES" >>$filename
+	echo "trackDb $SPECIES/trackDb.txt" >>$filename
 	fi
 ########################################################################
 
-	DIR_CHECK_CREATE $OUTPUTDIR_tracks_hub/${trackDb_NAME}	
-	cd $OUTPUTDIR_tracks_hub/${trackDb_NAME}
+	DIR_CHECK_CREATE $OUTPUTDIR_tracks_hub/${SPECIES}	
+	cd $OUTPUTDIR_tracks_hub/${SPECIES}
 	
 	local filename=trackDb.txt
 	local bw_Url=https://s3.amazonaws.com/xianglilab/tracks_hub/${Data_provider}/${Data_label}/BigWigs/${Tracks_NAME}.bw
@@ -679,17 +693,36 @@ RUN_BigGraph2BigWig (){
 	##RUN_BigGraph2BigWig   $INPUT_FOLDER $INPUT_NAME $Track_hub_label
 #### convert .wig to .bigwig and create the track hubs profiles.
 #### Usage: RUN_Wig2BigWig $Sample_Wig_NAME
-	CHECK_arguments $# 3
-	local Data_provider=Haihui
+	CHECK_arguments $# 5
 	
-	local bdg_DIR=${1}
+	local Data_provider=${5}
+	local SPECIES=${4}
+	
+	local Wig_DIR=${1}
 	local Tracks_NAME=${2}
-	local Data_label=${3}_MACS2
+	local Data_label=${3}
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
-
+	
 	####INPUT
-	local UCSC_DIR=/home/lxiang/Software/UCSC
-	local Reference_genome_sizes=$UCSC_DIR/genome_sizes/mm9.chrom.sizes
+case ${SPECIES} in 
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/mm9.chrom.sizes"
+	;;
+	"mm10") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/mm10.chrom.sizes"
+	;;
+	"hg19")
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/hg19.chrom.sizes"
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+
 	cd ${bdg_DIR}
 
 	#local chrom_sizes_mm10=${UCSC_DIR}/genome_sizes/mm10.chrom.sizes
@@ -712,8 +745,8 @@ RUN_BigGraph2BigWig (){
 	rm ${Tracks_NAME}.bdg
 	fi
 	
-	echo "$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
-	$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+	echo "$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
+	$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
 
 ###	Creating hub.txt
 	cd $OUTPUTDIR_tracks_hub
@@ -729,16 +762,15 @@ RUN_BigGraph2BigWig (){
 ########################################################################
 
 ###	Creating genomes.txt	
-	trackDb_NAME="mm9"
 	local filename=genomes.txt
 	if [ ! -f $filename ];then
-	echo "genome $trackDb_NAME" >>$filename
-	echo "trackDb $trackDb_NAME/trackDb.txt" >>$filename
+	echo "genome $SPECIES" >>$filename
+	echo "trackDb $SPECIES/trackDb.txt" >>$filename
 	fi
 ########################################################################
 
-	DIR_CHECK_CREATE $OUTPUTDIR_tracks_hub/${trackDb_NAME}	
-	cd $OUTPUTDIR_tracks_hub/${trackDb_NAME}
+	DIR_CHECK_CREATE $OUTPUTDIR_tracks_hub/${SPECIES}	
+	cd $OUTPUTDIR_tracks_hub/${SPECIES}
 	
 	local filename=trackDb.txt
 	local bw_Url=https://s3.amazonaws.com/xianglilab/tracks_hub/${Data_provider}/${Data_label}/BigWigs/${Tracks_NAME}.bw
@@ -958,7 +990,7 @@ cd ${OUT_FOLDER}
 
 ### --BAMPE
 echo "python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
-#python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
+python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 
 ### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
 #echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
@@ -1166,8 +1198,8 @@ local EXEDIR=$SICER_DIR/extra/tools/wiggle
 	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
 	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
 	
-	echo "RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+	echo "RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
 	
 	echo "One TopHat is completed."
 	echo ""
