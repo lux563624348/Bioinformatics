@@ -95,13 +95,13 @@ RUN_COPY_AND_CHANGE_NAME(){
 	}
 
 RUN_FAST_QC (){
-####	RUN_FAST_QC ${fastq_file_path}
+####	RUN_FAST_QC
 ####	Usage: RUN_FAST_QC $INPUT_DATA_DIR
 ########################################################################
 ### FASTQC Output DIR setting ...
-	local Output_fastqc=$__EXE_PATH/fastqc
+	local Output_fastqc=${__RAW_DATA_PATH_DIR}/fastqc
 	DIR_CHECK_CREATE ${Output_fastqc}
-	cd $__RAW_DATA_PATH_DIR
+	cd ${__RAW_DATA_PATH_DIR}
 	
 	for fastq_file in ${__FASTQ_DIR_R1}
 	do
@@ -769,41 +769,56 @@ RUN_BigGraph2BigWig (){
 ########################################################################
 
 RUN_BOWTIE2(){
-	### RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[3]}
+	### RUN_BOWTIE2 $1 $2
+	local INPUT_NAME=${1}
+	local SPECIES=${2}
+
+	CHECK_arguments $# 2
 	echo "RUN_BOWTIE2"
-	CHECK_arguments $# 1
-	BOWTIEINDEXS_mm9="/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
-	#BOWTIEINDEXS_mm10="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome"
+	local THREADS=4
+	#### OUTPUT FORMAT
+	local OUTPUT_BOWTIE2_FOLDER="${__EXE_PATH}/${INPUT_NAME}/bowtie2_results"
+	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
+	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
+	
+case ${SPECIES} in
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
+	;;
+	"mm10") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome"
+	;;
+	"hg19")
+	echo "Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome"
+	;;
+	"hg38")
+	echo "Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome"
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
 
 	#BOWTIEINDEXS_mm9_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/mm9_pMXs_combo/mm9_pMXs_combo"
 	#BOWTIEINDEXS_mm9_combo_MMLV_pMXs="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/mm9_comdo_MMLV_pMXs/mm9_comdo_MMLV_pMXs"
 	#BOWTIEINDEXS_MMLV_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_pMXs_combo/MMLV_pMXs_combo"
 	#BOWTIEINDEXS_MMLV="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MMLV_index/MMLV"
 	#BOWTIEINDEXS_mm10_pMXs_combo="/home/lxiang/Raw_Data/Paul/34bc/Bowtie2_Indexes/MM10_pMXs_combo/mm10_pMXs_combo"
-
-
-	local INPUT_NAME=$1
-	local BOWTIEINDEXS_name="BOWTIEINDEXS_mm9"
-	local BOWTIEINDEXS="${BOWTIEINDEXS_mm9}"
-	echo "Bowtie2 ref= $BOWTIEINDEXS_name"
-
-	local SPECIES="mm9"
-	local THREADS=4
-	local OUTPUT_BOWTIE2_FOLDER="${__EXE_PATH}/${INPUT_NAME}/bowtie2_results"
-
-	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
+	
 ########################################################################
-	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
-	local OUTPUT_BOWTIE2_unaligned="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_unaligned.sam"
 	
 	echo ""
 
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
-	
-	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2"
-	bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2
+	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2 --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
 	
 	#### concordantly pair output
 	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
@@ -815,12 +830,12 @@ RUN_BOWTIE2(){
 	else
 	echo "Single End Mode."
 	echo "bowtie2 -p $THREADS --no-unal --non-deterministic -x $BOWTIEINDEXS -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S $OUTPUT_BOWTIE2"
-	bowtie2 -p $THREADS --no-unal --non-deterministic -x $BOWTIEINDEXS -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S $OUTPUT_BOWTIE2
+	bowtie2 -p ${THREADS} --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}
 	fi
 
 	echo ""
-###sam2bam
-	if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
+###sam2bam   ##FROM MACS2
+	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
 	echo "samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
 	samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
 	fi
@@ -835,7 +850,7 @@ RUN_BOWTIE2(){
 	#samtools sort ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
 
 
-###sam2bed
+###sam2bed  Normal
 #echo "samtools view $OUTPUT_BOWTIE2 -Sb | bamToBed -i stdin > $OUTPUT_BOWTIE2_FOLDER/$INPUT_NAME.bed"
 #samtools view $OUTPUT_BOWTIE2 -Sb | bamToBed -i stdin > $OUTPUT_BOWTIE2_FOLDER/$INPUT_NAME.bed 
 
@@ -1089,8 +1104,6 @@ echo "CuffDiff Completed!"
 
 RUN_TOPHAT (){
 #### Usage: RUN_TOPHAT $1 $2 $3 $4
-#### $1={INPUT_SAMPLE_DIR_List[*]}
-### Tophat Input and Output DIR setting ...	
 
 echo "RUN_TOPHAT_ANALYSIS"
 CHECK_arguments $# 4
@@ -1101,24 +1114,33 @@ local PROJECT_NAME=${2}
 local SPECIES=${3}
 local Data_Provider=${4}
 
-#local SPECIES=hg19
+#### OUTPUT FORMAT
+local OUTPUT_TOPHAT_FOLDER="${__EXE_PATH}/${INPUT_NAME}/Tophat_results"
+DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
+
 local WINDOW_SIZE=200
 local FRAGMENT_SIZE=50
 local THREADS=4
 ########################################################################
-#### mm9
-local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
-local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
-
-#### hg19
-#local GTFFILE=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
-#local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
-
+case ${SPECIES} in
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
+	local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	;;
+	"hg19")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
+	local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
 ########################################################################
 local SICER_DIR=/home/lxiang/Software/SICER1.1/SICER
 local EXEDIR=$SICER_DIR/extra/tools/wiggle
-local OUTPUT_TOPHAT_FOLDER="${__EXE_PATH}/${INPUT_NAME}/Tophat_results"
-DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
 ########################################################################
 
 
@@ -1128,18 +1150,18 @@ DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
 	then
 	echo "Pair End Mode"
 	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
-	#tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
+	tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
 	else
 	echo "Single End Mode."
-	echo "	tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
-	#tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
+	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
+	tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
 	fi
 
 	echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
 	mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
 	
 	echo "bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
-	#bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
+	bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
 	
 	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
 	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
@@ -1278,32 +1300,38 @@ FUNC_CHOOSE_EMAIL_ALERT(){
 
 EMAIL_ME(){
 	CHECK_arguments $# 1
-	echo "Start at $1 " | mailx -v -s "Project Finished" lux@gwu.edu
+	echo "Start at ${1} " | mailx -v -s "Project: + ${2} Finished" lux@gwu.edu
 	}
 
 FUNC_Download (){
 	CHECK_arguments $# 1
 ### Download Login information and the download directory.
-	local Web_Address="https://jumpgate.caltech.edu/runfolders/volvox02/180314_SN787_0783_AHFNLTBCX2/Unaligned.singleIndex/"
-	local USER="gec"
-	local PASSWORD="aardvark dryer rummage"
+#### -nH --cut-dirs=3   Skip 3 directory components.
+	local Web_Address="http://dnacore454.healthcare.uiowa.edu/20171024-0071_XueShaojun3_XueShaojun3gfPyKlsQfWydSGFPDjiZMaYKkSZcBDvlqgJmDmTW/results/Project_XueShaojun3"
+	local Directory_Skip_Num=3
+	local USER=""
+	local PASSWORD=""
 	cd ${__RAW_DATA_PATH_DIR}
-	local DOWNLOAD_TARGET_NAME=${1};
-########################################################################
-	for ((i = 0; i <= $(expr $SAMPLE_NUM - 1); i++))
-	do
+	local DOWNLOAD_TARGET_NAME=${1}/;
 ####If download file is a folder. IT MUST END WITH trailing slash  "/"
+########################################################################
+
+
+
 	local Down_dir=${__RAW_DATA_PATH_DIR}/${DOWNLOAD_TARGET_NAME}/;
-	echo "wget --no-check-certificate -r -c -nH --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}"
-	wget --no-check-certificate -r -c -nH --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}
-
-	#echo "wget --no-check-certificate -r -c -nH --accept=gz --no-parent ${web_address}"
-	#wget --no-check-certificate -r -c -nH --accept=gz --no-parent ${web_address}
-
-
-	echo "$DOWNLOAD_TARGET_NAME Downloaded Completed"
+	
+	if [ -n "${USER}" -a -n "${PASSWORD}" ]
+	then
+	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=3 --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}"
+	wget --no-check-certificate -nv -r -c -nH --cut-dirs=3 --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}
+	else
+#### NO PASSCODE
+	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=3 --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}"
+	wget --no-check-certificate -nv -r -c -nH --cut-dirs=3 --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}
+	fi
+	echo "${DOWNLOAD_TARGET_NAME} Downloaded Completed"
 	echo ""
-	done
+
 	}
 
 CHECK_arguments(){

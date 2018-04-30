@@ -21,6 +21,8 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 ########################################################################
 echo "Start Date: `date` "
 Start_Date=`date`
+Process_NAME=${1}
+
 
 source ./functions.sh
 echo "Import functions.sh" 
@@ -30,9 +32,9 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/crossing_comparasion/CBF_Runx3_Tcf1/raw_data
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/ZZeng/raw_data/Haihui/Tcf1/HP_RNASeq_Mar2016
 #### Execution or Output directory
-__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/crossing_comparasion/CBF_Runx3_Tcf1
+__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/Mar2016
 ########################################################################
 
 __INPUT_SAMPLE_DIR_List=(
@@ -45,8 +47,14 @@ Sample_20056	#dKO-3s
 )
 
 __INPUT_SAMPLE_DIR_List=(
-Naive_CD8_Runx3_Control-W200-RPKM
-Naive_CD8_Runx3-W200-RPKM
+Sample_16708	#1 CD8 IL7/15 ctrl1-0h
+Sample_16709	#2 CD8 IL7/15 ctrl2-0h
+Sample_16710	#3 CD8 IL7/15 dKO1-0h 
+Sample_16711	#4 CD8 IL7/15 dKO2-0h
+Sample_16712	#5 CD8 IL7/15 ctrl1-72h
+Sample_16713	#6 CD8 IL7/15 ctrl2-72h
+Sample_16714	#7 CD7 IL7/15 dKO1-72h
+Sample_16715	#8 CD8 IL7/15 dKO2-72h
 )
 
 
@@ -77,37 +85,33 @@ echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
-	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
+	
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
-	#FUNC_Download "flowcell_HFNLTBCX2"
-	#RUN_FAST_QC ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]}
-	SPECIES='mm9'
-	Data_Provider='Haihui'
-	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "HP" "mm9" "Haihui"
-	RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
+	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
+	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
+	#RUN_FAST_QC
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10"
 	
-	RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1_Cbf_Runx3' ${SPECIES} ${Data_Provider}
+	RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "HP" "mm9" "Haihui"
+	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
+	
+	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1_Cbf_Runx3' ${SPECIES} ${Data_Provider}
 	
 	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]}
 	
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}
 done
 
-
 ## SECOND LOOP
-
-
-
 
 	echo "End Date: `date`"
 	echo -e "\a FINISHED ALERT !"
 	
 	if [ ${Alert_email} == 0 ];then
-	EMAIL_ME "${Start_Date}"
+	EMAIL_ME "${Start_Date}" ${Process_NAME}
 	fi
 }
 
