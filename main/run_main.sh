@@ -32,30 +32,16 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/ZZeng/raw_data/Haihui/Tcf1/HP_RNASeq_Mar2016
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Tcf1_WT_from_GSE46662
 #### Execution or Output directory
-__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/Mar2016
+__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Tcf1_WT_from_GSE46662
 ########################################################################
 
 __INPUT_SAMPLE_DIR_List=(
-Sample_20051	#Ctrl-3n
-Sample_20052	#Ctrl-4n
-Sample_20053	#dKO-3n
-Sample_20054	#dKO-4n
-Sample_20055	#Ctrl-3s
-Sample_20056	#dKO-3s
+GSM1133645_Input_Tcf1_WT
+GSM1133644_Tcf1_WT
 )
 
-__INPUT_SAMPLE_DIR_List=(
-Sample_16708	#1 CD8 IL7/15 ctrl1-0h
-Sample_16709	#2 CD8 IL7/15 ctrl2-0h
-Sample_16710	#3 CD8 IL7/15 dKO1-0h 
-Sample_16711	#4 CD8 IL7/15 dKO2-0h
-Sample_16712	#5 CD8 IL7/15 ctrl1-72h
-Sample_16713	#6 CD8 IL7/15 ctrl2-72h
-Sample_16714	#7 CD7 IL7/15 dKO1-72h
-Sample_16715	#8 CD8 IL7/15 dKO2-72h
-)
 
 
 
@@ -89,14 +75,15 @@ do
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
-	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
+	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
 	#RUN_FAST_QC
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10"
 	
-	RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "HP" "mm9" "Haihui"
+	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "HP" "mm9" "Haihui"
 	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
-	
-	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1_Cbf_Runx3' ${SPECIES} ${Data_Provider}
+	SPECIES="mm9"
+	Data_Provider="Ref_GSM46662"
+	RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1' ${SPECIES} ${Data_Provider}
 	
 	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
 	
