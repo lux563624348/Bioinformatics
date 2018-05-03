@@ -103,13 +103,13 @@ RUN_FAST_QC (){
 	DIR_CHECK_CREATE ${Output_fastqc}
 	cd ${__EXE_PATH}
 	
-	for fastq_file in ${__FASTQ_DIR_R1}
+	for fastq_file in ${__FASTQ_DIR_R1[*]}
 	do
 	echo "fastqc -o ${Output_fastqc} $fastq_file"
 	fastqc -o ${Output_fastqc} ${fastq_file}
 	done
 	
-	for fastq_file in ${__FASTQ_DIR_R2}
+	for fastq_file in ${__FASTQ_DIR_R2[*]}
 	do
 	echo "fastqc -o ${Output_fastqc} $fastq_file"
 	fastqc -o ${Output_fastqc} ${fastq_file}
@@ -1186,17 +1186,17 @@ local EXEDIR=$SICER_DIR/extra/tools/wiggle
 	else
 	echo "Single End Mode."
 	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
-	#tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
+	tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
 	fi
 
 	echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
-	#mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+	mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
 	
 	echo "bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
-	#bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
+	bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
 	
 	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
-	#sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
+	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
 	
 	echo "RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
 	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
@@ -1339,10 +1339,10 @@ FUNC_Download (){
 	CHECK_arguments $# 1
 ### Download Login information and the download directory.
 #### -nH --cut-dirs=3   Skip 3 directory components.
-	local Web_Address="http://dnacore454.healthcare.uiowa.edu/20171024-0071_XueShaojun3_XueShaojun3gfPyKlsQfWydSGFPDjiZMaYKkSZcBDvlqgJmDmTW/results/Project_XueShaojun3"
-	local Directory_Skip_Num=3
-	local USER=""
-	local PASSWORD=""
+	local Web_Address="https://jumpgate.caltech.edu/runfolders/volvox02/180426_SN787_0801_BHGW2YBCX2/Unaligned"
+	local Directory_Skip_Num=4
+	local USER="gec"
+	local PASSWORD="aardvark dryer rummage"
 	cd ${__RAW_DATA_PATH_DIR}
 	local DOWNLOAD_TARGET_NAME=${1}/;
 ####If download file is a folder. IT MUST END WITH trailing slash  "/"
@@ -1354,12 +1354,12 @@ FUNC_Download (){
 	
 	if [ -n "${USER}" -a -n "${PASSWORD}" ]
 	then
-	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=3 --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}"
-	wget --no-check-certificate -nv -r -c -nH --cut-dirs=3 --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}
+	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}"
+	wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --user="${USER}" --password="${PASSWORD}" --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}
 	else
 #### NO PASSCODE
-	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=3 --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}"
-	wget --no-check-certificate -nv -r -c -nH --cut-dirs=3 --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}
+	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}"
+	wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}
 	fi
 	echo "${DOWNLOAD_TARGET_NAME} Downloaded Completed"
 	echo ""

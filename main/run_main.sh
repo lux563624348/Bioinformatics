@@ -32,14 +32,24 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Tcf1_WT_from_GSE46662
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Raw_Data/Haihui/Vlad/May2018
 #### Execution or Output directory
-__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1/Tcf1_WT_from_GSE46662
+__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Vlad/May2018
 ########################################################################
 
 __INPUT_SAMPLE_DIR_List=(
-GSM1133645_Input_Tcf1_WT
-GSM1133644_Tcf1_WT
+#Project_20237_index13 #	27-Apr-2018 07:39	-	 
+Project_20238_index14 #	27-Apr-2018 07:39	-	 
+Project_20239_index15 #	27-Apr-2018 07:39	-	 
+Project_20240_index16 #	27-Apr-2018 07:39	-	 
+Project_20241_index18 #	27-Apr-2018 07:39	-	 
+Project_20242_index19 #	27-Apr-2018 07:39	-	 
+Project_20252_index20 #	27-Apr-2018 07:39	-	 
+Project_20253_index21 #	27-Apr-2018 07:39	-	 
+Project_20254_index22 #	27-Apr-2018 07:39	-	 
+Project_20255_index23 #	27-Apr-2018 07:39	-	 
+Project_20256_index25 #	27-Apr-2018 07:39	-	 
+Project_20257_index27
 )
 
 
@@ -74,16 +84,17 @@ do
 	
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
-	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
-	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
-	#RUN_FAST_QC
+	FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
+	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
+	RUN_FAST_QC
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10"
 	
-	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "HP" "mm9" "Haihui"
+	RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Vlad" "mm9" "Haihui_Vlad"
 	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
-	SPECIES="mm9"
-	Data_Provider="Ref_GSM46662"
-	RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1' ${SPECIES} ${Data_Provider}
+	
+	#SPECIES="mm9"
+	#Data_Provider="Ref_GSM46662"
+	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1' ${SPECIES} ${Data_Provider}
 	
 	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
 	
