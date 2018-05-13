@@ -702,7 +702,7 @@ RUN_BigGraph2BigWig (){
 	local Tracks_NAME=${2}
 	local Data_label=${3}
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
-	
+	local UCSC_DIR=/home/lxiang/Software/UCSC
 	####INPUT
 case ${SPECIES} in 
 	"mm9")
@@ -1089,7 +1089,7 @@ macs2 bdgdiff --t1 ${CON1_NAME}_treat_pileup.bdg --c1 ${CON1_NAME}_control_lambd
 RUN_CUFFDIFF(){
 	### RUN_CUFFDIFF $1 $2
 	####
-CHECK_arguments $# 6
+CHECK_arguments $# 12
 local INPUT_Args=("$@")
 local SAMPLE_NUM=${#INPUT_Args[*]}
 local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
@@ -1104,29 +1104,29 @@ do
 	echo ${DATA_BAM[$i]}
 done
 
-### TWO GROUP, Four DATA FILES, 
+### Four GROUP, each group has 3 DATA FILES, 
 ########################################################################
-if [ ${SAMPLE_NUM} -eq "6" ]
+if [ ${SAMPLE_NUM} -eq "12" ]
 then
 
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/Ctrl-n_dKO-n
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/A_vs_B
 	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/Ctrl-n_dKO-n -p ${THREADS} -L "Ctrl-n","dKO-n" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}"
-	cuffdiff -o ${OUTPUT_Cuffdiff}/Ctrl-n_dKO-n -p ${THREADS} -L "Ctrl-n","dKO-n" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/A_vs_B -p ${THREADS} -L "Group_A","Group_B" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[3]},${DATA_BAM[4]},${DATA_BAM[5]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff}/A_vs_B -p ${THREADS} -L "Group_A","Group_B" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[3]},${DATA_BAM[4]},${DATA_BAM[5]}
 
 
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/Ctrl-n_Ctrl-s
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/Ctrl-n_Ctrl-s -p ${THREADS} -L "Ctrl-n","Ctrl-s" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]}"
-	cuffdiff -o${OUTPUT_Cuffdiff}/Ctrl-n_Ctrl-s -p ${THREADS} -L "Ctrl-n","Ctrl-s" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]}
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/C_vs_D
+	echo "cuffdiff -o${OUTPUT_Cuffdiff}/C_vs_D -p ${THREADS} -L "Group_C","Group_D" ${GTFFILE} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]} ${DATA_BAM[9]},${DATA_BAM[10]},${DATA_BAM[11]}"
+	cuffdiff -o${OUTPUT_Cuffdiff}/C_vs_D -p ${THREADS} -L "Group_C","Group_D" ${GTFFILE} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]} ${DATA_BAM[9]},${DATA_BAM[10]},${DATA_BAM[11]}
 
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/dKO-n_dKO-s
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/dKO-n_dKO-s -p ${THREADS} -L "dKO-n","dKO-s" ${GTFFILE} ${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[5]}"
-	cuffdiff -o ${OUTPUT_Cuffdiff}/dKO-n_dKO-s -p ${THREADS} -L "dKO-n","dKO-s" ${GTFFILE} ${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[5]}
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/A_vs_C
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/A_vs_C -p ${THREADS} -L "Group_A","Group_C" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff}/A_vs_C -p ${THREADS} -L "Group_A","Group_C" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]}
 
 
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/Ctrl-s_dKO-s
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/Ctrl-s_dKO-s -p ${THREADS} -L "Ctrl-s","dKO-s" ${GTFFILE} ${DATA_BAM[4]} ${DATA_BAM[5]}"
-	cuffdiff -o ${OUTPUT_Cuffdiff}/Ctrl-s_dKO-s -p ${THREADS} -L "Ctrl-s","dKO-s" ${GTFFILE} ${DATA_BAM[4]} ${DATA_BAM[5]}
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/B_vs_D
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/B_vs_D -p ${THREADS} -L "Group_B","Group_D" ${GTFFILE}  ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]} ${DATA_BAM[9]},${DATA_BAM[10]},${DATA_BAM[11]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff}/B_vs_D -p ${THREADS} -L "Group_B","Group_D" ${GTFFILE}  ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]} ${DATA_BAM[9]},${DATA_BAM[10]},${DATA_BAM[11]}
 
 fi
 ########################################################################
@@ -1335,7 +1335,7 @@ EMAIL_ME(){
 	echo "Start at ${1} " | mailx -v -s "Project: + ${2} Finished" lux@gwu.edu
 	}
 
-FUNC_Download (){
+FUNC_Download (){c
 	CHECK_arguments $# 1
 ### Download Login information and the download directory.
 #### -nH --cut-dirs=3   Skip 3 directory components.

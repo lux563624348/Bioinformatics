@@ -38,7 +38,7 @@ __EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Vlad/May2018
 ########################################################################
 
 __INPUT_SAMPLE_DIR_List=(
-#Project_20237_index13 #	27-Apr-2018 07:39	-	 
+Project_20237_index13 #	27-Apr-2018 07:39	-	 
 Project_20238_index14 #	27-Apr-2018 07:39	-	 
 Project_20239_index15 #	27-Apr-2018 07:39	-	 
 Project_20240_index16 #	27-Apr-2018 07:39	-	 
@@ -84,19 +84,19 @@ do
 	
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
-	FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
+	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
-	RUN_FAST_QC
+	#RUN_FAST_QC
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10"
 	
-	RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Vlad" "mm9" "Haihui_Vlad"
+	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Vlad" "mm9" "Haihui_Vlad"
 	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	
 	#SPECIES="mm9"
 	#Data_Provider="Ref_GSM46662"
 	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1' ${SPECIES} ${Data_Provider}
 	
-	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
+	RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
 	
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
