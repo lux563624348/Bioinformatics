@@ -265,6 +265,37 @@ RUN_Bedtools_Intersect(){
 	
 	}
 
+RUN_RPKM(){
+	#### usage RUN_Bedtools_Intersect $1 $2
+	#### usage RUN_Bedtools_Intersect $1 $2
+	CHECK_arguments $# 1
+	local FILE_TYPE='bed'
+	local PATH_python_tools="/home/lxiang/cloud_research/PengGroup/XLi/Python_tools/read_RPKM.py"
+	local Input_A1="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm9/gene_Genebody_unique.bed"
+	local Input_B1=${__RAW_DATA_PATH_DIR}/${1}/Tophat_results/${1}.${FILE_TYPE}
+
+	
+	####################################################################
+	echo ""
+	
+	
+	Output_Path="${__EXE_PATH}/genes_RPKM"
+	DIR_CHECK_CREATE ${Output_Path}
+	
+	
+	OUTPUT_NAME="genes_read_count_${1}.bed"
+	
+	
+	
+
+	echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}"
+	bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}
+	
+	echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}"
+	python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}
+
+}
+
 RUN_read_filtering_Bamtohdf5(){
 ####Usage: RUN_Bamtohdf5 $1(Input Parent folder path) $2(condition name) $3(Input subfolder) $4(Resolution) ...
 	local SPECIES=mm9
@@ -871,7 +902,11 @@ esac
 	echo "samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
 	samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
 	fi
-
+### Then clear sam file.
+	if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
+	echo "rm ${OUTPUT_BOWTIE2}"
+	rm ${OUTPUT_BOWTIE2}
+	fi
 ###bam2bed
 
 	#echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
@@ -915,10 +950,10 @@ local FDR=0.05
 
 
 local IN_SICER_FOLDER=${__EXE_PATH}/${INPUT_NAME}/bowtie2_results
-local IN_SICER_FILES=${INPUT_NAME}_Merged_width_one.bed
+local IN_SICER_FILES=${INPUT_NAME}.bed
 
 local CONTRO_SICER_DIR=${__EXE_PATH}/${INPUI_CON}/bowtie2_results
-local CONTRO_SICER_FILE=${INPUI_CON}_Merged_width_one.bed
+local CONTRO_SICER_FILE=${INPUI_CON}.bed
 
 local OUT_SICER_FOLDER=${__EXE_PATH}/${INPUT_NAME}/SICER_results
 DIR_CHECK_CREATE ${OUT_SICER_FOLDER}
@@ -1335,7 +1370,7 @@ EMAIL_ME(){
 	echo "Start at ${1} " | mailx -v -s "Project: + ${2} Finished" lux@gwu.edu
 	}
 
-FUNC_Download (){c
+FUNC_Download (){
 	CHECK_arguments $# 1
 ### Download Login information and the download directory.
 #### -nH --cut-dirs=3   Skip 3 directory components.

@@ -32,24 +32,18 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Raw_Data/Haihui/Vlad/May2018
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/ZZeng/raw_data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016
 #### Execution or Output directory
-__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Vlad/May2018
+__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016
 ########################################################################
 
 __INPUT_SAMPLE_DIR_List=(
-Project_20237_index13 #	27-Apr-2018 07:39	-	 
-Project_20238_index14 #	27-Apr-2018 07:39	-	 
-Project_20239_index15 #	27-Apr-2018 07:39	-	 
-Project_20240_index16 #	27-Apr-2018 07:39	-	 
-Project_20241_index18 #	27-Apr-2018 07:39	-	 
-Project_20242_index19 #	27-Apr-2018 07:39	-	 
-Project_20252_index20 #	27-Apr-2018 07:39	-	 
-Project_20253_index21 #	27-Apr-2018 07:39	-	 
-Project_20254_index22 #	27-Apr-2018 07:39	-	 
-Project_20255_index23 #	27-Apr-2018 07:39	-	 
-Project_20256_index25 #	27-Apr-2018 07:39	-	 
-Project_20257_index27
+Sample_12KO_Treg_input_20160827000
+Sample_12KO_Treg_K27Ac_20160827000
+Sample_12KO_Treg_K9Ac_20160827000
+Sample_Ctrl_Treg_input_20160827000
+Sample_Ctrl_Treg_K27Ac_20160827000
+Sample_Ctrl_Treg_K9Ac_20160827000
 )
 
 
@@ -86,9 +80,9 @@ do
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
-	#RUN_FAST_QC
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10"
-	
+	RUN_FAST_QC
+	RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm9"
+	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Vlad" "mm9" "Haihui_Vlad"
 	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	
@@ -96,14 +90,17 @@ do
 	#Data_Provider="Ref_GSM46662"
 	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1' ${SPECIES} ${Data_Provider}
 	
-	RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
+	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
 	
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}
 done
 
+
 ## SECOND LOOP
+
+#RUN_SICER
 
 	echo "End Date: `date`"
 	echo -e "\a FINISHED ALERT !"
