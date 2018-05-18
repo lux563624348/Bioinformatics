@@ -817,6 +817,73 @@ esac
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
 }
 
+RUN_Reads_Profile(){
+	### Usage: RUN_Reads_Profile $1 
+	####
+	
+	
+	CHECK_arguments $# 1
+	
+	local REGIONTYPE=${1}
+	
+	local FRAGMENTSIZE=0
+	local UP_EXTENSION=5000
+	local DOWN_EXTENSION=5000
+	local WINDOWSIZE=100
+	local RESOLUTION=1
+	local FOLDER_PATH=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER/WT_Treg_D20_H3K9Ac
+	local GENE_LIST_FOLDER=${FOLDER_PATH}
+	
+	
+	local EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_locations.py
+	local GTFFILE=/home/lxiang/cloud_research/PengGroup/ZZeng/Annotation/gtf_files/mm9_genes.gtf
+	
+	
+	local OUTPUTDIR=${__EXE_PATH}/Profiles
+	
+	DIR_CHECK_CREATE ${OUTPUTDIR}
+	
+	GENELIST_LIST=(up_up_genelist.txt down_down_genelist.txt)
+	GENETYPE_LIST=(up_up down_down)
+
+	
+	for (( i = 0 ; i < ${#GENELIST_LIST[@]} ; i++ ))
+	do
+	GENELISTFILE=${GENELIST_LIST[$i]}
+	GENETYPE=${GENETYPE_LIST[$i]}
+	local GAP=400
+	
+	for CELLTYPE in WT_Treg_D20 Hdac12_KO_Treg_D20
+	do
+		for HISMODS in H3K9Ac H3K27Ac
+		do
+
+		if [ $CELLTYPE = WT_Treg ]
+		then
+		NORMALIZATION=1.0
+		else
+		NORMALIZATION=1.0
+		fi
+
+		READDIR=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER/${CELLTYPE}_${HISMODS}
+		READFILE=${CELLTYPE}_${HISMODS}-W200-G${GAP}-FDR0.0001-islandfiltered.bed
+		OUTFILE=${OUTPUTDIR}/${CELLTYPE}_${HISMODS}_on_${GENETYPE}_${REGIONTYPE}.txt
+		echo "python ${EXE_PATH} -b ${READDIR}/${READFILE} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} \
+		-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTFILE}"
+		python ${EXE_PATH} -b ${READDIR}/${READFILE} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} \
+		-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTFILE}
+		
+		echo ""
+		echo ""
+		done
+	done
+done
+
+	echo "done"
+
+
+	}
+
 #RUN_Two_Conditions_diagonal_plot(){}
 
 ##END OF FUNDEMENTAL FUNCTIONS
@@ -909,8 +976,8 @@ esac
 	fi
 ###bam2bed
 
-	#echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
-	#bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed
+	echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
+	bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed
 
 ###bamToBedGraph
 

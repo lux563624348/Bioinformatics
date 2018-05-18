@@ -32,9 +32,9 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/ZZeng/raw_data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER
 #### Execution or Output directory
-__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016
+__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER
 ########################################################################
 
 __INPUT_SAMPLE_DIR_List=(
@@ -75,13 +75,13 @@ echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
-	
+	break
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
-	RUN_FAST_QC
-	RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm9"
+	#RUN_FAST_QC
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm9"
 	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Vlad" "mm9" "Haihui_Vlad"
 	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
@@ -96,7 +96,6 @@ do
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}
 done
-
 
 ## SECOND LOOP
 
