@@ -297,7 +297,7 @@ RUN_RPKM(){
 	bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}
 	
 	echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}"
-	python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}
+	python ${PATH_python_tools} ${Output_Path}/${OUTPUT_NAME} ${Output_Path}
 
 }
 
@@ -1498,6 +1498,7 @@ CHECK_arguments(){
 DIR_CHECK_CREATE(){
 ### Saving DIR Check and Create
 #### Usage: DIR_CHECK_CREATE $@
+	echo ""
 	echo "DIR_CHECK_CREATE!"
 	echo "Input Dir: $@"
 	local Dirs=$@
