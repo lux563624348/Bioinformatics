@@ -32,18 +32,16 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/bowtie_analysis
 #### Execution or Output directory
-__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER
+__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/bowtie
 ########################################################################
 
 __INPUT_SAMPLE_DIR_List=(
-Sample_12KO_Treg_input_20160827000
-Sample_12KO_Treg_K27Ac_20160827000
-Sample_12KO_Treg_K9Ac_20160827000
-Sample_Ctrl_Treg_input_20160827000
-Sample_Ctrl_Treg_K27Ac_20160827000
-Sample_Ctrl_Treg_K9Ac_20160827000
+Hdac12_KO_Treg_D20_H3K27Ac
+Hdac12_KO_Treg_D20_H3K9Ac
+WT_Treg_D20_H3K27Ac
+WT_Treg_D20_H3K9Ac
 )
 
 
@@ -71,18 +69,19 @@ FUNC_CHOOSE_EMAIL_ALERT
 Alert_email=$?
 
 echo ""
-echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
+#echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
-	break
+	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
+	
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
-	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
+	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
 	#RUN_FAST_QC
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm9"
-	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]}
+	RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Vlad" "mm9" "Haihui_Vlad"
 	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	
@@ -98,7 +97,7 @@ do
 done
 
 ## SECOND LOOP
-
+	#RUN_Reads_Profile "TSS"
 #RUN_SICER
 
 	echo "End Date: `date`"

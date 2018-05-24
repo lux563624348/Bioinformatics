@@ -267,27 +267,32 @@ RUN_Bedtools_Intersect(){
 
 RUN_RPKM(){
 	#### usage RUN_Bedtools_Intersect $1 $2
-	#### usage RUN_Bedtools_Intersect $1 $2
-	CHECK_arguments $# 1
-	local FILE_TYPE='bed'
+	CHECK_arguments $# 2
+	local File_Name=${1}
+	local FILE_TYPE=${2}
 	local PATH_python_tools="/home/lxiang/cloud_research/PengGroup/XLi/Python_tools/read_RPKM.py"
 	local Input_A1="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm9/gene_Genebody_unique.bed"
-	local Input_B1=${__RAW_DATA_PATH_DIR}/${1}/Tophat_results/${1}.${FILE_TYPE}
-
+	
+	echo "Entering the processing directory"
+	cd ${__RAW_DATA_PATH_DIR}
+	echo "From Reads bed file to calculate reads count and its RPKM."
+	
+	
+	echo "$(find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
+	local Input_B1="$( find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
 	
 	####################################################################
-	echo ""
 	
 	
-	Output_Path="${__EXE_PATH}/genes_RPKM"
+	
+	local Output_Path="${__EXE_PATH}/genes_RPKM"
 	DIR_CHECK_CREATE ${Output_Path}
 	
 	
-	OUTPUT_NAME="genes_read_count_${1}.bed"
+	local OUTPUT_NAME="genes_read_count_${1}.bed"
 	
 	
 	
-
 	echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}"
 	bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}
 	
@@ -818,12 +823,12 @@ esac
 }
 
 RUN_Reads_Profile(){
-	### Usage: RUN_Reads_Profile $1 
+	### Usage: RUN_Reads_Profile $1 $2 $3
 	####
 	
 	
 	CHECK_arguments $# 1
-	
+	#### TSS or TES
 	local REGIONTYPE=${1}
 	
 	local FRAGMENTSIZE=0
@@ -831,8 +836,9 @@ RUN_Reads_Profile(){
 	local DOWN_EXTENSION=5000
 	local WINDOWSIZE=100
 	local RESOLUTION=1
-	local FOLDER_PATH=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER/WT_Treg_D20_H3K9Ac
-	local GENE_LIST_FOLDER=${FOLDER_PATH}
+	local FOLDER_PATH=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER
+	
+	local GENE_LIST_FOLDER=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER/genelist_DGEs/genelist_DEGs_Hdac1
 	
 	
 	local EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_locations.py
@@ -843,41 +849,52 @@ RUN_Reads_Profile(){
 	
 	DIR_CHECK_CREATE ${OUTPUTDIR}
 	
-	GENELIST_LIST=(up_up_genelist.txt down_down_genelist.txt)
-	GENETYPE_LIST=(up_up down_down)
+GENELIST_LIST=(
+genelist_up_up_with_Hdac1.bed
+genelist_up_up_without_Hdac1.bed
+genelist_down_down_with_Hdac1.bed
+genelist_down_down_without_Hdac1.bed)
+	
+GENETYPE_LIST=(up_up_with_Hdac1 up_up_without_Hdac1 down_down_with_Hdac1 down_down_without_Hdac1)
+
+
+
+
+local CELLTYPE_LIST=(WT_Treg_D20 Hdac12_KO_Treg_D20)
+local Histone_Modifications_List=(H3K9Ac H3K27Ac)
 
 	
 	for (( i = 0 ; i < ${#GENELIST_LIST[@]} ; i++ ))
 	do
-	GENELISTFILE=${GENELIST_LIST[$i]}
-	GENETYPE=${GENETYPE_LIST[$i]}
-	local GAP=400
+		GENELISTFILE=${GENELIST_LIST[$i]}
+		GENETYPE=${GENETYPE_LIST[$i]}
+		local GAP=400
 	
-	for CELLTYPE in WT_Treg_D20 Hdac12_KO_Treg_D20
-	do
-		for HISMODS in H3K9Ac H3K27Ac
+		for CELLTYPE in ${CELLTYPE_LIST[*]}
 		do
+			for HISMODS in ${Histone_Modifications_List[*]}
+			do
 
-		if [ $CELLTYPE = WT_Treg ]
-		then
-		NORMALIZATION=1.0
-		else
-		NORMALIZATION=1.0
-		fi
+			if [ $CELLTYPE = WT_Treg ]
+			then
+			NORMALIZATION=1.0
+			else
+			NORMALIZATION=1.0
+			fi
 
-		READDIR=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER/${CELLTYPE}_${HISMODS}
-		READFILE=${CELLTYPE}_${HISMODS}-W200-G${GAP}-FDR0.0001-islandfiltered.bed
-		OUTFILE=${OUTPUTDIR}/${CELLTYPE}_${HISMODS}_on_${GENETYPE}_${REGIONTYPE}.txt
-		echo "python ${EXE_PATH} -b ${READDIR}/${READFILE} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} \
-		-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTFILE}"
-		python ${EXE_PATH} -b ${READDIR}/${READFILE} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} \
-		-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTFILE}
-		
-		echo ""
-		echo ""
+			READDIR=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER/${CELLTYPE}_${HISMODS}
+			READFILE=${CELLTYPE}_${HISMODS}-W200-G${GAP}-FDR0.0001-islandfiltered.bed
+			OUTFILE=${OUTPUTDIR}/${CELLTYPE}_${HISMODS}_on_${GENETYPE}_${REGIONTYPE}.txt
+			echo "python ${EXE_PATH} -b ${READDIR}/${READFILE} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} \
+			-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTFILE}"
+			python ${EXE_PATH} -b ${READDIR}/${READFILE} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} \
+			-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTFILE}
+			
+			echo ""
+			echo ""
+			done
 		done
 	done
-done
 
 	echo "done"
 
@@ -1325,17 +1342,17 @@ RUN_Peaks_Distribution_Analysis(){
 	####RUN_Peaks_Distribution_Analysis $1
 	CHECK_arguments $# 1
 	
-	EXEDIR=/home/lxiang/Software/python_tools
+	local EXEDIR=/home/lxiang/Software/python_tools
 
-	GTFDIR=/home/lxiang/cloud_research/PengGroup/XLi/Annotation/gtf_files
-	GTFFILE=mm9_genes.gtf
+	local GTFDIR=/home/lxiang/cloud_research/PengGroup/XLi/Annotation/gtf_files
+	local GTFFILE=mm9_genes.gtf
 ### This parameter means that Promoter [-1k TSS, +1k TSS] Gene_body[+1k TSS. TES]
-	PROMOTER_UPSTREAM_EXTENSION=1001   # Upstream extension, the distance from TSS.
-	TSS_REGION_LENGTH=2000
+	local PROMOTER_UPSTREAM_EXTENSION=1001   # Upstream extension, the distance from TSS.
+	local TSS_REGION_LENGTH=2000
 
 
-	INPUTFILE=${1}.bed
-	OUTPUTFILE=${1}_distribution.txt
+	local INPUTFILE=${1}.bed
+	local OUTPUTFILE=${1}_distribution.txt
 
 	echo "python $EXEDIR/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g $GTFDIR/$GTFFILE -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE"
 	python $EXEDIR/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g $GTFDIR/$GTFFILE -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE
@@ -1481,6 +1498,7 @@ CHECK_arguments(){
 DIR_CHECK_CREATE(){
 ### Saving DIR Check and Create
 #### Usage: DIR_CHECK_CREATE $@
+	echo "DIR_CHECK_CREATE!"
 	echo "Input Dir: $@"
 	local Dirs=$@
 	for solo_dir in $Dirs
