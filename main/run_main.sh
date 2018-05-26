@@ -32,16 +32,18 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/bowtie_analysis
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/May2018
 #### Execution or Output directory
-__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/bowtie
+__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/May2018
 ########################################################################
 
 __INPUT_SAMPLE_DIR_List=(
-Hdac12_KO_Treg_D20_H3K27Ac
-Hdac12_KO_Treg_D20_H3K9Ac
-WT_Treg_D20_H3K27Ac
-WT_Treg_D20_H3K9Ac
+Project_20395_index9   # Contrl 1
+Project_20396_index10  # Contrl 2
+Project_20397_index11  # Contrl 3
+Project_20398_index12  # dKO 1
+Project_20399_index13  # dKO 2
+Project_20400_index14  # dKO3
 )
 
 
@@ -81,16 +83,16 @@ do
 	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
 	#RUN_FAST_QC
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm9"
-	RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
-	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Vlad" "mm9" "Haihui_Vlad"
+	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
+	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP" "mm9" "Haihui"
 	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	
 	#SPECIES="mm9"
 	#Data_Provider="Ref_GSM46662"
 	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1' ${SPECIES} ${Data_Provider}
 	
-	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
-	
+	RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
+	break
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}

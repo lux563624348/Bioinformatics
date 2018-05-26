@@ -130,7 +130,7 @@ RUN_READLINE(){
 		fi
 	done < $1   #INPUT file
 	}
-	
+
 RUN_Read_Process_Data(){
 	#### USAGE: RUN_READLINE $INPUT $OUTPUT
 	CHECK_arguments $# 2
@@ -289,15 +289,15 @@ RUN_RPKM(){
 	DIR_CHECK_CREATE ${Output_Path}
 	
 	
-	local OUTPUT_NAME="genes_read_count_${1}.bed"
+	local OUTPUT_NAME="genes_read_count_${1}"
 	
 	
 	
-	echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}"
-	bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}
+	echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}"
+	#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}
 	
 	echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}"
-	python ${PATH_python_tools} ${Output_Path}/${OUTPUT_NAME} ${Output_Path}
+	python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}
 
 }
 
@@ -1208,7 +1208,7 @@ macs2 bdgdiff --t1 ${CON1_NAME}_treat_pileup.bdg --c1 ${CON1_NAME}_control_lambd
 RUN_CUFFDIFF(){
 	### RUN_CUFFDIFF $1 $2
 	####
-CHECK_arguments $# 12
+CHECK_arguments $# 6
 local INPUT_Args=("$@")
 local SAMPLE_NUM=${#INPUT_Args[*]}
 local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
@@ -1225,28 +1225,14 @@ done
 
 ### Four GROUP, each group has 3 DATA FILES, 
 ########################################################################
-if [ ${SAMPLE_NUM} -eq "12" ]
+if [ ${SAMPLE_NUM} -eq "6" ]
 then
-
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/A_vs_B
+	local A_Label="Ctrl-n"
+	local B_Label="dKO-n"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label}
 	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/A_vs_B -p ${THREADS} -L "Group_A","Group_B" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[3]},${DATA_BAM[4]},${DATA_BAM[5]}"
-	cuffdiff -o ${OUTPUT_Cuffdiff}/A_vs_B -p ${THREADS} -L "Group_A","Group_B" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[3]},${DATA_BAM[4]},${DATA_BAM[5]}
-
-
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/C_vs_D
-	echo "cuffdiff -o${OUTPUT_Cuffdiff}/C_vs_D -p ${THREADS} -L "Group_C","Group_D" ${GTFFILE} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]} ${DATA_BAM[9]},${DATA_BAM[10]},${DATA_BAM[11]}"
-	cuffdiff -o${OUTPUT_Cuffdiff}/C_vs_D -p ${THREADS} -L "Group_C","Group_D" ${GTFFILE} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]} ${DATA_BAM[9]},${DATA_BAM[10]},${DATA_BAM[11]}
-
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/A_vs_C
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/A_vs_C -p ${THREADS} -L "Group_A","Group_C" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]}"
-	cuffdiff -o ${OUTPUT_Cuffdiff}/A_vs_C -p ${THREADS} -L "Group_A","Group_C" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]}
-
-
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/B_vs_D
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/B_vs_D -p ${THREADS} -L "Group_B","Group_D" ${GTFFILE}  ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]} ${DATA_BAM[9]},${DATA_BAM[10]},${DATA_BAM[11]}"
-	cuffdiff -o ${OUTPUT_Cuffdiff}/B_vs_D -p ${THREADS} -L "Group_B","Group_D" ${GTFFILE}  ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[8]} ${DATA_BAM[9]},${DATA_BAM[10]},${DATA_BAM[11]}
-
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[3]},${DATA_BAM[4]},${DATA_BAM[5]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[3]},${DATA_BAM[4]},${DATA_BAM[5]}
 fi
 ########################################################################
 
@@ -1316,6 +1302,13 @@ local EXEDIR=$SICER_DIR/extra/tools/wiggle
 	
 	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
 	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
+	
+	### Then clear bed file.
+	if [ -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed ];then
+	echo "rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
+	rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
+	fi
+
 	
 	echo "RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
 	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
@@ -1458,7 +1451,7 @@ FUNC_Download (){
 	CHECK_arguments $# 1
 ### Download Login information and the download directory.
 #### -nH --cut-dirs=3   Skip 3 directory components.
-	local Web_Address="https://jumpgate.caltech.edu/runfolders/volvox02/180426_SN787_0801_BHGW2YBCX2/Unaligned"
+	local Web_Address="https://jumpgate.caltech.edu/runfolders/volvox02/180522_SN787_0816_BHHWYJBCX2/Unaligned/"
 	local Directory_Skip_Num=4
 	local USER="gec"
 	local PASSWORD="aardvark dryer rummage"
