@@ -1,0 +1,52 @@
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+libuuid:x:100:101::/var/lib/libuuid:
+syslog:x:101:104::/home/syslog:/bin/false
+messagebus:x:102:106::/var/run/dbus:/bin/false
+landscape:x:103:109::/var/lib/landscape:/bin/false
+sshd:x:104:65534::/var/run/sshd:/usr/sbin/nologin
+ots:x:1000:1000:OTS,,,:/home/ots:/bin/bash
+usbmux:x:105:46:usbmux daemon,,,:/home/usbmux:/bin/false
+avahi:x:106:113:Avahi mDNS daemon,,,:/var/run/avahi-daemon:/bin/false
+lightdm:x:107:115:Light Display Manager:/var/lib/lightdm:/bin/false
+dnsmasq:x:108:65534:dnsmasq,,,:/var/lib/misc:/bin/false
+avahi-autoipd:x:109:118:Avahi autoip daemon,,,:/var/lib/avahi-autoipd:/bin/false
+colord:x:110:120:colord colour management daemon,,,:/var/lib/colord:/bin/false
+kernoops:x:111:65534:Kernel Oops Tracking Daemon,,,:/:/bin/false
+pulse:x:112:121:PulseAudio daemon,,,:/var/run/pulse:/bin/false
+rtkit:x:113:123:RealtimeKit,,,:/proc:/bin/false
+saned:x:114:124::/home/saned:/bin/false
+whoopsie:x:115:125::/nonexistent:/bin/false
+speech-dispatcher:x:116:29:Speech Dispatcher,,,:/var/run/speech-dispatcher:/bin/sh
+hplip:x:117:7:HPLIP system user,,,:/var/run/hplip:/bin/false
+wpeng:x:1001:1001:Weiqun Peng,,,:/home/wpeng:/bin/bash
+ykai:x:1002:1002:Yan Kai,,,:/home/ykai:/bin/bash
+zzeng:x:1003:1003:Zhouhao Zeng,,,:/home/zzeng:/bin/bash
+data:x:1004:1004:Data,,,:/home/data:/bin/bash
+blai:x:1005:1005:Binbin Lai,,,:/home/blai:/bin/bash
+wyang:x:1006:1006:Wenjing Yang,,,:/home/wyang:/bin/bash
+postfix:x:118:127::/var/spool/postfix:/bin/false
+nvidia-persistenced:x:119:129:NVIDIA Persistence Daemon,,,:/:/sbin/nologin
+ytian:x:1007:1007:Yi Tian,,,:/home/ytian:/bin/bash
+maclach:x:1008:1008:Glen MacLachlan:/home/maclach:/bin/bash
+nwaring:x:1009:1009:Nick Waring,,,:/home/nwaring:/bin/bash
+mongodb:x:120:65534::/home/mongodb:/bin/false
+uboddeti:x:1010:1010:Ujwal Boddeti,,,:/home/uboddeti:/bin/bash
+lxiang:x:1011:1011:Xiang Li,,,:/home/lxiang:/bin/bash
+vnoekim:x:1012:1012:Victoria Noe-Kim,,,:/home/vnoekim:/bin/bash
+tachekzai:x:1013:1013::/home/tachekzai:

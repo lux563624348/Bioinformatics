@@ -590,6 +590,13 @@ RUN_BED2WIG(){
 	echo "sh $EXEDIR/bed2wig.sh ${__EXE_PATH} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
 	sh $EXEDIR/bed2wig.sh ${__EXE_PATH} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
 	fi
+
+#### Clear bed file.
+	if [ -f ${FILE_NAME} ];then
+	echo "rm ${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed"
+	rm ${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed
+	fi
+	
 	
 	}
 
@@ -995,7 +1002,7 @@ esac
 
 	echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
 	bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed
-
+ 
 ###bamToBedGraph
 
 	#samtools sort ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
@@ -1028,9 +1035,6 @@ local FRAGMENT_SIZE=1
 local WINDOW_SIZE=200
 local EFFECTIVEGENOME=0.85 
 local FDR=0.05
-
-
-
 
 
 local IN_SICER_FOLDER=${__EXE_PATH}/${INPUT_NAME}/bowtie2_results
@@ -1208,7 +1212,7 @@ macs2 bdgdiff --t1 ${CON1_NAME}_treat_pileup.bdg --c1 ${CON1_NAME}_control_lambd
 RUN_CUFFDIFF(){
 	### RUN_CUFFDIFF $1 $2
 	####
-CHECK_arguments $# 6
+CHECK_arguments $# 20
 local INPUT_Args=("$@")
 local SAMPLE_NUM=${#INPUT_Args[*]}
 local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
@@ -1219,21 +1223,58 @@ DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}
 #### Preparing the .bam files for cuffdiff
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do	
-	local DATA_BAM[$i]=${__EXE_PATH}/${INPUT_Args[i]}/Tophat_results/${INPUT_Args[i]}.bam
+	cd ${__RAW_DATA_PATH_DIR}
+	local DATA_BAM[$i]="$( find -name "${INPUT_Args[i]}.bam" | sort -n | xargs)"
+	#local DATA_BAM[$i]=${__EXE_PATH}/${INPUT_Args[i]}/Tophat_results/${INPUT_Args[i]}.bam
 	echo ${DATA_BAM[$i]}
 done
 
 ### Four GROUP, each group has 3 DATA FILES, 
 ########################################################################
-if [ ${SAMPLE_NUM} -eq "6" ]
+if [ ${SAMPLE_NUM} -eq "20" ]
 then
-	local A_Label="Ctrl-n"
-	local B_Label="dKO-n"
+	local A_Label="WT_0h"
+	local B_Label="WT_72h"
 	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label}
 	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[3]},${DATA_BAM[4]},${DATA_BAM[5]}"
-	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]} ${DATA_BAM[3]},${DATA_BAM[4]},${DATA_BAM[5]}
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]}
+	echo ""
 fi
+
+if [ ${SAMPLE_NUM} -eq "20" ]
+then
+	local A_Label="WT_72h"
+	local B_Label="DKO_72h"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label}
+	echo "${INPUT_Args} Data files are loading..."
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]} "
+	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]} 
+	echo ""
+fi
+
+if [ ${SAMPLE_NUM} -eq "20" ]
+then
+	local A_Label="DKO_0h"
+	local B_Label="DKO_72h"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label}
+	echo "${INPUT_Args} Data files are loading..."
+	echo "	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]}
+	echo ""
+fi
+
+if [ ${SAMPLE_NUM} -eq "20" ]
+then
+	local A_Label="Ctrl_3n_4n"
+	local B_Label="DKO_CD8_0h_1_2_4n"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label}
+	echo "${INPUT_Args} Data files are loading..."
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[8]},${DATA_BAM[9]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[11]}"
+	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[8]},${DATA_BAM[9]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[11]}
+	echo ""
+fi
+
 ########################################################################
 
 echo "CuffDiff Completed!"
@@ -1333,7 +1374,10 @@ RUN_Quant_IRI(){
 
 RUN_Peaks_Distribution_Analysis(){
 	####RUN_Peaks_Distribution_Analysis $1
-	CHECK_arguments $# 1
+	CHECK_arguments $# 2
+	
+	local INPUT_NAME=${1}
+	local INPUT_FILE_TYPE=${2}
 	
 	local EXEDIR=/home/lxiang/Software/python_tools
 
@@ -1344,8 +1388,8 @@ RUN_Peaks_Distribution_Analysis(){
 	local TSS_REGION_LENGTH=2000
 
 
-	local INPUTFILE=${1}.bed
-	local OUTPUTFILE=${1}_distribution.txt
+	local INPUTFILE=${INPUT_NAME}.${INPUT_FILE_TYPE}
+	local OUTPUTFILE=${INPUT_NAME}_distribution.txt
 
 	echo "python $EXEDIR/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g $GTFDIR/$GTFFILE -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE"
 	python $EXEDIR/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g $GTFDIR/$GTFFILE -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE

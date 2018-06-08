@@ -21,8 +21,6 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 ########################################################################
 echo "Start Date: `date` "
 Start_Date=`date`
-Process_NAME=${1}
-
 
 source ./functions.sh
 echo "Import functions.sh" 
@@ -32,39 +30,28 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP
+#__RAW_DATA_PATH_DIR="/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Tcf1/HiC-seq/Jul2017/iterative_mapping"
+__RAW_DATA_PATH_DIR=/home/lxiang/cloud_research/PengGroup/XLi/Raw_Data/Haihui/Feb2018
 #### Execution or Output directory
-__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/CuffDiff_Jun2018
+__EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Feb2018
+#__EXE_PATH="/home/lxiang/cloud_research/PengGroup/XLi/Data/TEST_HiC/Raw_data/test_data"
 ########################################################################
+#echo "__INPUT_SAMPLE_DIR_List=(1_input_Bruce4 2_H3K4me3_Bruce4 3_H3K9me3_Bruce4 4_input_WT 5_H3K4me3_WT 6_input_mir34bc_KO 7_H3K4me3_mir34bc_KO 8_H3K9me3_WT_Dec 8_H3K9me3_WT_April 9_H3K9me3_mir34bc_KO_Dec 9_H3K9me3_mir34bc_KO_April 10_New_H3K9me3_WT 11_New_H3K9me3_mir34bc_KO)"
+
 
 __INPUT_SAMPLE_DIR_List=(
-Sample_16708  #0 ctrl1-0h
-Sample_16709  #1 ctrl2-0h
-Sample_16710  #2 dKO1-0h
-Sample_16711  #3 dKO2-0h
-Sample_16712  #4 WT1_CD8_72h 
-Sample_16713  #5 WT2_CD8_72h
-Sample_16714  #6 DKO1_CD8_72h
-Sample_16715  #7 DKO2_CD8_72h
-#
-Sample_20051  #8 Ctrl-3n
-Sample_20052  #9 Ctrl-4n
-Sample_20053  #10 dKO-3n
-Sample_20054  #11 dKO-4n
-Sample_20055  #12 Ctrl-3S
-Sample_20056  #13 dKO-3s
-#
-Project_20395_index9  #14 Ctrl-5n
-Project_20396_index10  #15 Ctrl-6n
-Project_20397_index11  #16 Ctrl-7n
-Project_20398_index12  #17 dKO-5n
-Project_20399_index13  #18 dKO-6n
-Project_20400_index14  #19 dKO-7n
+Sample_CD4-IgG_20180212000  #0
+Sample_CD4-TCF1_20180212000
+Sample_Ezh2-CD4_20180212000
+Sample_Ezh2-DSGTreg_20180212000 #3
+Sample_Ezh2-EKO_20180212000    #4 control for Ezh2
+Sample_Ezh2-Treg_20180212000
+Sample_TLE3-CD4_20180212000    #6
+Sample_TLE3-CD8_20180212000
+Sample_TLE3-KO_20180212000   #8 control for Tle3
+Sample_TLE3-Tfh_20180212000  #9
+Sample_TLE3-Th1_20180212000
 )
-
-
-
-
 
 echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
 
@@ -87,42 +74,39 @@ FUNC_CHOOSE_EMAIL_ALERT
 Alert_email=$?
 
 echo ""
-#echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
+echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
-	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[2]} ${__INPUT_SAMPLE_DIR_List[4]}
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[4]}
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[5]} ${__INPUT_SAMPLE_DIR_List[4]}
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[6]} ${__INPUT_SAMPLE_DIR_List[8]}
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[7]} ${__INPUT_SAMPLE_DIR_List[8]}
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[9]} ${__INPUT_SAMPLE_DIR_List[8]}
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[10]} ${__INPUT_SAMPLE_DIR_List[8]}
 	
-	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
-	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
-	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
-	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
-	#RUN_FAST_QC
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm9"
-	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
-	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP" "mm9" "Haihui"
-	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	
-	#SPECIES="mm9"
-	#Data_Provider="Ref_GSM46662"
-	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1' ${SPECIES} ${Data_Provider}
-	
-	RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
 	break
+	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]}
+	
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}
 done
 
+
 ## SECOND LOOP
-	#RUN_Reads_Profile "TSS"
-#RUN_SICER
+
+
+
 
 	echo "End Date: `date`"
 	echo -e "\a FINISHED ALERT !"
 	
 	if [ ${Alert_email} == 0 ];then
-	EMAIL_ME "${Start_Date}" ${Process_NAME}
+	EMAIL_ME "${Start_Date}"
 	fi
 }
 
