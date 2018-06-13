@@ -1234,22 +1234,37 @@ done
 if [ ${SAMPLE_NUM} -eq "20" ]
 then
 	local A_Label="WT_0h"
-	local B_Label="WT_72h"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label}
+	local B_Label="DKO_0h"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
 	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]}"
-	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]}
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]}
+	echo ""
 	echo ""
 fi
 
 if [ ${SAMPLE_NUM} -eq "20" ]
 then
+	local A_Label="WT_0h"
+	local B_Label="WT_72h"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
+	echo "${INPUT_Args} Data files are loading..."
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]}
+	echo ""
+	echo ""
+fi
+
+
+if [ ${SAMPLE_NUM} -eq "20" ]
+then
 	local A_Label="WT_72h"
 	local B_Label="DKO_72h"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label}
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
 	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]} "
-	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]} 
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]} "
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]} 
+	echo ""
 	echo ""
 fi
 
@@ -1257,21 +1272,23 @@ if [ ${SAMPLE_NUM} -eq "20" ]
 then
 	local A_Label="DKO_0h"
 	local B_Label="DKO_72h"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label}
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
 	echo "${INPUT_Args} Data files are loading..."
-	echo "	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]}"
-	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]}
+	echo "	cuffdiff -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]}
+	echo ""
 	echo ""
 fi
 
 if [ ${SAMPLE_NUM} -eq "20" ]
 then
-	local A_Label="Ctrl_3n_4n"
-	local B_Label="DKO_CD8_0h_1_2_4n"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label}
+	local A_Label="Ctrl_34n"
+	local B_Label="Ref_DKO_1_2_4n"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
 	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[8]},${DATA_BAM[9]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[11]}"
-	cuffdiff -o ${OUTPUT_Cuffdiff}/${A_Label}_${B_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[8]},${DATA_BAM[9]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[11]}
+	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[8]},${DATA_BAM[9]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[11]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[8]},${DATA_BAM[9]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[11]}
+	echo ""
 	echo ""
 fi
 
