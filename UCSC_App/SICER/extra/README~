@@ -1,7 +1,0 @@
-need to write a master script for routines
-find_overlapped_islands_w_tagcount.py can retire now, because the new version of the find_overlapped_islands.py can already do with it does.
-
-
-RNAseq:
-get exonic read count: get_read_count_on_genes.py
-

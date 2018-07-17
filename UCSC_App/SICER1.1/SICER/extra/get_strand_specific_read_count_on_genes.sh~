@@ -1,0 +1,103 @@
+#!/bin/bash
+# Authors: Weiqun Peng
+#
+# Comments and/or additions are welcome (send e-mail to:
+# wpeng@gwu.edu).
+
+
+##############################################################
+# ##### Please replace PATHTO with your own directory ###### #
+##############################################################
+
+
+#!/bin/bash
+
+EXEDIR=/home/data/SICER1.1/SICER/extra/tools/RNASeq
+EXE=get_strandspecific_read_count_on_genes.py
+
+READSDIR=/home/data/hg19/JunZhu/raw/CD4/Round2
+
+ANNOTATIONDIR=/home/data/hg19/Annotation
+ANNOTATION=refFlat_hg19_EntrezID_filtered.ucsc
+
+TYPE=GeneBody
+UPSTREAM=0
+DOWNSTREAM=1000
+FRAGMENTSIZE=0
+
+for READS in Rest_R1_unique Active_R1_unique
+do
+READFILEF=${READS}_P.bed
+READFILER=${READS}_N.bed
+
+OUTFILE=$READS-on-$TYPE.dat
+
+echo "python $EXEDIR/get_strandspecific_read_count_on_genes.py -p $READSDIR/$READFILEF -n $READSDIR/$READFILER -f $FRAGMENTSIZE -g $ANNOTATIONDIR/$ANNOTATION  -r $TYPE -u $UPSTREAM -d $DOWNSTREAM  -o $OUTFILE -s hg19 "
+
+python $EXEDIR/get_strandspecific_read_count_on_genes.py -p $READSDIR/$READFILEF -n $READSDIR/$READFILER -f $FRAGMENTSIZE -g $ANNOTATIONDIR/$ANNOTATION  -r $TYPE -u $UPSTREAM -d $DOWNSTREAM  -o $OUTFILE -s hg19 
+
+
+echo ""
+echo ""
+
+done
+
+
+	parser.add_option("-p", "--forwardreadfile", action="store", type="string", dest="ReadsOnForwardStrand", help="input bed file for RNASeq raw reads on forward strand", metavar="<file>")
+	parser.add_option("-n", "--reversereadfile", action="store", type="string", dest="ReadsOnReverseStrand", help="input bed file for RNASeq raw reads on reverse strand", metavar="<file>")
+	parser.add_option("-f", "--fragment_size", action="store", type="int", dest="fragment_size", help="fragment_size determins the shift (half of fragment_size of ChIP-seq read position, in bps", metavar="<int>")
+	parser.add_option("-g", "--known_genes_file", action="store", type="string", dest="known_genes", metavar="<file>", help="file with known genes in UCSC format")
+	parser.add_option("-r", "--RegionType", action="store", type="string", dest="region_type", metavar="<str>", help=" Region to count tags in: Promoter(txStart-upstream, txStart+downstream), GeneBody (txStart + downstream, txEnd), ExtendedGeneBodys(txStart-upstream, txEnd+downstream), PromoterGenebody(txStart-upstream, txEnd), GeneEnd(txEnd-upstream, txEnd+downstream), ExonicRegion (per exon), IntronicRegion (per intron), Exonictranscript (per transcript), IntronicTranscript (per transcript), 5UTR(txStart, cdsStart), 3UTR(cdsEnd, txEnd)")
+	parser.add_option("-u", "--upstream_extension", action="store", type="int", dest="upstream_extension", help="upstream extension of region or location, for Promoter, ExtededGeneBody, PromoterGenebody and GeneEnd ", metavar="<int>")
+	parser.add_option("-d", "--downstream_extension", action="store", type="int", dest="downstream_extension", help="downstream extension of region or location, for Promoter, GeneBody, ExtendedGeneBody and GeneEnd ",  metavar="<int>")
+	parser.add_option("-o", "--outfile", action="store", type="string", dest="out_file", metavar="<file>", help="output file name for genes and tag numbers")
+	parser.add_option("-s", "--species", action="store", type="string", dest="species",help="species, mm8, hg18, etc", metavar="<str>")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SICER=/home/data/SICER1.1/SICER
+PYTHONPATH=$SICER/lib
+export PYTHONPATH
+
+
+#UCSCDIR=/home/data/hg18/CD16/
+#UCSCFILE=hg18-Agilent-19554-genes.ucsc
+UCSCDIR=/home/wyang/data/hg18/annotation/
+UCSCFILE=knownGene.txt
+
+# LIBA=72h_EM_K27
+# READDIR=/home/data/hg18/CD8/2010data/processed
+# READFILE=$LIBA-W200-G600-E500-islandfiltered.bed 
+
+LIBA=GA2068-hg18-CD16-A1-RNAseq
+READDIR=/home/data/hg18/CD16/raw/set1
+READFILE=$LIBA.bed
+
+FRAGMENTSIZE=0
+#TYPE=GeneBody
+TYPE=ExonicRegion
+UPSTREAM=0
+DOWNSTREAM=0
+OUTFILE=$LIBA-Exon-ReadCount.dat
+
+EXEDIR=/home/data/SICER1.1/SICER/extra
+EXE=get_read_count_on_genes.py
+OUTFILE=${LIBA}-${TYPE}-ReadCount.dat
+echo "python $EXEDIR/$EXE   -b $READDIR/$READFILE -f $FRAGMENTSIZE -g $UCSCDIR/$UCSCFILE -r $TYPE -u $UPSTREAM -d $DOWNSTREAM -o $OUTFILE"
+python $EXEDIR/$EXE   -b $READDIR/$READFILE -f $FRAGMENTSIZE -g $UCSCDIR/$UCSCFILE -r $TYPE -u $UPSTREAM -d $DOWNSTREAM -o $OUTFILE
+
+
+
+#echo "python $EXEDIR/$EXE   -b $READDIR/$READFILE -f $FRAGMENTSIZE -g $UCSCDIR/$UCSCFILE -r $TYPE -u $UPSTREAM -d $DOWNSTREAM -o $OUTFILE"
+#python $EXEDIR/$EXE   -b $READDIR/$READFILE -f $FRAGMENTSIZE -g $UCSCDIR/$UCSCFILE -r $TYPE -u $UPSTREAM -d $DOWNSTREAM -o $OUTFILE

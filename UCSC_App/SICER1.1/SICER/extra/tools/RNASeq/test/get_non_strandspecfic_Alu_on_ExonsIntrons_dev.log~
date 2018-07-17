@@ -1,0 +1,6 @@
+python /home/data/SICER1.1/SICER/extra/tools/RNASeq/get_non_strandspecfic_Alu_on_ExonsIntrons_dev.py -a /home/data/hg19/Annotation/RepElements/AluElements_hg19.txt -u /home/data/SICER1.1/SICER/extra/tools/RNASeq/hg19_EntrezID_filtered_samestrand_collisonremoved_simplegene.pkl  -s hg19 -o simplegenes_hg19
+There are 11142 entrez genes for 11142 refseq transcripts.
+chr1
+There are 1146 entrez genes for 1146 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+102868

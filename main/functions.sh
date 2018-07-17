@@ -28,6 +28,16 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 ########################################################################
 
 ########################################################################
+###    Global Variables
+	#Shang
+	UCSC_DIR=/home/lxiang/Software/UCSC
+	# Tang
+	UCSC_DIR=/opt/tools/UCSC
+	Tools_DIR=/opt/tools
+	Annotation_DIR=/home/Data/Annotation
+	THREADS=32
+	#
+
 
 ######################################
 
@@ -47,6 +57,10 @@ PRE_READS_DIR(){
 	
 	local DIRLIST_R1_gz="$( find -name "*R1*.$2" | sort -n | xargs)"
 	local DIRLIST_R2_gz="$( find -name "*R2*.$2" | sort -n | xargs)"
+	
+	## for 34bc
+	#local DIRLIST_R1_gz="$( find -name "un_conc_aligned_R1.$2" | sort -n | xargs)"
+	#local DIRLIST_R2_gz="$( find -name "un_conc_aligned_R2.$2" | sort -n | xargs)"
 
 
 #### R1 Saving		
@@ -151,7 +165,6 @@ RUN_awk_Process_Data(){
 		
 	}
 
-
 RUN_CHANGE_STR(){
 	
 	#!/usr/bin/env bash
@@ -164,24 +177,9 @@ mv "${FN}" "${FN%bad}bash"
 done
 	}
 
-RUN_BedToFasta(){
-	#### usage RUN_BedToFasta $1 $2  ($1 is folder $2 is name)
-	#CHECK_arguments $# 2
-	
-	####Fasta files:
-	local MM9_FASTA="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM9/genome.fa"
-	local MM10_FASTA="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM10/mm10.fa"
-	####
-	local Input_1=${1}/${2}
-	
-	echo "bedtools getfasta -fi ${MM9_FASTA} -bed ${Input_1}"
-	bedtools getfasta -fo ${Input_1}.fa -fi ${MM9_FASTA} -bed ${Input_1}.bed
-	}
-
 RUN_Venn_Diagram(){
 	#### Usage: RUN_Bedtools_Merge $1 $2
-	:'
-	For example:
+	:'For example:
 	Chr	 start	 end
 	File A: Chr1 	1	20
 	File B: Chr1	15	30
@@ -204,29 +202,57 @@ RUN_Venn_Diagram(){
 	local FILE_TYPE=${2}
 ########################################################################
 	cd ${Current_DATA_DIR}
-	local DIRLIST="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
+	local DIRLIST="$( find -maxdepth 1 -name "*.${FILE_TYPE}" | sort -n | xargs)"
+	
+	local k=0
+	for FILE_DIR in ${DIRLIST}
+	do
+		local _DIRLIST[k]="${Current_DATA_DIR}/${FILE_DIR: 2}"
+		echo "Saving $k -th DIR as ${_DIRLIST[k]}"
+		k=`expr $k + 1`
+	done
+	
+	local Venn_Input_NUM=${#_DIRLIST[*]}
+	echo "In total, ${Venn_Input_NUM} files are input."
+	
 	
 	echo "Merge All files into one file!"
 	echo "cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin > union_all_0.txt"
 	cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin > union_all_0.txt
 	
 	
-	local k=0
-	for FILE_DIR in ${DIRLIST}
-	do
-		local __DIR[k]="${FILE_DIR: 2}"
-		local j=$(expr $k + 1)
-		echo "bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt"
-		bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt
-		rm union_all_${k}.txt
-		local k=$(expr $k + 1)
-	done
+	if [ ${Venn_Input_NUM} == 2 ]
+	then
+		local k=0
+		for FILE_DIR in ${DIRLIST}
+		do
+			local __DIR[k]="${FILE_DIR: 2}"
+			local j=$(expr $k + 1)
+			echo "bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt"
+			bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt
+			rm union_all_${k}.txt
+			local k=$(expr $k + 1)
+		done
+		python ${Tools_DIR}/Venn_Diagram_plot2.py "union_all_${j}.txt" "${__DIR[0]::-4}" "${__DIR[1]::-4}"
+	fi
 	
+	
+	if [ ${Venn_Input_NUM} == 3 ]
+	then
+		local k=0
+		for FILE_DIR in ${DIRLIST}
+		do
+			local __DIR[k]="${FILE_DIR: 2}"
+			local j=$(expr $k + 1)
+			echo "bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt"
+			bedtools intersect -c -a union_all_${k}.txt -b ${__DIR[k]} > union_all_${j}.txt
+			rm union_all_${k}.txt
+			local k=$(expr $k + 1)
+		done
+		python ${Tools_DIR}/Venn_Diagram_plot3.py "union_all_${j}.txt" "${__DIR[0]::-4}" "${__DIR[1]::-4}" "${__DIR[2]::-4}"
+	fi
 	#### Manually 
 	#bedtools intersect -c -a union_all.${FILE_TYPE} -b TLE3-Tfh_peaks.bed | bedtools intersect -c -a stdin -b TLE3-Th1_peaks.bed | bedtools intersect -c -a stdin -b TLE3-CD4_peaks.bed > combine_sorted_count.bed 
-	
-	python Venn_Diagram_plot.py "union_all_${j}.txt" "${__DIR[0]::-4}" "${__DIR[1]::-4}" "${__DIR[2]::-4}"
-	
 	
 	}
 
@@ -265,39 +291,74 @@ RUN_Bedtools_Intersect(){
 	
 	}
 
-RUN_RPKM(){
-	#### usage RUN_Bedtools_Intersect $1 $2
+RUN_Island_Filtered_Reads(){
+	#### usage RUN_RPKM $1 $2
 	CHECK_arguments $# 2
 	local File_Name=${1}
 	local FILE_TYPE=${2}
-	local PATH_python_tools="/home/lxiang/cloud_research/PengGroup/XLi/Python_tools/read_RPKM.py"
-	local Input_A1="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm9/gene_Genebody_unique.bed"
+	
+	local Output_Path="${__EXE_PATH}/island_filtered_reads"
+	DIR_CHECK_CREATE ${Output_Path}
+	
+	
 	
 	echo "Entering the processing directory"
 	cd ${__RAW_DATA_PATH_DIR}
 	echo "From Reads bed file to calculate reads count and its RPKM."
-	
-	
 	echo "$(find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
 	local Input_B1="$( find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
+	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
 	
-	####################################################################
 	
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
+	cd ${Gene_list_folder}
+	echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
+	local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
+	for Input_A1 in ${Input_A1_Lists}
+	do
+		local OUTPUT_NAME="island_filtered_reads_${1}_${Input_A1: 2: -4}"
+		Input_A1="${Gene_list_folder}/${Input_A1: 2}"
+		echo "bedtools intersect -wa -u -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}"
+		bedtools intersect -wa -u -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}
+	done
+
+}
+
+RUN_RPKM(){
+	#### usage RUN_RPKM $1 $2
+	CHECK_arguments $# 2
+	local File_Name=${1}
+	local FILE_TYPE=${2}
+	local PATH_python_tools=~/cloud_research/PengGroup/XLi/Python_tools/read_RPKM.py
 	
 	local Output_Path="${__EXE_PATH}/genes_RPKM"
 	DIR_CHECK_CREATE ${Output_Path}
 	
 	
-	local OUTPUT_NAME="genes_read_count_${1}"
+	
+	echo "Entering the processing directory"
+	cd ${__RAW_DATA_PATH_DIR}
+	echo "From Reads bed file to calculate reads count and its RPKM."
+	echo "$(find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
+	local Input_B1="$( find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
+	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
 	
 	
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/Tcf1_binding_sites_with_RNA-seq_DEGS/gene_list
+	cd ${Gene_list_folder}
+	echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
+	local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
-	echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}"
-	#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}
-	
-	echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}"
-	python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}
+	for Input_A1 in ${Input_A1_Lists}
+	do
+		local OUTPUT_NAME="genes_read_count_${1}_${Input_A1: 2: -4}"
+		local Input_A1="${Gene_list_folder}/${Input_A1: 2}"
+		echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}"
+		bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}
+		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}"
+		python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}
+	done
 
 }
 
@@ -306,7 +367,7 @@ RUN_read_filtering_Bamtohdf5(){
 	local SPECIES=mm9
 	local MM9_GENOME_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM9/genome.fa
 	local hg38_GENOME_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Annotation/hg38_UCSC/genome.fa
-	local EXEDIR="/home/lxiang/Software/HiC_lib"
+	local EXEDIR="~/Software/HiC_lib"
 	local INPUT_Parameters=$@
 	local INPUT_NUMS=$#
 	local RESOLUTION=$4
@@ -571,11 +632,10 @@ RUN_BED2WIG(){
 	#local SPECIES=hg19
 	local WINDOW_SIZE=200
 	local FRAGMENT_SIZE=50
-	local THREADS=4
 	########################################################################
 	#### mm9
-	local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
-	local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	local GTFFILE=${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
+	local BOWTIEINDEXS=${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
 
 	#### hg19
 	#local GTFFILE=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
@@ -609,12 +669,11 @@ RUN_Wig2BigWig (){
 	
 	local Data_provider=${5}
 	local SPECIES=${4}
-	
 	local Wig_DIR=${1}
 	local Tracks_NAME=${2}
 	local Data_label=${3}
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
-	local UCSC_DIR=/home/lxiang/Software/UCSC
+
 	####INPUT
 case ${SPECIES} in 
 	"mm9")
@@ -696,7 +755,6 @@ RUN_Bed2BigBed(){
 
 	local WINDOW_SIZE=200
 	local FRAGMENT_SIZE=50
-	local THREADS=4
 	########################################################################
 	#### mm9
 	local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
@@ -745,7 +803,6 @@ RUN_BigGraph2BigWig (){
 	local Tracks_NAME=${2}
 	local Data_label=${3}
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
-	local UCSC_DIR=/home/lxiang/Software/UCSC
 	####INPUT
 case ${SPECIES} in 
 	"mm9")
@@ -766,7 +823,7 @@ case ${SPECIES} in
 	;;
 esac
 
-	cd ${bdg_DIR}
+	cd ${Wig_DIR}
 
 	#local chrom_sizes_mm10=${UCSC_DIR}/genome_sizes/mm10.chrom.sizes
 #	local chrom_sizes_mm9=${UCSC_DIR}/genome_sizes/mm9.chrom.sizes
@@ -829,7 +886,47 @@ esac
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
 }
 
-RUN_Reads_Profile(){
+RUN_Reads_Profile_Promoter_genebody(){
+		#!/bin/bash
+	CHECK_arguments $# 1
+	
+	local EXE_PATH=~/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_sites.py
+	
+	
+	NORMALIZATION=1
+	FRAGMENTSIZE=100
+	UPSTREAMEXTENSION=6000
+	DOWNSTREAMEXTENSION=6000
+	WINDOWSIZE=100
+	RESOLUTION=5
+	GENIC_PARTION=20
+	DRAW_PROFILE_PLOT=yes
+
+
+	SITETYPE='bed_H3K4'
+	SITEDIR=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/bowtie2_map2_mm10_pMXs/genes_Read_Count_H3K4_H3K9/${SITETYPE}
+	SITEFILE='genes_read_count_5_H3K4me3_WT_Solo_LTR_MERVL_34bc.bed'
+
+	READDIR=${__RAW_DATA_PATH_DIR}/${1}/bowtie2_results
+	READFILE=${1}.bed
+	OUT_FOLDER=${__RAW_DATA_PATH_DIR}/profile_promoter_genebody
+	DIR_CHECK_CREATE ${OUT_FOLDER}
+	OUTFILE=${OUT_FOLDER}/profile_${SITEFILE}
+
+	echo "python ${EXE_PATH} -b ${READDIR}/${READFILE} -s ${SITEDIR}/${SITEFILE} -t yes -n $NORMALIZATION -f $FRAGMENTSIZE -r $RESOLUTION -u $UPSTREAMEXTENSION -d $DOWNSTREAMEXTENSION -w $WINDOWSIZE -p $GENIC_PARTION -y $DRAW_PROFILE_PLOT -o $OUTFILE"
+	python ${EXE_PATH} -b ${READDIR}/${READFILE} -s ${SITEDIR}/${SITEFILE} -t 'yes' -n $NORMALIZATION -f $FRAGMENTSIZE -r $RESOLUTION -u $UPSTREAMEXTENSION -d $DOWNSTREAMEXTENSION -w $WINDOWSIZE -p $GENIC_PARTION -y $DRAW_PROFILE_PLOT -o $OUTFILE
+	echo ""
+	echo ""
+		
+
+
+	echo "done"
+
+		
+	
+	}
+
+RUN_Reads_Profile_Promoter(){
 	### Usage: RUN_Reads_Profile $1 $2 $3
 	####
 	
@@ -839,17 +936,17 @@ RUN_Reads_Profile(){
 	local REGIONTYPE=${1}
 	
 	local FRAGMENTSIZE=0
-	local UP_EXTENSION=5000
-	local DOWN_EXTENSION=5000
+	local UP_EXTENSION=6000
+	local DOWN_EXTENSION=0
 	local WINDOWSIZE=100
 	local RESOLUTION=1
-	local FOLDER_PATH=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER
+	local FOLDER_PATH=~/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER
 	
-	local GENE_LIST_FOLDER=/home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER/genelist_DGEs/genelist_DEGs_Hdac1
+	local GENE_LIST_FOLDER=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format/gene_list
 	
 	
-	local EXE_PATH=/home/lxiang/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_locations.py
-	local GTFFILE=/home/lxiang/cloud_research/PengGroup/ZZeng/Annotation/gtf_files/mm9_genes.gtf
+	local EXE_PATH=~/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_locations.py
+	local GTFFILE=~/cloud_research/PengGroup/ZZeng/Annotation/gtf_files/mm9_genes.gtf
 	
 	
 	local OUTPUTDIR=${__EXE_PATH}/Profiles
@@ -889,7 +986,7 @@ local Histone_Modifications_List=(H3K9Ac H3K27Ac)
 			NORMALIZATION=1.0
 			fi
 
-			READDIR=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER/${CELLTYPE}_${HISMODS}
+			READDIR=~/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER/${CELLTYPE}_${HISMODS}
 			READFILE=${CELLTYPE}_${HISMODS}-W200-G${GAP}-FDR0.0001-islandfiltered.bed
 			OUTFILE=${OUTPUTDIR}/${CELLTYPE}_${HISMODS}_on_${GENETYPE}_${REGIONTYPE}.txt
 			echo "python ${EXE_PATH} -b ${READDIR}/${READFILE} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} \
@@ -929,28 +1026,31 @@ RUN_BOWTIE2(){
 
 	CHECK_arguments $# 2
 	echo "RUN_BOWTIE2"
-	local THREADS=4
 	#### OUTPUT FORMAT
-	local OUTPUT_BOWTIE2_FOLDER="${__EXE_PATH}/${INPUT_NAME}/bowtie2_results"
+	local OUTPUT_BOWTIE2_FOLDER="${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results"
 	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
 	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
 	
 case ${SPECIES} in
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
-	local BOWTIEINDEXS="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
 	;;
 	"mm10") 
 	echo "Reference SPECIES is ${SPECIES}"
-	local BOWTIEINDEXS="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
 	;;
 	"hg19")
 	echo "Reference SPECIES is ${SPECIES}"
-	local BOWTIEINDEXS="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
 	;;
 	"hg38")
 	echo "Reference SPECIES is ${SPECIES}"
-	local BOWTIEINDEXS="/home/lxiang/cloud_research/PengGroup/XLi/Annotation/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome
+	;;
+	"BOWTIEINDEXS_mm10_pMXs_combo")
+	echo "Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Raw_Data/Paul/34bc/Bowtie2_Indexes/MM10_pMXs_combo/mm10_pMXs_combo
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -971,15 +1071,16 @@ esac
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
-	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2 --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
-	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
+	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2 " #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
 	
+	echo ""
 	#### concordantly pair output
 	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
 	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
-	#### using un concordantly pair-ends do bowtie2 again.
-	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R1.fastq.gz -2 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R2.fastq.gz -S ${OUTPUT_BOWTIE2_unaligned}"
-	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R1.fastq.gz -2 ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R2.fastq.gz -S ${OUTPUT_BOWTIE2_unaligned}
+	# using un concordantly pair-ends do bowtie2 again.
+	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}"
+	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}
 	
 	else
 	echo "Single End Mode."
@@ -1000,9 +1101,10 @@ esac
 	fi
 ###bam2bed
 
-	echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
-	bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed
- 
+	echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
+	bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed
+	
+	
 ###bamToBedGraph
 
 	#samtools sort ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
@@ -1017,22 +1119,22 @@ esac
 	#echo "bedtools genomecov -ibam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam -bga > ${INPUT_NAME}.bdg"
 	#bedtools genomecov -ibam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam -bga > ${INPUT_NAME}.bdg
 
-	#RUN_BigGraph2BigWig ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} "34bc"
+	#RUN_BigGraph2BigWig ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} "Treg"
 
 	}
 
 RUN_SICER(){
 #### Usage: RUN_SICER $1 $2 ($1 is input for SICER. $2 is the CONTRO Library)
 echo "RUN_SICER"
-CHECK_arguments $# 2
-local EXEDIR="/home/lxiang/Software/SICER1.1/SICER"
-
-local GAP_SET=(400) # 600 400 200)
+CHECK_arguments $# 3
+local EXEDIR="${Tools_DIR}/SICER1.1/SICER"
+local FRAGMENT_SIZE=1
 local REDUNDANCY=1
+local WINDOW_SIZE=200
 local INPUT_NAME=$1
 local INPUI_CON=$2
-local FRAGMENT_SIZE=1
-local WINDOW_SIZE=200
+local INPUT_GAP_RATION=$3
+local GAP_SET=$(( ${INPUT_GAP_RATION} * ${WINDOW_SIZE} ))
 local EFFECTIVEGENOME=0.85 
 local FDR=0.05
 
@@ -1048,8 +1150,8 @@ DIR_CHECK_CREATE ${OUT_SICER_FOLDER}
 
 cd ${OUT_SICER_FOLDER}
 
-echo "sh ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm9 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
-sh ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm9 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
+echo "sh ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm10 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
+sh ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm10 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
 
 
 
@@ -1088,13 +1190,13 @@ python ${EXEDIR}/macs14 --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_D
 
 RUN_MACS2(){
 #### Usage: RUN_MACS2 $1 $2 ($1 is input for MACS. $2 is the CONTRO Library) 
-echo "RUN_MACS"
+echo "RUN_MACS2"
 CHECK_arguments $# 2
-local EXEDIR="/home/lxiang/Software/python_tools/MACS2-2.1.1.20160309/bin"
+local EXEDIR="~/Software/python_tools/MACS2-2.1.1.20160309/bin"
 
 local INPUT_NAME=${1}
 local INPUI_CON=${2}
-local INPUT_LABEL="TCF1_032018"
+local INPUT_LABEL="Treg_201806"
 #local INPUT_LABEL=${INPUT_NAME: 7:3}
 ##Skip out of Sample_ (7), and forward with 4 more digits.
 
@@ -1113,15 +1215,16 @@ cd ${OUT_FOLDER}
 
 ### --BAMPE
 echo "python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
-python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
+#python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
+macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 
 ### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
 #echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
 #python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 ####      ${INPUT_NAME}_treat_pileup  for input
 
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_treat_pileup ${INPUT_LABEL}
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_control_lambda ${INPUT_LABEL}
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_treat_pileup ${INPUT_LABEL} "mm10" "Haihui"
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_control_lambda ${INPUT_LABEL} "mm10" "Haihui"
 }
 
 RUN_MACS2_Diff(){
@@ -1212,12 +1315,11 @@ macs2 bdgdiff --t1 ${CON1_NAME}_treat_pileup.bdg --c1 ${CON1_NAME}_control_lambd
 RUN_CUFFDIFF(){
 	### RUN_CUFFDIFF $1 $2
 	####
-CHECK_arguments $# 20
+CHECK_arguments $# 4
 local INPUT_Args=("$@")
 local SAMPLE_NUM=${#INPUT_Args[*]}
-local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
+local GTFFILE=/home/Data/Annotation/iGenomes/MM10/Mus_musculus/UCSC/mm10/Annotation/Archives/archive-2015-07-17-14-33-26/Genes/mm10.gtf
 local OUTPUT_Cuffdiff=${__EXE_PATH}/Cuffdiff_Results
-local THREADS=4
 DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}
 
 #### Preparing the .bam files for cuffdiff
@@ -1226,22 +1328,38 @@ do
 	cd ${__RAW_DATA_PATH_DIR}
 	local DATA_BAM[$i]="$( find -name "${INPUT_Args[i]}.bam" | sort -n | xargs)"
 	#local DATA_BAM[$i]=${__EXE_PATH}/${INPUT_Args[i]}/Tophat_results/${INPUT_Args[i]}.bam
+	echo ""
+	echo "CuffDiff Library"
 	echo ${DATA_BAM[$i]}
+	echo ""
 done
 
 ### Four GROUP, each group has 3 DATA FILES, 
 ########################################################################
-if [ ${SAMPLE_NUM} -eq "20" ]
+if [ ${SAMPLE_NUM} -eq "4" ]
 then
-	local A_Label="WT_0h"
-	local B_Label="DKO_0h"
+	local A_Label="WT_Treg_C1"
+	local B_Label="dKO_Treg"
 	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
 	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]}"
-	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]}
+	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]} ${DATA_BAM[1]},${DATA_BAM[2]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]} ${DATA_BAM[2]},${DATA_BAM[3]}
 	echo ""
 	echo ""
 fi
+
+if [ ${SAMPLE_NUM} -eq "4" ]
+then
+	local A_Label="WT_Treg_C2"
+	local B_Label="dKO_Treg"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
+	echo "${INPUT_Args} Data files are loading..."
+	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}
+	echo ""
+	echo ""
+fi
+
 
 if [ ${SAMPLE_NUM} -eq "20" ]
 then
@@ -1254,50 +1372,12 @@ then
 	echo ""
 	echo ""
 fi
-
-
-if [ ${SAMPLE_NUM} -eq "20" ]
-then
-	local A_Label="WT_72h"
-	local B_Label="DKO_72h"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
-	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]} "
-	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]} 
-	echo ""
-	echo ""
-fi
-
-if [ ${SAMPLE_NUM} -eq "20" ]
-then
-	local A_Label="DKO_0h"
-	local B_Label="DKO_72h"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
-	echo "${INPUT_Args} Data files are loading..."
-	echo "	cuffdiff -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]}"
-	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[17]},${DATA_BAM[18]},${DATA_BAM[19]} ${DATA_BAM[6]},${DATA_BAM[7]},${DATA_BAM[13]}
-	echo ""
-	echo ""
-fi
-
-if [ ${SAMPLE_NUM} -eq "20" ]
-then
-	local A_Label="Ctrl_34n"
-	local B_Label="Ref_DKO_1_2_4n"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
-	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[8]},${DATA_BAM[9]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[11]}"
-	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[8]},${DATA_BAM[9]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[11]}
-	echo ""
-	echo ""
-fi
-
 ########################################################################
 
 echo "CuffDiff Completed!"
 	}
 
-RUN_TOPHAT (){
+RUN_TOPHAT(){
 #### Usage: RUN_TOPHAT $1 $2 $3 $4
 
 echo "RUN_TOPHAT_ANALYSIS"
@@ -1315,18 +1395,22 @@ DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
 
 local WINDOW_SIZE=200
 local FRAGMENT_SIZE=50
-local THREADS=4
 ########################################################################
 case ${SPECIES} in
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
-	local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	local GTFFILE=${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
+	local BOWTIEINDEXS=/${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	;;
+	"mm10")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=${Annotation_DIR}/iGenomes/MM10/Mus_musculus/UCSC/mm10/Annotation/Archives/archive-2015-07-17-14-33-26/Genes/mm10.gtf
+	local BOWTIEINDEXS=${Annotation_DIR}/iGenomes/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
 	;;
 	"hg19")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
-	local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+	local GTFFILE=${Annotation_DIR}/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
+	local BOWTIEINDEXS=${Annotation_DIR}/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -1336,6 +1420,10 @@ esac
 ########################################################################
 local SICER_DIR=/home/lxiang/Software/SICER1.1/SICER
 local EXEDIR=$SICER_DIR/extra/tools/wiggle
+
+# Tang
+local EXEDIR=/opt/tools
+#
 ########################################################################
 
 
@@ -1357,6 +1445,7 @@ local EXEDIR=$SICER_DIR/extra/tools/wiggle
 	
 	echo "bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
 	bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
+	
 	
 	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
 	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
@@ -1396,10 +1485,10 @@ RUN_Peaks_Distribution_Analysis(){
 	local INPUT_NAME=${1}
 	local INPUT_FILE_TYPE=${2}
 	
-	local EXEDIR=/home/lxiang/Software/python_tools
+	local EXEDIR=${Tools_DIR}/Python_tools
 
-	local GTFDIR=/home/lxiang/cloud_research/PengGroup/XLi/Annotation/gtf_files
-	local GTFFILE=mm9_genes.gtf
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes.gtf
+
 ### This parameter means that Promoter [-1k TSS, +1k TSS] Gene_body[+1k TSS. TES]
 	local PROMOTER_UPSTREAM_EXTENSION=1001   # Upstream extension, the distance from TSS.
 	local TSS_REGION_LENGTH=2000
@@ -1408,8 +1497,8 @@ RUN_Peaks_Distribution_Analysis(){
 	local INPUTFILE=${INPUT_NAME}.${INPUT_FILE_TYPE}
 	local OUTPUTFILE=${INPUT_NAME}_distribution.txt
 
-	echo "python $EXEDIR/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g $GTFDIR/$GTFFILE -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE"
-	python $EXEDIR/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g $GTFDIR/$GTFFILE -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE
+	echo "python ${EXEDIR}/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g ${GTFFILE} -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE"
+	python ${EXEDIR}/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g ${GTFFILE} -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE
 	echo ""
 	echo ""
 
@@ -1475,6 +1564,22 @@ FUNC_TEST(){
 	printf "Your input is: %s ${Read_key} \n"
 } 
 
+FUNC_BED_Sort(){
+	CHECK_arguments $# 2
+	Tracks_NAME=${1}
+	File_Type=${2}
+	
+	if [ ! -f ${Tracks_NAME}_sorted.${File_Type} ];then
+	echo "sort -k1,1 -k2,2n ${Tracks_NAME}.${File_Type} > ${Tracks_NAME}_sorted.${File_Type}"
+	sort -k1,1 -k2,2n ${Tracks_NAME}.${File_Type} > ${Tracks_NAME}_sorted.${File_Type}
+	
+	echo "After sort, delete oringinal file"
+	rm ${Tracks_NAME}.${File_Type}
+	fi
+	
+	
+	}
+
 FUNC_CHOOSE_EMAIL_ALERT(){
 	local default="[0 1 NO YES]"
 	local answer=""
@@ -1504,7 +1609,7 @@ FUNC_CHOOSE_EMAIL_ALERT(){
 }
 
 EMAIL_ME(){
-	CHECK_arguments $# 1
+	CHECK_arguments $# 2
 	echo "Start at ${1} " | mailx -v -s "Project: + ${2} Finished" lux@gwu.edu
 	}
 
@@ -1512,10 +1617,12 @@ FUNC_Download (){
 	CHECK_arguments $# 1
 ### Download Login information and the download directory.
 #### -nH --cut-dirs=3   Skip 3 directory components.
-	local Web_Address="https://jumpgate.caltech.edu/runfolders/volvox02/180522_SN787_0816_BHHWYJBCX2/Unaligned/"
+	local Web_Address="http://dnacore454.healthcare.uiowa.edu/20180703-0064_Xue_QiangPool3oifwYynBtIramBZculZGuCXlcVmzsboXsFUbpXLa/results/Project_Xue_QiangPool3/"
 	local Directory_Skip_Num=4
 	local USER="gec"
+	local USER=""
 	local PASSWORD="aardvark dryer rummage"
+	local PASSWORD=""
 	cd ${__RAW_DATA_PATH_DIR}
 	local DOWNLOAD_TARGET_NAME=${1}/;
 ####If download file is a folder. IT MUST END WITH trailing slash  "/"

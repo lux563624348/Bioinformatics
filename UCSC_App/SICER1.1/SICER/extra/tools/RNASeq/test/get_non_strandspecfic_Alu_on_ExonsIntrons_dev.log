@@ -1,0 +1,123 @@
+sh get_non_strandspecfic_Alu_on_ExonsIntrons_dev.sh 
+python /home/data/SICER1.1/SICER/extra/tools/RNASeq/get_non_strandspecfic_Alu_on_ExonsIntrons_dev.py -a /home/data/hg19/Annotation/RepElements/AluElements_hg19.txt -u /home/data/SICER1.1/SICER/extra/tools/RNASeq/hg19_EntrezID_filtered_samestrand_collisonremoved_simplegene.pkl  -s hg19 -o simplegenes_hg19
+There are 11142 entrez genes for 11142 refseq transcripts.
+['chr1', 'chr2', 'chr3', 'chr4', 'chr5', 'chr6', 'chr7', 'chr8', 'chr9', 'chr10', 'chr11', 'chr12', 'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19', 'chr20', 'chr21', 'chr22', 'chrX', 'chrY'] -AluElements_hg19.txt1  files do not exist, separate by chroms. 
+chr1
+There are 1146 entrez genes for 1146 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 102868 of elements on chr1
+Entrez id is 6146
+There are 1 transcripts
+Chrom:  chr1
+Strand:  -
+Boundaries:  [(6245079, 6259679)]
+Merged exonic regions:  [(6245079, 6246876), (6252989, 6253114), (6257711, 6257816), (6259621, 6259679)]
+Shared_exonic_regions:  [(6245079, 6246876), (6252989, 6253114), (6257711, 6257816), (6259621, 6259679)]
+Shared_intronic_regions:  [(6246877, 6252988), (6253115, 6257710), (6257817, 6259620)]
+Shared 3UTR:  [(6245079, 6246731)]
+Shared 5UTR:  [(6259633, 6259679)]
+NM_000983       chr1    -       6245079 6259679 6246731 6259633 4       6245079,6252989,6257711,6259621,        6246876,6253114,6257816,6259679,        RPL226146
+
+
+The number of shared intronic regions is 3
+(6246877, 6252988) [(6247240, 'AluSzchr1+6247091'), (6247547, 'AluSc8chr1+6247392'), (6248254, 'AluSz6chr1-6248117'), (6248528, 'AluJochr1+6248467'), (6248998, 'AluSpchr1-6248852'), (6249556, 'AluJochr1+6249474'), (6249849, 'AluSq2chr1+6249697'), (6250573, 'AluSpchr1-6250435'), (6251068, 'AluSq10chr1+6251000'), (6251291, 'AluSx3chr1+6251137'), (6251603, 'AluYchr1+6251445'), (6251925, 'AluSxchr1+6251775'), (6252258, 'AluJochr1-6252110'), (6252623, 'AluSx1chr1+6252475')]
+(6253115, 6257710) [(6253294, 'AluJbchr1-6253205'), (6253532, 'AluSpchr1-6253383'), (6253745, 'AluJbchr1-6253681'), (6254143, 'AluJbchr1+6254001'), (6254808, 'AluJrchr1+6254664'), (6255085, 'AluYchr1+6254953'), (6255373, 'AluYchr1+6255223'), (6255683, 'AluSxchr1+6255527'), (6255996, 'AluSpchr1+6255840'), (6257238, 'AluSx3chr1-6257089')]
+(6257817, 6259620) []
+chr2
+There are 700 entrez genes for 700 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 83971 of elements on chr2
+chr3
+There are 583 entrez genes for 583 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 67045 of elements on chr3
+chr4
+There are 428 entrez genes for 428 refseq transcripts.
+There are 1 classes, 1 families, and 40 rep elements
+There are 54993 of elements on chr4
+chr5
+There are 489 entrez genes for 489 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 57653 of elements on chr5
+chr6
+There are 622 entrez genes for 622 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 58454 of elements on chr6
+chr7
+There are 482 entrez genes for 482 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 70190 of elements on chr7
+chr8
+There are 390 entrez genes for 390 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 49291 of elements on chr8
+chr9
+There are 460 entrez genes for 460 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 49144 of elements on chr9
+chr10
+There are 400 entrez genes for 400 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 56211 of elements on chr10
+chr11
+There are 783 entrez genes for 783 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 48347 of elements on chr11
+chr12
+There are 591 entrez genes for 591 refseq transcripts.
+There are 1 classes, 1 families, and 40 rep elements
+There are 59416 of elements on chr12
+chr13
+There are 172 entrez genes for 172 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 28853 of elements on chr13
+chr14
+There are 341 entrez genes for 341 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 36509 of elements on chr14
+chr15
+There are 317 entrez genes for 317 refseq transcripts.
+There are 1 classes, 1 families, and 40 rep elements
+There are 38709 of elements on chr15
+chr16
+There are 476 entrez genes for 476 refseq transcripts.
+There are 1 classes, 1 families, and 40 rep elements
+There are 51074 of elements on chr16
+chr17
+There are 692 entrez genes for 692 refseq transcripts.
+There are 1 classes, 1 families, and 40 rep elements
+There are 57308 of elements on chr17
+chr18
+There are 154 entrez genes for 154 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 24470 of elements on chr18
+chr19
+There are 877 entrez genes for 877 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 57873 of elements on chr19
+chr20
+There are 301 entrez genes for 301 refseq transcripts.
+There are 1 classes, 1 families, and 40 rep elements
+There are 29037 of elements on chr20
+chr21
+There are 119 entrez genes for 119 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 12526 of elements on chr21
+chr22
+There are 232 entrez genes for 232 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 24305 of elements on chr22
+chrX
+There are 377 entrez genes for 377 refseq transcripts.
+There are 1 classes, 1 families, and 41 rep elements
+There are 47324 of elements on chrX
+chrY
+There are 10 entrez genes for 10 refseq transcripts.
+There are 1 classes, 1 families, and 40 rep elements
+There are 9757 of elements on chrY
+The number of genes output to simplegenes_hg19_Alu_distribution_in_shared_intron.pkl is 11142 
+The number of genes output to simplegenes_hg19_Alus_in_shared_intron.pkl is 11142 
+The number of genes output to simplegenes_hg19_Alus_in_shared_exon.pkl is 11142 
+The number of genes output to simplegenes_hg19_Alu_distribution_in_merged_transcript.pkl is 11142 
+The number of genes output to simplegenes_hg19_Alus_in_merged_transcript.pkl is 11142 
+it took 29504.219177 seconds.

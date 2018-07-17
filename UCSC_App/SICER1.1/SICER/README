@@ -1,0 +1,259 @@
+For details on the algorithm, please see
+
+A clustering approach for identification of enriched domains from 
+histone modification ChIP-Seq data
+
+Chongzhi Zang, Dustin E. Schones, Chen Zeng, Kairong Cui, Keji Zhao, 
+and Weiqun Peng
+Bioinformatics 25, 1952 - 1958 (2009)
+PMID: 19505939
+PMCID: PMC2732366
+
+If you use SICER to analyze your data in a published work, please cite 
+the above paper in the main text of your publication. Thank you.
+
+
+#############################################
+##############  Installation  ###############
+#############################################
+
+Installation of SICER only requires unpacking the files in the
+SICER.tgz file.  Prerequisites include:
+
+
+I. Install the numpy and scipy packages. More information on this can
+be found at: http://www.scipy.org/. To check whether numpy and scipy
+are properly installed, please run
+
+$python
+>>> import numpy
+>>> import scipy
+
+If there is no error message, this step is done.
+
+
+II. Define environment variables. Please open SICER.sh and SICER-rb.sh,
+replace {PATHTO} in the definition of $SICER with the directory where 
+you want your SICER to be. For alternative approaches, please see the 
+additional notes below.
+
+
+
+#############################################
+##############  Running SICER  ##############
+#############################################
+
+
+
+
+The raw data needs to be in the BED format. See the test.bed file in
+the ex/ directory for an example.
+
+SICER can be run with or without a background control library, or differentiating 
+two ChIP libraries. Examples on running SICER under any condition are included 
+below.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Case 1: Running SICER with a background control library
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+###  SICER.sh  ###
+
+Copy the shell script SICER.sh to the directory where test.bed and control.bed 
+is stored. Starting from the two raw bed, to find significant islands with a 
+window size of 200bp and a gap size of 600bp and FDR=1E-3, run:
+
+$sh SICER.sh test.bed control.bed 200 600 1E-3
+
+
+The gap size needs to be multiples of window_size (ie, 0, 200, 400, 600 etc).
+There are a number of other parameters that need to be set, as
+explained in the shell script SICER.sh. You can also redefine the
+directory structure so that you don't have to have the code and the
+data under the same directory, etc.
+
+
+The output file (test-W200-G600-islands-summary-FDR1E-3) has the format:
+
+chrom, start, end, ChIP_island_read_count, CONTROL_island_read_count, p_value, fold_change, FDR_threshold
+
+Note:
+
+1) The FDR here is calculated using p-value adjusted for multiple testing, 
+following the original approach developed by Benjamini and Hochberg.The value
+reported in the last column is the biggest FDR threhsold under which the region
+is deemed significant. The significance of all candidate islands are stored 
+in file test-W200-G600-islands-summary.  If you want to try a different FDR
+without changing other parameters, there is no need to run the entire
+SICER.sh again. only the last substep in SICER.sh needs to be rerun, 
+which can be done by commenting out the previous substeps.
+
+2) Pvalue can also be used to control significance with proper adjustment 
+in the last substep of SICER.sh. Fold change is reported in 
+test-W200-G600-islands-summary as well. 
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Case 2: Running SICER without a background library, using a random background
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+###  SICER-rb.sh  ###
+
+Copy the shell script SICER-rb.sh to the directory where the raw bed file 
+test.bed is stored. Starting from test.bed, to find significant islands 
+under random background model with window_size of 200 bp and gap size of 
+400bp and an E-value of 100, run:
+
+$sh SICER-rb.sh test.bed 200 400 100
+
+
+The gap size needs to be multiples of window_size (ie, 0, 200, 400, 600 etc).
+The shell script SICER-rb.sh contains the other parameters that
+needs to be set, with explanation about what they are and how to change them. 
+You can also redefine the directory structure so that you don't have to have
+the code and the data under the same directory, etc.
+
+
+The output island file (with appendix .probscoreisland) is also in bed
+format: 
+
+chrom  start  end  island_score
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Case 3: Running SICER two (control and treated) libraries to identify 
+differentially enriched regions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+###  SICER-df.sh  ###
+
+Copy the shell script SICER-df.sh to the directory where test.bed (used as 
+treated library)and control.bed (used as control library) is stored. Starting 
+from the two raw bed files, to find differentially enriched (significantly 
+increased and significantly decreased) islands with a window size of 200bp and 
+a gap size of 600bp, candidate islands E-value=500 and P-value=1E-5, run:
+
+$sh SICER-df.sh test.bed control.bed 200 600 500 1E-5
+
+
+The gap size needs to be multiples of window_size (ie, 0, 200, 400, 600 etc).
+There are a number of other parameters that need to be set, as
+explained in the shell script SICER-df.sh. You can also redefine the
+directory structure so that you don't have to have the code and the
+data under the same directory, etc.
+
+
+The output file (test-W200-G600-increased-islands-summary-p1E-5 and 
+test-W200-G600-decreased-islands-summary-p1E-5) has the format:
+
+chrom, start, end, numerator_island_read_count, denominator_island_read_count, p_value, fold_change, FDR_threshold
+
+Note:
+
+1) The significance of all candidate islands are stored in files 
+test-W200-G600-inreased-summary and test-W200-G600-dereased-summary. 
+If you want to try a different p-value without changing other parameters, 
+there is no need to run the entire SICER-df.sh again. only the last substep 
+in SICER-df.sh needs to be rerun, which can be done by commenting out the 
+previous substeps.
+
+2) FDR can also be used to control significance with proper adjustment 
+in the last substep of SICER-df.sh. 
+
+3) Fold change is also reported. 
+*** There is a caveat for islands with very high tag count. Because of the 
+nature of poisson distribution, it is likely to obtain a very small p-value 
+even the tag counts are not very different in terms of fold change. An additional 
+fold-change cut-off would be neccessary to select most significantly differentiated 
+regions. 
+
+
+
+
+##############################################
+############   Additional Notes   ############
+##############################################
+
+0) Installation of scipy. Installation of scipy package turned out not to be 
+an easy task under linux. The easiest way to get it installed properly
+is probably to use the Enthought python distribution (http://www.enthought.com), 
+which is free for educational use. Another option is to install the free SAGE 
+distribution package (http://www.sagemath.org). This is not a pure python distribution 
+per se, but "inside the SAGE directory lies a local/ folder containing all the 
+binaries, libraries and Python packages it used. It even contains its own 
+Python 2.5! Set the PATH, LD_LIBRARY_PATH and PYTHONPATH environment variables 
+right and suddenly you have a perfectly consistent installation of everything 
+that’s needed to do scientific work in Python! Other users on the same machine 
+just need to change the same variables, and they can play too! Apotheose²! So 
+in addition to its primary goals of providing a replacement for Mathematica/Maple/etc, 
+SAGE, as a side-effect, provides the whole Python scientific shebang compiled and  
+wrapped up in a nice package, for your pleasure." (from http://vnoel.wordpress.com/2008/05/03/bye-matlab-hello-python-thanks-sage/)
+
+1) Alternative approaches to defining $PYTHONPATH.
+
+1a) You can define $SICER and $PYTHONPATH as global environment variables, so
+that the modules under /lib are always recognized and the python
+modules can run on their own without shell script.  To do this, Please edit
+Utility/setup.sh and replace {PATHTO} with the directory under which
+you will put SICER. Then incorporate the content in setup.sh into the
+bash configuration file .bash_profile under your home directory. After
+pasting the content to .bash_profile, please run
+
+$source .bash_profile
+
+Then all your newly created shells will know $SICER and lib/ .
+
+To check, please run
+$echo $SICER
+$echo $PYTHONPATH
+
+Note setup.sh is applicable only to bash. If you use other shells, contents in 
+setup.sh needs to be modified accordingly. 
+
+1b) The above approach depends on the shell used. A shell-independent approach 
+is to insert a sitecustomize.py under ${pythondir}/lib/site-packages/. sitecustomize.py
+is a special script; Python will try to import it on startup, so any code in it 
+will be run automatically. If sitecustomize.py does not exist, then add it to 
+${pythondir}/lib/site-packages/. If sitecustomize.py exists under ${pythondir}/lib/site-packages/, 
+then edit it.
+
+In sitecustomize.py, please add (if not there already)
+
+import sys
+sys.path.append("{PATHTO}/SICER/lib") 
+
+
+1c) If none of the above works, copy the modules under /lib and 
+/utility to /src, then you are good to go.
+
+
+2) There are a number of intermediate output files in addition to the final results,see
+the SICER.sh or SICER-rb.sh for explanation. 
+
+3) There are a number of modules under utility/, quite useful for
+additional analysis:   
+
+convert_summary_to_bed.py: extract the positional information from a summary file (e.g., test-W200-G600-islands-summary-FDR1E-3) and make a bed file that can be read by BED.py:
+chr	start	end	ChIP_island_read_count
+
+filter_raw_tags_by_islands.py: identify all reads that are on significant islands 
+
+filter_summary_graphs.py: identify all summary graphs that are on significant islands
+
+find_overlapped_islands.py: compare two sets of islands and identify unique and overlapped ones 
+
+get_windows_histogram.py: generate window read-count statistics 
+
+islands_statistics_pr.py: generate island score and length statistics 
+
+slice_raw_bed.py: randomly sample a given number of reads from a raw read library for satuaration analysis.
+
+4) Information about the genomes is stored in GenomeData.py. If what your genome is not listed there, you can add it on your own following the template.
+
+
+5) If you run multiple instances of SICER simutaneously, please make sure to run them under separate directories to avoid interference!
+
+For questions, please email chongzhizang@gmail.com, schonesde@nhlbi.nih.gov, wpeng@gwu.edu

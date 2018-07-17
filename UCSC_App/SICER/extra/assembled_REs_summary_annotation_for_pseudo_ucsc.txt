@@ -1,5 +1,0 @@
-txStart	0
-txEnd	1
-chrom	2
-strand	3
-id	6
