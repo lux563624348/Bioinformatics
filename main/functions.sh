@@ -927,80 +927,60 @@ RUN_Reads_Profile_Promoter_genebody(){
 	}
 
 RUN_Reads_Profile_Promoter(){
-	### Usage: RUN_Reads_Profile $1 $2 $3
+	### Usage: RUN_Reads_Profile $1 $2
 	####
 	
 	
-	CHECK_arguments $# 1
+	CHECK_arguments $# 2
 	#### TSS or TES
 	local REGIONTYPE=${1}
+	#### INPUT FILE NAME
+	local INPUT_NAME=${2}
 	
-	local FRAGMENTSIZE=0
-	local UP_EXTENSION=6000
-	local DOWN_EXTENSION=0
+	GENELIST_LIST=(
+	ETN_34bc.bed
+	IAP_34bc.bed
+	MERVL_34bc.bed
+	MMERGLN_34bc.bed
+	MMERVK10C_34bc.bed
+	RLTR4_34bc.bed
+	SINE1_34bc.bed
+	Solo_LTR_MERVL_34bc.bed
+	)
+	
+	local FRAGMENTSIZE=100
+	local UP_EXTENSION=5000
+	local DOWN_EXTENSION=5000
 	local WINDOWSIZE=100
-	local RESOLUTION=1
-	local FOLDER_PATH=~/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER
+	local RESOLUTION=10
+	local NORMALIZATION=1.0
 	
-	local GENE_LIST_FOLDER=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format/gene_list
+	local GENE_LIST_FOLDER=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
+	
+	#local EXE_PATH=~/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_locations.py
+	local EXE_PATH=~/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_locations_for_all_beta.py
 	
 	
-	local EXE_PATH=~/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_locations.py
-	local GTFFILE=~/cloud_research/PengGroup/ZZeng/Annotation/gtf_files/mm9_genes.gtf
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/Choi-Data-S1.gtf
 	
-	
-	local OUTPUTDIR=${__EXE_PATH}/Profiles
-	
+	local OUTPUTDIR=${__EXE_PATH}/${REGIONTYPE}_Profiles/${INPUT_NAME}
 	DIR_CHECK_CREATE ${OUTPUTDIR}
+	cd ${OUTPUTDIR}
 	
-GENELIST_LIST=(
-genelist_up_up_with_Hdac1.bed
-genelist_up_up_without_Hdac1.bed
-genelist_down_down_with_Hdac1.bed
-genelist_down_down_without_Hdac1.bed)
-	
-GENETYPE_LIST=(up_up_with_Hdac1 up_up_without_Hdac1 down_down_with_Hdac1 down_down_without_Hdac1)
-
-
-
-
-local CELLTYPE_LIST=(WT_Treg_D20 Hdac12_KO_Treg_D20)
-local Histone_Modifications_List=(H3K9Ac H3K27Ac)
-
-	
-	for (( i = 0 ; i < ${#GENELIST_LIST[@]} ; i++ ))
+	for GENELISTFILE in ${GENELIST_LIST[*]}
 	do
-		GENELISTFILE=${GENELIST_LIST[$i]}
-		GENETYPE=${GENETYPE_LIST[$i]}
-		local GAP=400
+	local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results/${INPUT_NAME}.bed
+	#local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed
+	echo "python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} \ 
+	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR}"
+	python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} \
+	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR}
 	
-		for CELLTYPE in ${CELLTYPE_LIST[*]}
-		do
-			for HISMODS in ${Histone_Modifications_List[*]}
-			do
-
-			if [ $CELLTYPE = WT_Treg ]
-			then
-			NORMALIZATION=1.0
-			else
-			NORMALIZATION=1.0
-			fi
-
-			READDIR=~/cloud_research/PengGroup/ZZeng/Data/Haihui/Hdac/Treg_HistoneMarks_ChIPSeq_Sep2016/SICER/${CELLTYPE}_${HISMODS}
-			READFILE=${CELLTYPE}_${HISMODS}-W200-G${GAP}-FDR0.0001-islandfiltered.bed
-			OUTFILE=${OUTPUTDIR}/${CELLTYPE}_${HISMODS}_on_${GENETYPE}_${REGIONTYPE}.txt
-			echo "python ${EXE_PATH} -b ${READDIR}/${READFILE} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} \
-			-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTFILE}"
-			python ${EXE_PATH} -b ${READDIR}/${READFILE} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} \
-			-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTFILE}
-			
-			echo ""
-			echo ""
-			done
-		done
+	echo ""
+	echo ""
+	echo "done"
 	done
 
-	echo "done"
 
 
 	}

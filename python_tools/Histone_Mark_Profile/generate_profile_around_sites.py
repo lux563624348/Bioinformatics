@@ -1,4 +1,3 @@
-
 import HTSeq
 import sys, re
 from optparse import OptionParser
