@@ -959,7 +959,7 @@ RUN_Reads_Profile_Promoter(){
 	local GENE_LIST_FOLDER=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
 	
 	#local EXE_PATH=~/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_locations.py
-	local EXE_PATH=~/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_locations_for_all_beta.py
+	local EXE_PATH=~/cloud_research/PengGroup/XLi/Python_tools/generate_profile_TSS_GeneBody_TES_beta.py
 	
 	
 	local GTFFILE=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/Choi-Data-S1.gtf

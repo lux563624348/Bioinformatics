@@ -177,7 +177,6 @@ def profile_plot_site(norm_profile, resolution, upstreamExtension, downstreamExt
     customized_xticks=['-'+ str(upstreamExtension),site_name,str(downstreamExtension)]
     ax.set_xticklabels(customized_xticks, fontsize=18)
     ax.grid(which='major', axis='x', linestyle='--')
-    plt.show()
     fig.savefig('Profile_'+site_name+'_'+genes_set_name+'_'+con_name+'.png')
     
     ### also Input Profile txt
@@ -264,7 +263,7 @@ def profile_Up_genebody_Down_site(upstream_profile, site_body_profile, downstrea
 
 
     fig, ax=plt.subplots(1,1, figsize=(12,6))
-    ax.plot(xValues, profile, "b", label=con_name)
+    ax.plot(xValues, profile, label=con_name)
     ax.grid(which='major', axis='x', linestyle='--')
     ax.set_title(genes_set_name)
     plt.xlabel('Site Coordinate', fontsize=12)
