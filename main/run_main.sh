@@ -32,9 +32,9 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/bowtie2_map2_mm10_pMXs
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/bowtie2_map2_mm10_pMXs
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 
 ###Pool 1
@@ -96,12 +96,7 @@ Only_Treg_TCF1
 __INPUT_SAMPLE_DIR_List=(
 10_New_H3K9me3_WT    
 11_New_H3K9me3_mir34bc_KO
-1_input_Bruce4
-2_H3K4me3_Bruce4
-3_H3K9me3_Bruce4
-4_input_WT
 5_H3K4me3_WT
-6_input_mir34bc_KO
 7_H3K4me3_mir34bc_KO
 8_H3K9me3_WT_April
 8_H3K9me3_WT_Dec
@@ -109,18 +104,17 @@ __INPUT_SAMPLE_DIR_List=(
 9_H3K9me3_mir34bc_KO_Dec
 )
 
+# Pool 4
 __INPUT_SAMPLE_DIR_List=(
-#10_New_H3K9me3_WT    
-11_New_H3K9me3_mir34bc_KO
-5_H3K4me3_WT
-7_H3K4me3_mir34bc_KO
-8_H3K9me3_WT_April
-8_H3K9me3_WT_Dec
-9_H3K9me3_mir34bc_KO_April
-9_H3K9me3_mir34bc_KO_Dec
+Sample_WT-na1_20180709000
+Sample_WT-na2_20180709000
+Sample_WT-s1_20180709000
+Sample_WT-s2_20180709000
+Sample_dKO-na1_20180709000
+Sample_dKO-na2_20180709000
+Sample_dKO-s1_20180709000
+Sample_dKO-s2_20180709000
 )
-
-
 
 echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
 
@@ -148,10 +142,10 @@ echo ""
 
 ### Parallel TEST
 parallel_process(){
-	
+	break
 	}
 
-for INPUT in ${__INPUT_SAMPLE_DIR_List[*]}; do RUN_Reads_Profile_Promoter 'TSS' ${INPUT} & done
+#for INPUT in ${__INPUT_SAMPLE_DIR_List[*]}; do RUN_Reads_Profile_Promoter 'TSS' ${INPUT} & done
 
 
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
@@ -160,17 +154,16 @@ do
 	#RUN_Reads_Profile_Promoter 'TSS' ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
-	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
-	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
-	#RUN_FAST_QC
+	FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
+	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
+	RUN_FAST_QC
 	#RUN_Venn_Diagram ${__EXE_PATH} 'bed'
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10"
+	RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10"
 	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
 	#RUN_Reads_Profile_Promoter_genebody ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Treg" "mm10" "WT_Online_Ref"
 	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
-	break
-
+	
 	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1' ${SPECIES} ${Data_Provider}
 	
 	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
@@ -185,6 +178,7 @@ done
 ## SECOND LOOP
 	#RUN_Reads_Profile "TSS"
 	
+	ps j > PPID.log
 
 	echo "End Date: `date`"
 	echo -e "\a FINISHED ALERT !"

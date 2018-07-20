@@ -113,9 +113,9 @@ RUN_FAST_QC (){
 ####	Usage: RUN_FAST_QC $INPUT_DATA_DIR
 ########################################################################
 ### FASTQC Output DIR setting ...
-	local Output_fastqc=${__EXE_PATH}/fastqc
+	local Output_fastqc=${__RAW_DATA_PATH_DIR}/fastqc
 	DIR_CHECK_CREATE ${Output_fastqc}
-	cd ${__EXE_PATH}
+	cd ${__RAW_DATA_PATH_DIR}
 	
 	for fastq_file in ${__FASTQ_DIR_R1[*]}
 	do
@@ -954,6 +954,7 @@ RUN_Reads_Profile_Promoter(){
 	local WINDOWSIZE=100
 	local RESOLUTION=10
 	local NORMALIZATION=1.0
+	local Genic_Partition=20
 	
 	local GENE_LIST_FOLDER=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
 	
@@ -971,10 +972,10 @@ RUN_Reads_Profile_Promoter(){
 	do
 	local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results/${INPUT_NAME}.bed
 	#local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed
-	echo "python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} \ 
-	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR}"
+	echo "python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} \
+	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} -p ${Genic_Partition}"
 	python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} \
-	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR}
+	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} -p ${Genic_Partition}
 	
 	echo ""
 	echo ""
@@ -1597,7 +1598,7 @@ FUNC_Download (){
 	CHECK_arguments $# 1
 ### Download Login information and the download directory.
 #### -nH --cut-dirs=3   Skip 3 directory components.
-	local Web_Address="http://dnacore454.healthcare.uiowa.edu/20180703-0064_Xue_QiangPool3oifwYynBtIramBZculZGuCXlcVmzsboXsFUbpXLa/results/Project_Xue_QiangPool3/"
+	local Web_Address="http://dnacore454.healthcare.uiowa.edu/20180709-0170_Xue_QiangShanPool4OKiPLIAslLWgIkDVsaGZLzoVlLlPplNDozWXgnqK/results/Project_Xue_QiangShanPool4/"
 	local Directory_Skip_Num=4
 	local USER="gec"
 	local USER=""
