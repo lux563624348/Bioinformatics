@@ -12,15 +12,16 @@ The code is used in the following papers:
 ***\*contributed equally***
 
 ## Profile
-Generating profile of [histone marks](https://www.whatisepigenetics.com/histone-modifications/) at specific sets of genomic landmarks.
+Generating profile of [histone marks](https://www.whatisepigenetics.com/histone-modifications/generate_profile_around_locations_for_all_beta.py) at specific sets of genomic landmarks.
 
-#### [`generate_profile_around_locations.py`](profile/generate_profile_around_locations.py)
+#### [`generate_profile_around_locations.py`](python_tools/Histone_Mark_Profile/generate_profile_around_locations_for_all_beta.py)
 
 **Usage:** generating profile or histone marks around gene [TSS](https://en.wikiversity.org/wiki/Gene_transcriptions/Start_sites).
 
 **Example:** from paper [[2]](#bioinformatics-codebase)
 
-<img src="examples/profile-1.png" width="400">
+<img src="python_tools/Histone_Mark_Profile/Examples/Profile_TSS_ETN_34bc_5_H3K4me3_WT.png" width="400">
+<img src="python_tools/Histone_Mark_Profile/Examples/Profile_TES_ETN_34bc_5_H3K4me3_WT.png" width="400">
 
 #### [`generate_profile_around_sites.py`](profile/generate_profile_around_sites.py)
 
