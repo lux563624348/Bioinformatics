@@ -14,7 +14,7 @@ The code is used in the following papers:
 ## Profile
 Generating profile of [histone marks](https://www.whatisepigenetics.com/histone-modifications/generate_profile_around_locations_for_all_beta.py) at specific sets of genomic landmarks.
 
-#### [`generate_profile_around_locations.py`](python_tools/Histone_Mark_Profile/generate_profile_around_locations_for_all_beta.py)
+#### [`generate_profile_TSS_GeneBody_TES.py`](python_tools/Histone_Mark_Profile/generate_profile_TSS_GeneBody_TES_beta.py)
 
 **Usage:** generating profile or histone marks around gene [TSS](https://en.wikiversity.org/wiki/Gene_transcriptions/Start_sites).
 
