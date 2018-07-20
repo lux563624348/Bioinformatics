@@ -954,7 +954,7 @@ RUN_Reads_Profile_Promoter(){
 	local WINDOWSIZE=100
 	local RESOLUTION=10
 	local NORMALIZATION=1.0
-	local Genic_Partition=20
+	local Genic_Partition=100
 	
 	local GENE_LIST_FOLDER=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
 	

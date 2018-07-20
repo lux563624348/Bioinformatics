@@ -1,4 +1,14 @@
-### XIANG LI
+########################################################################
+## 07/20/2018
+## By Xiang Li,
+## lux@gwu.edu
+## Peng's Lab
+## Version.beta
+########################################################################
+# Usage 
+#python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} \
+#	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} -p ${Genic_Partition}
+########################################################################
 
 import HTSeq
 import sys, re
@@ -43,13 +53,13 @@ def Get_Site_Profile(INPUT_read_file, INPUT_gtf_file, INPUT_gene_list, site_name
             if feature.type == "exon" and feature.attr["gene_id"] in gene_list_unique:
                 site_pos_set.add(feature.iv.start_d_as_pos)
                 num_transcripts += 1
-        print num_transcripts
+        #print num_transcripts
     elif(site_name=='TES'):
         for feature in gtffile:
             if feature.type == "exon" and feature.attr["gene_id"] in gene_list_unique:
                 site_pos_set.add(feature.iv.end_d_as_pos)
                 num_transcripts += 1
-        print num_transcripts
+        #print num_transcripts
     else:
         print("ERROR: Default is TSS or TES, your input is neither!")
     
@@ -73,6 +83,9 @@ def Get_Site_Profile(INPUT_read_file, INPUT_gtf_file, INPUT_gene_list, site_name
                 profile[index] += count_in_window / (1.0*window_size)
                 
                 index += 1
+    
+    print "...................................................."
+    print "Profile on: %s " % site_name
     print "Number of locations: %i" % num_transcripts
     print "Number of reads: %i" % num_reads 
             
@@ -99,7 +112,7 @@ def Get_GeneBody_Profile(INPUT_read_file, INPUT_gtf_file, INPUT_gene_list, genic
     if (len(gene_list_with_strand) != len(gene_list)):
         print "Input Genelist is not constant with reference GTF, please doublecheck!"
     else:
-        print("Looks good so far!")
+        print("Looks good so far!_Comment_From_XIANG_LI")
 ##########################################################################################
 
 
@@ -144,7 +157,7 @@ def Get_GeneBody_Profile(INPUT_read_file, INPUT_gtf_file, INPUT_gene_list, genic
             index += 1
             if index >= genic_partition:
                 break
-
+	print "...................................................."
     print ("Total Number of Skipped gene_list: "+str(Num_Skip))
     print ("Because their length are less than your choose genic_partition")
     plt.plot((profile*(10**9))/(num_reads*(len(gene_list_with_strand)-Num_Skip)))
@@ -327,11 +340,13 @@ def main(argv):
 	if len(argv) < 28:
 		parser.print_help()
 		sys.exit(1)
-		
+	
+	print " "
 	print "Here is the Summary of your input."
 	print "Name of Input Read Condition: %s" % opt.condition
 	print "Name of Input Gene list: %s" % opt.list_name
 	print "Generating Profiles around: %s" % opt.type_site
+	print "Genebody Genic_Partition Points(Default: 10) %i" genic_partition
 	print "Upstream extension: %i" % opt.upstreamExtension
 	print "Downstream extension: %i" % opt.downstreamExtension
 	print "Input Fragment Size: %i" % opt.fragment_size
