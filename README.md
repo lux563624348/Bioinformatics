@@ -12,6 +12,7 @@ The code is used in the following papers:
 ***\*contributed equally***
 
 ## Profile
+Only with One Command to do the following:
 Generating profile of [histone marks](https://www.whatisepigenetics.com/histone-modifications/generate_profile_around_locations_for_all_beta.py) at specific sets of genomic landmarks.
 
 #### [`generate_profile_TSS_GeneBody_TES.py`](python_tools/Histone_Mark_Profile/generate_profile_TSS_GeneBody_TES_beta.py)
@@ -22,6 +23,9 @@ Generating profile of [histone marks](https://www.whatisepigenetics.com/histone-
 
 <img src="python_tools/Histone_Mark_Profile/Examples/Profile_TSS_ETN_34bc_5_H3K4me3_WT.png" width="400">
 <img src="python_tools/Histone_Mark_Profile/Examples/Profile_TES_ETN_34bc_5_H3K4me3_WT.png" width="400">
+<img src="python_tools/Histone_Mark_Profile/Examples/Profile-SiteBody-ETN_34bc_5_H3K4me3_WT.png" width="400">
+
+# Below this line are template from zz
 
 #### [`generate_profile_around_sites.py`](profile/generate_profile_around_sites.py)
 
