@@ -1,7 +1,7 @@
 This folder is all about the codes and small tools for bioproject.
 
 
-# bioinformatics-codebase
+# Bioproject-Code-Pool
 Collection of code for genomic data analysis (mainly for [RNA-Seq](https://en.wikipedia.org/wiki/RNA-Seq) and [ChIP-Seq](https://en.wikipedia.org/wiki/ChIP-sequencing) data)
 
 The code is used in the following papers:
@@ -11,7 +11,7 @@ The code is used in the following papers:
 "[The transcription factor Runx3 guards cytotoxic CD8+ effector T cells against deviation towards follicular helper T cell lineage.](http://www.nature.com/ni/journal/v18/n8/full/ni.3773.html)" *Nature Immunology* 18, no. 8 (2017): 931-939.
 ***\*contributed equally***
 
-## profile
+## Profile
 Generating profile of [histone marks](https://www.whatisepigenetics.com/histone-modifications/) at specific sets of genomic landmarks.
 
 #### [`generate_profile_around_locations.py`](profile/generate_profile_around_locations.py)
