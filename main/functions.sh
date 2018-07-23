@@ -35,7 +35,7 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 	UCSC_DIR=/opt/tools/UCSC
 	Tools_DIR=/opt/tools
 	Annotation_DIR=/home/Data/Annotation
-	THREADS=32
+	THREADS=16
 	#
 
 
@@ -886,46 +886,6 @@ esac
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
 }
 
-RUN_Reads_Profile_Promoter_genebody(){
-		#!/bin/bash
-	CHECK_arguments $# 1
-	
-	local EXE_PATH=~/cloud_research/PengGroup/XLi/Python_tools/generate_profile_around_sites.py
-	
-	
-	NORMALIZATION=1
-	FRAGMENTSIZE=100
-	UPSTREAMEXTENSION=6000
-	DOWNSTREAMEXTENSION=6000
-	WINDOWSIZE=100
-	RESOLUTION=5
-	GENIC_PARTION=20
-	DRAW_PROFILE_PLOT=yes
-
-
-	SITETYPE='bed_H3K4'
-	SITEDIR=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/bowtie2_map2_mm10_pMXs/genes_Read_Count_H3K4_H3K9/${SITETYPE}
-	SITEFILE='genes_read_count_5_H3K4me3_WT_Solo_LTR_MERVL_34bc.bed'
-
-	READDIR=${__RAW_DATA_PATH_DIR}/${1}/bowtie2_results
-	READFILE=${1}.bed
-	OUT_FOLDER=${__RAW_DATA_PATH_DIR}/profile_promoter_genebody
-	DIR_CHECK_CREATE ${OUT_FOLDER}
-	OUTFILE=${OUT_FOLDER}/profile_${SITEFILE}
-
-	echo "python ${EXE_PATH} -b ${READDIR}/${READFILE} -s ${SITEDIR}/${SITEFILE} -t yes -n $NORMALIZATION -f $FRAGMENTSIZE -r $RESOLUTION -u $UPSTREAMEXTENSION -d $DOWNSTREAMEXTENSION -w $WINDOWSIZE -p $GENIC_PARTION -y $DRAW_PROFILE_PLOT -o $OUTFILE"
-	python ${EXE_PATH} -b ${READDIR}/${READFILE} -s ${SITEDIR}/${SITEFILE} -t 'yes' -n $NORMALIZATION -f $FRAGMENTSIZE -r $RESOLUTION -u $UPSTREAMEXTENSION -d $DOWNSTREAMEXTENSION -w $WINDOWSIZE -p $GENIC_PARTION -y $DRAW_PROFILE_PLOT -o $OUTFILE
-	echo ""
-	echo ""
-		
-
-
-	echo "done"
-
-		
-	
-	}
-
 RUN_Reads_Profile_Promoter(){
 	### Usage: RUN_Reads_Profile $1 $2
 	####
@@ -954,7 +914,7 @@ RUN_Reads_Profile_Promoter(){
 	local WINDOWSIZE=100
 	local RESOLUTION=10
 	local NORMALIZATION=1.0
-	local Genic_Partition=100
+	local Genic_Partition=50
 	
 	local GENE_LIST_FOLDER=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
 	
@@ -973,9 +933,9 @@ RUN_Reads_Profile_Promoter(){
 	local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results/${INPUT_NAME}.bed
 	#local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed
 	echo "python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} \
-	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} -p ${Genic_Partition}"
+	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} "
 	python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} \
-	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} -p ${Genic_Partition}
+	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} 
 	
 	echo ""
 	echo ""
@@ -999,7 +959,7 @@ RUN_Reads_Profile_Promoter(){
 ##	MODOLES
 ########################################################################
 ########################################################################
-
+## Alignor
 RUN_BOWTIE2(){
 	### RUN_BOWTIE2 $1 $2
 	local INPUT_NAME=${1}
@@ -1008,7 +968,7 @@ RUN_BOWTIE2(){
 	CHECK_arguments $# 2
 	echo "RUN_BOWTIE2"
 	#### OUTPUT FORMAT
-	local OUTPUT_BOWTIE2_FOLDER="${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results"
+	local OUTPUT_BOWTIE2_FOLDER="${__RAW_DATA_PATH_DIR}/Bowtie2_Results/${INPUT_NAME}"
 	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
 	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
 	
@@ -1104,6 +1064,94 @@ esac
 
 	}
 
+RUN_TOPHAT(){
+#### Usage: RUN_TOPHAT $1 $2 $3 $4
+
+echo "RUN_TOPHAT_ANALYSIS"
+CHECK_arguments $# 4
+
+### Operation PARAMETERS Setting
+local INPUT_NAME=${1}
+local PROJECT_NAME=${2}
+local SPECIES=${3}
+local Data_Provider=${4}
+
+#### OUTPUT FORMAT
+local OUTPUT_TOPHAT_FOLDER="${__EXE_PATH}/${INPUT_NAME}/Tophat_results"
+DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
+
+local WINDOW_SIZE=200
+local FRAGMENT_SIZE=50
+########################################################################
+case ${SPECIES} in
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
+	local BOWTIEINDEXS=/${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	;;
+	"mm10")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=${Annotation_DIR}/iGenomes/MM10/Mus_musculus/UCSC/mm10/Annotation/Archives/archive-2015-07-17-14-33-26/Genes/mm10.gtf
+	local BOWTIEINDEXS=${Annotation_DIR}/iGenomes/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
+	;;
+	"hg19")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=${Annotation_DIR}/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
+	local BOWTIEINDEXS=${Annotation_DIR}/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+########################################################################
+local SICER_DIR=/home/lxiang/Software/SICER1.1/SICER
+local EXEDIR=$SICER_DIR/extra/tools/wiggle
+
+# Tang
+local EXEDIR=/opt/tools
+#
+########################################################################
+
+
+#### Decide single end or pair ends mode
+#### NOW it is only compatible with single file. Not with pieces files.
+	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
+	then
+	echo "Pair End Mode"
+	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
+	tophat -p ${THREADS} -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
+	else
+	echo "Single End Mode."
+	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
+	tophat -p ${THREADS} -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
+	fi
+
+	echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
+	mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+	
+	echo "bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
+	bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
+	
+	
+	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
+	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
+	
+	### Then clear bed file.
+	if [ -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed ];then
+	echo "rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
+	rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
+	fi
+
+	
+	echo "RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+	
+	echo "One TopHat is completed."
+	echo ""
+	}
+
+## Peaks Calling.
 RUN_SICER(){
 #### Usage: RUN_SICER $1 $2 ($1 is input for SICER. $2 is the CONTRO Library)
 echo "RUN_SICER"
@@ -1120,10 +1168,10 @@ local EFFECTIVEGENOME=0.85
 local FDR=0.05
 
 
-local IN_SICER_FOLDER=${__EXE_PATH}/${INPUT_NAME}/bowtie2_results
+local IN_SICER_FOLDER=${__RAW_DATA_PATH_DIR}/Bowtie2_Results/${INPUT_NAME}
 local IN_SICER_FILES=${INPUT_NAME}.bed
 
-local CONTRO_SICER_DIR=${__EXE_PATH}/${INPUI_CON}/bowtie2_results
+local CONTRO_SICER_DIR=${__RAW_DATA_PATH_DIR}/Bowtie2_Results/${INPUI_CON}
 local CONTRO_SICER_FILE=${INPUI_CON}.bed
 
 local OUT_SICER_FOLDER=${__EXE_PATH}/${INPUT_NAME}/SICER_results
@@ -1142,33 +1190,6 @@ RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized
 
 	}
 
-RUN_MACS(){
-#### kind outdated module
-#### Usage: RUN_MACS $1 $2 ($1 is input for MACS. $2 is the CONTRO Library)
-echo "RUN_MACS"
-CHECK_arguments $# 2
-local EXEDIR="/home/lxiang/Software/python_tools/MACS-1.4.2/bin"
-
-local INPUT_NAME=$1
-local INPUI_CON=$2
-
-local p_value=0.00001
-
-local IN_FOLDER=${__EXE_PATH}/${INPUT_NAME}/bowtie2_results
-local IN_FILES=${INPUT_NAME}.bam
-
-local CONTRO_DIR=${__EXE_PATH}/${INPUI_CON}/bowtie2_results
-local CONTRO_FILE=${INPUI_CON}.bam
-
-local OUT_FOLDER=${__EXE_PATH}/${INPUT_NAME}/MACS_results
-DIR_CHECK_CREATE ${OUT_FOLDER}
-
-cd ${OUT_FOLDER}
-
-echo "python ${EXEDIR}/macs14 --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -w -p ${p_value}"
-python ${EXEDIR}/macs14 --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -w -p ${p_value} 
-	}
-
 RUN_MACS2(){
 #### Usage: RUN_MACS2 $1 $2 ($1 is input for MACS. $2 is the CONTRO Library) 
 echo "RUN_MACS2"
@@ -1184,10 +1205,10 @@ local INPUT_LABEL="Treg_201806"
 #local FDR=0.05
 local p_value=0.00001
 
-local IN_FOLDER=${__EXE_PATH}/${INPUT_NAME}/bowtie2_results
+local IN_FOLDER=${__RAW_DATA_PATH_DIR}/Bowtie2_Results/${INPUT_NAME}
 local IN_FILES=${INPUT_NAME}.bam
 
-local CONTRO_DIR=${__EXE_PATH}/${INPUI_CON}/bowtie2_results
+local CONTRO_DIR=${__RAW_DATA_PATH_DIR}/Bowtie2_Results/${INPUT_NAME}
 local CONTRO_FILE=${INPUI_CON}.bam
 
 local OUT_FOLDER=${__EXE_PATH}/${INPUT_NAME}/MACS2_results_BAMPE
@@ -1208,7 +1229,7 @@ RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_treat_pileup ${INPUT_LABEL} "mm1
 RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_control_lambda ${INPUT_LABEL} "mm10" "Haihui"
 }
 
-RUN_MACS2_Diff(){
+RUN_MACS2_Diff(){  ###Need Updated
 #### Usage: RUN_MACS2_Diff $1 $2 $3 $4 $5 $6 $threshold ($1 is input for con1. $2 is the CONTRO_1  $3 is Con2. $4 is the CONTRO_2 )
 echo "RUN_MACS2 Diff"
 CHECK_arguments $# 7
@@ -1299,7 +1320,7 @@ RUN_CUFFDIFF(){
 CHECK_arguments $# 4
 local INPUT_Args=("$@")
 local SAMPLE_NUM=${#INPUT_Args[*]}
-local GTFFILE=/home/Data/Annotation/iGenomes/MM10/Mus_musculus/UCSC/mm10/Annotation/Archives/archive-2015-07-17-14-33-26/Genes/mm10.gtf
+local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes.gtf
 local OUTPUT_Cuffdiff=${__EXE_PATH}/Cuffdiff_Results
 DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}
 
@@ -1356,93 +1377,6 @@ fi
 ########################################################################
 
 echo "CuffDiff Completed!"
-	}
-
-RUN_TOPHAT(){
-#### Usage: RUN_TOPHAT $1 $2 $3 $4
-
-echo "RUN_TOPHAT_ANALYSIS"
-CHECK_arguments $# 4
-
-### Operation PARAMETERS Setting
-local INPUT_NAME=${1}
-local PROJECT_NAME=${2}
-local SPECIES=${3}
-local Data_Provider=${4}
-
-#### OUTPUT FORMAT
-local OUTPUT_TOPHAT_FOLDER="${__EXE_PATH}/${INPUT_NAME}/Tophat_results"
-DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
-
-local WINDOW_SIZE=200
-local FRAGMENT_SIZE=50
-########################################################################
-case ${SPECIES} in
-	"mm9")
-	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
-	local BOWTIEINDEXS=/${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
-	;;
-	"mm10")
-	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=${Annotation_DIR}/iGenomes/MM10/Mus_musculus/UCSC/mm10/Annotation/Archives/archive-2015-07-17-14-33-26/Genes/mm10.gtf
-	local BOWTIEINDEXS=${Annotation_DIR}/iGenomes/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
-	;;
-	"hg19")
-	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=${Annotation_DIR}/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
-	local BOWTIEINDEXS=${Annotation_DIR}/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
-	;;
-	*)
-	echo "ERR: Did Not Find Any Matched Reference...... Exit"
-	exit
-	;;
-esac
-########################################################################
-local SICER_DIR=/home/lxiang/Software/SICER1.1/SICER
-local EXEDIR=$SICER_DIR/extra/tools/wiggle
-
-# Tang
-local EXEDIR=/opt/tools
-#
-########################################################################
-
-
-#### Decide single end or pair ends mode
-#### NOW it is only compatible with single file. Not with pieces files.
-	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
-	then
-	echo "Pair End Mode"
-	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
-	tophat -p ${THREADS} -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
-	else
-	echo "Single End Mode."
-	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
-	tophat -p ${THREADS} -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
-	fi
-
-	echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
-	mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
-	
-	echo "bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
-	bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
-	
-	
-	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
-	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
-	
-	### Then clear bed file.
-	if [ -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed ];then
-	echo "rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
-	rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
-	fi
-
-	
-	echo "RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
-	
-	echo "One TopHat is completed."
-	echo ""
 	}
 
 RUN_Quant_IRI(){

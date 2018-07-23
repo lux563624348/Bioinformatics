@@ -138,7 +138,6 @@ def Get_GeneBody_Profile(INPUT_read_file, INPUT_gtf_file, INPUT_gene_list, genic
             Num_Skip +=1 
             continue
 ##########################################################################################
-
         site_iv = HTSeq.GenomicInterval(gene_list_with_strand.loc[i,'chr'], gene_list_with_strand.loc[i,'start'],
                                         gene_list_with_strand.loc[i,'end'], gene_list_with_strand.loc[i,'strand'])
         index = 0
@@ -157,11 +156,11 @@ def Get_GeneBody_Profile(INPUT_read_file, INPUT_gtf_file, INPUT_gene_list, genic
             index += 1
             if index >= genic_partition:
                 break
-	print "...................................................."
+
+
+    print "...................................................."
     print ("Total Number of Skipped gene_list: "+str(Num_Skip))
     print ("Because their length are less than your choose genic_partition")
-    plt.plot((profile*(10**9))/(num_reads*(len(gene_list_with_strand)-Num_Skip)))
-    plt.show()
     return ( (profile*(10**9))/(num_reads*(len(gene_list_with_strand)-Num_Skip)) )
 
 def profile_plot_site(norm_profile, resolution, upstreamExtension, downstreamExtension, genes_set_name, con_name, site_name):
@@ -336,7 +335,7 @@ def main(argv):
 	parser.add_option("-p", "--partition_points", action="store", type="int",
 			dest="genic_partition", help="genic_partition of genebody, eg, 10", metavar="<int>", default=10)
 	(opt, args) = parser.parse_args(argv)
-	if len(argv) < 28:
+	if len(argv) < 26:
 		parser.print_help()
 		sys.exit(1)
 	
@@ -345,7 +344,7 @@ def main(argv):
 	print "Name of Input Read Condition: %s" % opt.condition
 	print "Name of Input Gene list: %s" % opt.list_name
 	print "Generating Profiles around: %s" % opt.type_site
-	print "Genebody Genic_Partition Points(Default: 10) %i" genic_partition
+	print "Genebody Genic_Partition Points(Default: 10) %i" % opt.genic_partition
 	print "Upstream extension: %i" % opt.upstreamExtension
 	print "Downstream extension: %i" % opt.downstreamExtension
 	print "Input Fragment Size: %i" % opt.fragment_size
@@ -363,7 +362,7 @@ def main(argv):
 		Upprofile = Get_Site_Profile(opt.bed_file, opt.gtf_file, opt.known_gene_list, 'TSS', opt.window_size,
 		opt.fragment_size, opt.resolution, opt.upstreamExtension, opt.downstreamExtension)
 		###Down
-		Downprofile = Get_Site_Profile(opt.bed_file, opt.gtf_file, opt.known_gene_list, 'TSS', opt.window_size,
+		Downprofile = Get_Site_Profile(opt.bed_file, opt.gtf_file, opt.known_gene_list, 'TES', opt.window_size,
 		opt.fragment_size, opt.resolution, opt.upstreamExtension, opt.downstreamExtension)
 		### GENEBODY
 		genebody_profile = Get_GeneBody_Profile(opt.bed_file, opt.gtf_file, opt.known_gene_list, opt.genic_partition, opt.fragment_size)
