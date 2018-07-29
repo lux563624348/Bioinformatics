@@ -1525,7 +1525,7 @@ FUNC_CHOOSE_EMAIL_ALERT(){
 
 EMAIL_ME(){
 	CHECK_arguments $# 2
-	echo "Start at ${1} " | mailx -v -s "Project: + ${2} Finished" lux@gwu.edu
+	echo "Start at ${1} " | mail -s "Project: + ${2} Finished" lux@gwu.edu
 	}
 
 FUNC_Download (){
