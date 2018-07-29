@@ -30,12 +30,13 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 ########################################################################
 ###    Global Variables
 	#Shang
-	UCSC_DIR=/home/lxiang/Software/UCSC
-	# Tang
 	UCSC_DIR=/opt/tools/UCSC
 	Tools_DIR=/opt/tools
-	Annotation_DIR=/home/Data/Annotation
-	THREADS=16
+	#Annotation_DIR=/home/Data/Annotation
+	THREADS=4
+	# Tang
+	#Annotation_DIR=/home/Data/Annotation
+	#THREADS=16
 	#
 
 
@@ -43,8 +44,8 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 
 ##	FUNDEMENTAL FUNCTIONS FOR ANALYSIS MODULES
 PRE_READS_DIR(){
-	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz"
-	CHECK_arguments $# 2
+	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "R1" "R2"
+	CHECK_arguments $# 3 # No less than 3
 	echo "Entering one Library of RAW_DATA_DIR: $__RAW_DATA_PATH_DIR/$1"
 	echo "Searching file type as: $2"
 	local Current_DATA_DIR="${__RAW_DATA_PATH_DIR}/$1"
@@ -55,8 +56,8 @@ PRE_READS_DIR(){
 	#local DIRLIST_R1="$( find -name "*R1.fastq" | sort -n | xargs)"
 	#local DIRLIST_R2="$( find -name "*R2.fastq" | sort -n | xargs)" #
 	
-	local DIRLIST_R1_gz="$( find -name "*R1*.$2" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*R2*.$2" | sort -n | xargs)"
+	local DIRLIST_R1_gz="$( find -name "*$3*.$2" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*$4*.$2" | sort -n | xargs)"
 	
 	## for 34bc
 	#local DIRLIST_R1_gz="$( find -name "un_conc_aligned_R1.$2" | sort -n | xargs)"
@@ -345,7 +346,7 @@ RUN_RPKM(){
 	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
 	
 	
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/Tcf1_binding_sites_with_RNA-seq_DEGS/gene_list
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
 	cd ${Gene_list_folder}
 	echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
@@ -968,7 +969,7 @@ RUN_BOWTIE2(){
 	CHECK_arguments $# 2
 	echo "RUN_BOWTIE2"
 	#### OUTPUT FORMAT
-	local OUTPUT_BOWTIE2_FOLDER="${__RAW_DATA_PATH_DIR}/Bowtie2_Results/${INPUT_NAME}"
+	local OUTPUT_BOWTIE2_FOLDER="${__EXE_PATH}/${INPUT_NAME}/Bowtie2_Results"
 	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
 	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
 	
@@ -1153,62 +1154,61 @@ local EXEDIR=/opt/tools
 
 ## Peaks Calling.
 RUN_SICER(){
-#### Usage: RUN_SICER $1 $2 ($1 is input for SICER. $2 is the CONTRO Library)
+#### Usage: RUN_SICER $1 $2 $3 ($1 is input for SICER. $2 is the CONTRO Library, $3 is the Gap set.) 
 echo "RUN_SICER"
 CHECK_arguments $# 3
 local EXEDIR="${Tools_DIR}/SICER1.1/SICER"
-local FRAGMENT_SIZE=1
+local FRAGMENT_SIZE=100
 local REDUNDANCY=1
 local WINDOW_SIZE=200
-local INPUT_NAME=$1
-local INPUI_CON=$2
-local INPUT_GAP_RATION=$3
-local GAP_SET=$(( ${INPUT_GAP_RATION} * ${WINDOW_SIZE} ))
+local INPUT_NAME=${1}
+local INPUI_CON=${2}
+local GAP_SET=${3}
 local EFFECTIVEGENOME=0.85 
 local FDR=0.05
 
 
-local IN_SICER_FOLDER=${__RAW_DATA_PATH_DIR}/Bowtie2_Results/${INPUT_NAME}
+local IN_SICER_FOLDER=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results
 local IN_SICER_FILES=${INPUT_NAME}.bed
 
-local CONTRO_SICER_DIR=${__RAW_DATA_PATH_DIR}/Bowtie2_Results/${INPUI_CON}
+local CONTRO_SICER_DIR=${__RAW_DATA_PATH_DIR}/${INPUI_CON}/bowtie2_results
 local CONTRO_SICER_FILE=${INPUI_CON}.bed
 
-local OUT_SICER_FOLDER=${__EXE_PATH}/${INPUT_NAME}/SICER_results
+local OUT_SICER_FOLDER=${__EXE_PATH}/SICER_Results/${INPUT_NAME}
 DIR_CHECK_CREATE ${OUT_SICER_FOLDER}
 
 cd ${OUT_SICER_FOLDER}
 
-echo "sh ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm10 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
-sh ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm10 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
+echo "bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm10 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
+bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} "mm10" ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
 
 
 
-RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME}-W200-normalized
-RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME}-W200-normalized "34bc" "mm10" "Paul"
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized "34bc" "mm10" "Paul"
 
 
 	}
 
 RUN_MACS2(){
-#### Usage: RUN_MACS2 $1 $2 ($1 is input for MACS. $2 is the CONTRO Library) 
+#### Usage: RUN_MACS2 $1 $2 $3 ($1 is input for MACS. $2 is the CONTRO Library $3 is label) 
 echo "RUN_MACS2"
-CHECK_arguments $# 2
+CHECK_arguments $# 3
 local EXEDIR="~/Software/python_tools/MACS2-2.1.1.20160309/bin"
 
 local INPUT_NAME=${1}
 local INPUI_CON=${2}
-local INPUT_LABEL="Treg_201806"
+local INPUT_LABEL=${3}
 #local INPUT_LABEL=${INPUT_NAME: 7:3}
 ##Skip out of Sample_ (7), and forward with 4 more digits.
 
 #local FDR=0.05
 local p_value=0.00001
 
-local IN_FOLDER=${__RAW_DATA_PATH_DIR}/Bowtie2_Results/${INPUT_NAME}
+local IN_FOLDER=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results
 local IN_FILES=${INPUT_NAME}.bam
 
-local CONTRO_DIR=${__RAW_DATA_PATH_DIR}/Bowtie2_Results/${INPUT_NAME}
+local CONTRO_DIR=${__RAW_DATA_PATH_DIR}/${INPUI_CON}/bowtie2_results
 local CONTRO_FILE=${INPUI_CON}.bam
 
 local OUT_FOLDER=${__EXE_PATH}/${INPUT_NAME}/MACS2_results_BAMPE
