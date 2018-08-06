@@ -341,20 +341,32 @@ RUN_RPKM(){
 	echo "Entering the processing directory"
 	cd ${__RAW_DATA_PATH_DIR}
 	echo "From Reads bed file to calculate reads count and its RPKM."
-	echo "$(find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
-	local Input_B1="$( find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
+	echo "$(find -name "${File_Name}*-islandfiltered.${FILE_TYPE}" | sort -n | xargs)"
+	local Input_B1="$( find -name "${File_Name}*-islandfiltered.${FILE_TYPE}" | sort -n | xargs)"
 	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
 	
 	
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
 	cd ${Gene_list_folder}
-	echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
-	local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
+	#echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
+	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
-	for Input_A1 in ${Input_A1_Lists}
+	
+	local Input_A1_Lists=(
+	ETN_34bc.bed
+	IAP_34bc.bed
+	MERVL_34bc.bed
+	MMERGLN_34bc.bed
+	MMERVK10C_34bc.bed
+	RLTR4_34bc.bed
+	SINE1_34bc.bed
+	Solo_LTR_MERVL_34bc.bed
+	)
+	
+	for Input_A1 in ${Input_A1_Lists[*]}
 	do
-		local OUTPUT_NAME="genes_read_count_${1}_${Input_A1: 2: -4}"
-		local Input_A1="${Gene_list_folder}/${Input_A1: 2}"
+		local OUTPUT_NAME="genes_read_count_${1}_${Input_A1:: -4}"
+		local Input_A1="${Gene_list_folder}/${Input_A1}"
 		echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}"
 		bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}
 		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}"
@@ -495,12 +507,38 @@ RUN_REMOVE_SEQ(){
 ## USAGE:	RUN_REMOVE_SEQ ${__INPUT_SAMPLE_DIR_List[i]}
 #### Check a specific seq in fastq.gz
 ####	1.Raw_data 2.Seq
-local bbmap=/home/lxiang/Software/bbmap
-local REMOVE_SEQ=/home/lxiang/Raw_Data/Paul/34bc/Reference_gene_seq/MLVs/MMLV.fa
-local OUT=$__EXE_PATH/$1
-DIR_CHECK_CREATE $OUT
-local KERS=$2
+local bbmap=${Tools_DIR}/bbmap
+local REMOVE_SEQ=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq/Adapter_Remove/TruSeq_Adapter_Index_5.fq
+local OUTPUT_NAME=${__RAW_DATA_PATH_DIR}/Adapter_Removed/${1}
+DIR_CHECK_CREATE ${OUTPUT_NAME}
+local KERS=${2}
 ########################################################################
+echo ""
+local DIRLIST_gz="$( find -name "*.fastq.gz" | sort -n | xargs)"
+
+	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
+	then
+	echo "Pair End."
+	echo 
+	${bbmap}/bbduk.sh in1=${__FASTQ_DIR_R1[0]} in2=${__FASTQ_DIR_R2[0]} out1=$OUT/unmatched_R1.fastq.gz out2=$OUT/unmatched_R2.fastq.gz outm1=$OUT/matched_R1.fastq.gz outm2=$OUT/matched2_R2.fastq.gz ref=$REMOVE_SEQ k=$KERS hdist=0 stats=stats.txt
+	echo ""
+	#### concordantly pair output
+	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
+	# using un concordantly pair-ends do bowtie2 again.
+	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}"
+	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}
+	
+	else
+	echo "Single End."
+	echo "bowtie2 -p $THREADS --no-unal --non-deterministic -x $BOWTIEINDEXS -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S $OUTPUT_BOWTIE2"
+	${bbmap}/bbduk.sh in1=${__FASTQ_DIR_R1[0]} in2=${__FASTQ_DIR_R2[0]} out1=$OUT/unmatched_R1.fastq.gz out2=$OUT/unmatched_R2.fastq.gz outm1=$OUT/matched_R1.fastq.gz outm2=$OUT/matched2_R2.fastq.gz ref=$REMOVE_SEQ k=$KERS hdist=0 stats=stats.txt
+	fi
+
+	echo ""
+
+
+
 
 echo "nohup $bbmap/bbduk.sh in1=${__FASTQ_DIR_R1[0]} in2=${__FASTQ_DIR_R2[0]} out1=$OUT/unmatched_R1.fastq.gz out2=$OUT/unmatched_R2.fastq.gz outm1=$OUT/matched_R1.fastq.gz outm2=$OUT/matched2_R2.fastq.gz ref=$REMOVE_SEQ k=$KERS hdist=0 stats=stas.txt"
 nohup $bbmap/bbduk.sh in1=${__FASTQ_DIR_R1[0]} in2=${__FASTQ_DIR_R2[0]} out1=$OUT/unmatched_R1.fastq.gz out2=$OUT/unmatched_R2.fastq.gz outm1=$OUT/matched_R1.fastq.gz outm2=$OUT/matched2_R2.fastq.gz ref=$REMOVE_SEQ k=$KERS hdist=0 stats=stats.txt
@@ -818,6 +856,10 @@ case ${SPECIES} in
 	echo "Reference SPECIES is ${SPECIES}"
 	local chrom_sizes="${UCSC_DIR}/genome_sizes/hg19.chrom.sizes"
 	;;
+	"hg38")
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/hg38.chrom.sizes"
+	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
 	exit
@@ -887,13 +929,13 @@ esac
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
 }
 
-RUN_Reads_Profile_Promoter(){
+RUN_Reads_Profile(){
 	### Usage: RUN_Reads_Profile $1 $2
 	####
 	
 	
 	CHECK_arguments $# 2
-	#### TSS or TES
+	#### TSS or TES or GeneBody
 	local REGIONTYPE=${1}
 	#### INPUT FILE NAME
 	local INPUT_NAME=${2}
@@ -915,7 +957,7 @@ RUN_Reads_Profile_Promoter(){
 	local WINDOWSIZE=100
 	local RESOLUTION=10
 	local NORMALIZATION=1.0
-	local Genic_Partition=50
+	local Genic_Partition=200
 	
 	local GENE_LIST_FOLDER=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
 	
@@ -924,6 +966,8 @@ RUN_Reads_Profile_Promoter(){
 	
 	
 	local GTFFILE=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/Choi-Data-S1.gtf
+	#local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes.gtf
+	
 	
 	local OUTPUTDIR=${__EXE_PATH}/${REGIONTYPE}_Profiles/${INPUT_NAME}
 	DIR_CHECK_CREATE ${OUTPUTDIR}
@@ -933,14 +977,15 @@ RUN_Reads_Profile_Promoter(){
 	do
 	local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results/${INPUT_NAME}.bed
 	#local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed
-	echo "python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} \
-	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} "
-	python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} \
-	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} 
+	echo "python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -e 'exon' \
+	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} -p ${Genic_Partition}"
+	python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -e 'exon' \
+	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} -p ${Genic_Partition}
 	
 	echo ""
 	echo ""
 	echo "done"
+	#break
 	done
 
 
@@ -969,7 +1014,7 @@ RUN_BOWTIE2(){
 	CHECK_arguments $# 2
 	echo "RUN_BOWTIE2"
 	#### OUTPUT FORMAT
-	local OUTPUT_BOWTIE2_FOLDER="${__EXE_PATH}/${INPUT_NAME}/Bowtie2_Results"
+	local OUTPUT_BOWTIE2_FOLDER="${__EXE_PATH}/${INPUT_NAME}/Bowtie2_Results_3trim_50"
 	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
 	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
 	
@@ -1013,8 +1058,8 @@ esac
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
-	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2 " #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
-	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
+	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2 --trim3 50" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 50 #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
 	
 	echo ""
 	#### concordantly pair output
