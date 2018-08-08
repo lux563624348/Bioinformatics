@@ -160,8 +160,8 @@ def profile_plot_site(norm_profile, resolution, upstreamExtension, downstreamExt
     
     fig, ax=plt.subplots(1,1)
     ax.plot(numpy.arange(-upstreamExtension/resolution, downstreamExtension/resolution+1), norm_profile, label=con_name)
-    plt.title(genes_set_name)
-    plt.legend(loc='upper right')
+    ax.set_title(genes_set_name)
+    ax.legend(loc='upper right')
     
     x=[-upstreamExtension/resolution, 0, downstreamExtension/resolution]
     ax.set_xticks(x)
@@ -200,7 +200,7 @@ def profile_Up_genebody_Down_site(upstream_profile, site_body_profile, downstrea
     f.write(header)
     downstream_xValues = numpy.arange(0, downstreamExtension + 1, resolution)
     for index in range(len(downstream_xValues)):
-        outline = str(downstream_xValues[index]) + "\t" + str(downstream_profile[index]) + "\n"
+        outline = str(downstream_xValues[index]) + "\t" + str(downstream_profile[index+downstreamExtension/resolution]) + "\n"
         f.write(outline)
     f.close()
 ##########################################################################################
@@ -257,14 +257,14 @@ def profile_Up_genebody_Down_site(upstream_profile, site_body_profile, downstrea
     ax.plot(xValues, profile, label=con_name)
     ax.grid(which='major', axis='x', linestyle='--')
     ax.set_title(genes_set_name)
-    plt.xlabel('Site Coordinate', fontsize=12)
-    plt.legend(loc='upper right')
+    ax.set_xlabel('Site Coordinate', fontsize=12)
+    ax.legend(loc='upper right')
     ax.set_xticks(xticks)
     ax.set_xticklabels(xticklabels, fontsize=14)
-    plt.ylabel('RPKM', fontsize=24)
+    ax.set_ylabel('RPKM', fontsize=24)
     fig_name='Profile-SiteBody-'+genes_set_name+'_'+con_name
     title = re.sub("_", " ", fig_name)
-    plt.title(title, fontsize=16)
+    ax.set_title(title, fontsize=16)
     #plt.savefig(fig_name + '_plot.eps', format='eps')
     plt.savefig(fig_name + '.png', format='png')
 

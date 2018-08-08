@@ -33,7 +33,7 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 	UCSC_DIR=/opt/tools/UCSC
 	Tools_DIR=/opt/tools
 	#Annotation_DIR=/home/Data/Annotation
-	THREADS=4
+	THREADS=8
 	# Tang
 	#Annotation_DIR=/home/Data/Annotation
 	#THREADS=16
@@ -44,11 +44,11 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 
 ##	FUNDEMENTAL FUNCTIONS FOR ANALYSIS MODULES
 PRE_READS_DIR(){
-	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "R1" "R2"
-	CHECK_arguments $# 3 # No less than 3
+	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" 
+	CHECK_arguments $# 2 # No less than 3
 	echo "Entering one Library of RAW_DATA_DIR: $__RAW_DATA_PATH_DIR/$1"
 	echo "Searching file type as: $2"
-	local Current_DATA_DIR="${__RAW_DATA_PATH_DIR}/$1"
+	local Current_DATA_DIR="${__RAW_DATA_PATH_DIR}/${1}"
 	cd ${Current_DATA_DIR}
 	
 	
@@ -56,8 +56,8 @@ PRE_READS_DIR(){
 	#local DIRLIST_R1="$( find -name "*R1.fastq" | sort -n | xargs)"
 	#local DIRLIST_R2="$( find -name "*R2.fastq" | sort -n | xargs)" #
 	
-	local DIRLIST_R1_gz="$( find -name "*$3*.$2" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*$4*.$2" | sort -n | xargs)"
+	local DIRLIST_R1_gz="$( find -name "*R1*.$2" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*R2*.$2" | sort -n | xargs)"
 	
 	## for 34bc
 	#local DIRLIST_R1_gz="$( find -name "un_conc_aligned_R1.$2" | sort -n | xargs)"
@@ -1014,7 +1014,7 @@ RUN_BOWTIE2(){
 	CHECK_arguments $# 2
 	echo "RUN_BOWTIE2"
 	#### OUTPUT FORMAT
-	local OUTPUT_BOWTIE2_FOLDER="${__EXE_PATH}/${INPUT_NAME}/Bowtie2_Results_3trim_50"
+	local OUTPUT_BOWTIE2_FOLDER="${__EXE_PATH}/Bowtie2_Results/${INPUT_NAME}"
 	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
 	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
 	
@@ -1035,10 +1035,15 @@ case ${SPECIES} in
 	echo "Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome
 	;;
+	"dm6") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/Drosophila_Melanogaster/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome
+	;;
 	"BOWTIEINDEXS_mm10_pMXs_combo")
 	echo "Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Raw_Data/Paul/34bc/Bowtie2_Indexes/MM10_pMXs_combo/mm10_pMXs_combo
 	;;
+	
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
 	exit
@@ -1059,7 +1064,7 @@ esac
 	then
 	echo "Pair End Mode"
 	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2 --trim3 50" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
-	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 50 #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
+	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 50 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
 	
 	echo ""
 	#### concordantly pair output
@@ -1250,13 +1255,13 @@ local INPUT_LABEL=${3}
 #local FDR=0.05
 local p_value=0.00001
 
-local IN_FOLDER=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results
+local IN_FOLDER=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}
 local IN_FILES=${INPUT_NAME}.bam
 
-local CONTRO_DIR=${__RAW_DATA_PATH_DIR}/${INPUI_CON}/bowtie2_results
+local CONTRO_DIR=${__RAW_DATA_PATH_DIR}/${INPUI_CON}
 local CONTRO_FILE=${INPUI_CON}.bam
 
-local OUT_FOLDER=${__EXE_PATH}/${INPUT_NAME}/MACS2_results_BAMPE
+local OUT_FOLDER=${__EXE_PATH}/MACS2_results_BAMPE/${INPUT_NAME}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
@@ -1366,6 +1371,7 @@ CHECK_arguments $# 4
 local INPUT_Args=("$@")
 local SAMPLE_NUM=${#INPUT_Args[*]}
 local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes.gtf
+local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm9_genes.gtf
 local OUTPUT_Cuffdiff=${__EXE_PATH}/Cuffdiff_Results
 DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}
 
@@ -1374,7 +1380,6 @@ for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do	
 	cd ${__RAW_DATA_PATH_DIR}
 	local DATA_BAM[$i]="$( find -name "${INPUT_Args[i]}.bam" | sort -n | xargs)"
-	#local DATA_BAM[$i]=${__EXE_PATH}/${INPUT_Args[i]}/Tophat_results/${INPUT_Args[i]}.bam
 	echo ""
 	echo "CuffDiff Library"
 	echo ${DATA_BAM[$i]}
@@ -1385,40 +1390,16 @@ done
 ########################################################################
 if [ ${SAMPLE_NUM} -eq "4" ]
 then
-	local A_Label="WT_Treg_C1"
-	local B_Label="dKO_Treg"
+	local A_Label="WT_Tfh_Day8"
+	local B_Label="EKO_Tfh_Day8"
 	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
 	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]} ${DATA_BAM[1]},${DATA_BAM[2]}"
-	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]} ${DATA_BAM[2]},${DATA_BAM[3]}
+	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}
 	echo ""
 	echo ""
 fi
 
-if [ ${SAMPLE_NUM} -eq "4" ]
-then
-	local A_Label="WT_Treg_C2"
-	local B_Label="dKO_Treg"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
-	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}"
-	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}
-	echo ""
-	echo ""
-fi
-
-
-if [ ${SAMPLE_NUM} -eq "20" ]
-then
-	local A_Label="WT_0h"
-	local B_Label="WT_72h"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
-	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]}"
-	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[14]},${DATA_BAM[15]},${DATA_BAM[16]} ${DATA_BAM[12]},${DATA_BAM[4]},${DATA_BAM[5]}
-	echo ""
-	echo ""
-fi
 ########################################################################
 
 echo "CuffDiff Completed!"
@@ -1577,7 +1558,7 @@ FUNC_Download (){
 	CHECK_arguments $# 1
 ### Download Login information and the download directory.
 #### -nH --cut-dirs=3   Skip 3 directory components.
-	local Web_Address="http://dnacore454.healthcare.uiowa.edu/20180709-0170_Xue_QiangShanPool4OKiPLIAslLWgIkDVsaGZLzoVlLlPplNDozWXgnqK/results/Project_Xue_QiangShanPool4/"
+	local Web_Address="http://dnacore454.healthcare.uiowa.edu/20180801-0173_Xue_Qiang10xlHvkfpSaYwqguDJdpweNNwvWQABoPGDdUkPXVGMZ/results/Project_Xue_Qiang10x/"
 	local Directory_Skip_Num=4
 	local USER="gec"
 	local USER=""
