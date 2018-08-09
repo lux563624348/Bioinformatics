@@ -21,9 +21,9 @@ Generating profile of [histone marks](https://www.whatisepigenetics.com/histone-
 
 **Example:** from paper [[2]](#bioinformatics-codebase)
 <img src="python_tools/Histone_Mark_Profile/Examples/Ezh2_Day8.png" width="400">
+<img src="python_tools/Histone_Mark_Profile/Examples/Profile-SiteBody-ETN_34bc.png" width="400">
+<img src="python_tools/Histone_Mark_Profile/Examples/Profile-SiteBody-RLTR4_34bc.png" width="400">
 <img src="python_tools/Histone_Mark_Profile/Examples/Profile_TSS_ETN_34bc_5_H3K4me3_WT.png" width="400">
-<img src="python_tools/Histone_Mark_Profile/Examples/Profile_TES_ETN_34bc_5_H3K4me3_WT.png" width="400">
-<img src="python_tools/Histone_Mark_Profile/Examples/Profile-SiteBody-ETN_34bc_5_H3K4me3_WT.png" width="400">
 
 <img src="python_tools/Plotting/Venn_Diagram_3group/Venn2.png" width="400">
 <img src="python_tools/Plotting/Venn_Diagram_3group/Venn.png" width="400">
