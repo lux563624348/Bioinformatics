@@ -32,7 +32,7 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 	#Shang
 	UCSC_DIR=/opt/tools/UCSC
 	Tools_DIR=/opt/tools
-	#Annotation_DIR=/home/Data/Annotation
+	Annotation_DIR=/home/Data/Annotation
 	THREADS=8
 	# Tang
 	#Annotation_DIR=/home/Data/Annotation
@@ -107,6 +107,34 @@ RUN_COPY_AND_CHANGE_NAME(){
 	
 	
 	
+	}
+
+RUN_BBDUK_Trimming (){
+####	RUN_BBDUK_Trimming
+####	Usage: RUN_BBDUK_Trimming $INPUT_DATA_DIR
+########################################################################
+### FASTQC Output DIR setting ...
+	local Output_Trimmed=${__RAW_DATA_PATH_DIR}/Trimmed_Results
+	DIR_CHECK_CREATE ${Output_Trimmed}
+	cd ${__RAW_DATA_PATH_DIR}
+	
+	#Force-Trimming:
+	#bbduk.sh in=reads.fq out=clean.fq ftl=10 ftr=139
+	#  This will trim the leftmost 10 bases (ftl=10) and also trim the right end after to position 139 (zero-based). The resulting read would be 130bp long. For example, a 150bp read would have the first 10 bases trimmed (bases 0-9, keeping 10+) and the last 10 bases trimmed (bases 140-149, keeping 139 and lower).
+
+	for file in ${__FASTQ_DIR_R1[*]}
+	do
+	echo "fastqc -o ${Output_fastqc} $fastq_file"
+	fastqc -o ${Output_fastqc} ${fastq_file}
+	done
+	
+	for fastq_file in ${__FASTQ_DIR_R2[*]}
+	do
+	echo "fastqc -o ${Output_fastqc} $fastq_file"
+	fastqc -o ${Output_fastqc} ${fastq_file}
+	done
+	
+	echo "Fastq Completed!"
 	}
 
 RUN_FAST_QC (){
@@ -934,21 +962,24 @@ RUN_Reads_Profile(){
 	####
 	
 	
-	CHECK_arguments $# 2
+	CHECK_arguments $# 3
 	#### TSS or TES or GeneBody
 	local REGIONTYPE=${1}
 	#### INPUT FILE NAME
 	local INPUT_NAME=${2}
+	local Gene_Type=${3} ### exon for retrosposon markers.  "transcript_region for IR gtf annotation file." 
+	
 	
 	GENELIST_LIST=(
-	ETN_34bc.bed
-	IAP_34bc.bed
-	MERVL_34bc.bed
-	MMERGLN_34bc.bed
-	MMERVK10C_34bc.bed
-	RLTR4_34bc.bed
-	SINE1_34bc.bed
-	Solo_LTR_MERVL_34bc.bed
+	TSS_mm10.bed
+	#ETN_34bc.bed
+	#IAP_34bc.bed
+	#MERVL_34bc.bed
+	#MMERGLN_34bc.bed
+	#MMERVK10C_34bc.bed
+	#RLTR4_34bc.bed
+	#SINE1_34bc.bed
+	#Solo_LTR_MERVL_34bc.bed
 	)
 	
 	local FRAGMENTSIZE=100
@@ -965,21 +996,30 @@ RUN_Reads_Profile(){
 	local EXE_PATH=~/cloud_research/PengGroup/XLi/Python_tools/generate_profile_TSS_GeneBody_TES_beta.py
 	
 	
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/Choi-Data-S1.gtf
-	#local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes.gtf
+	#local GTFFILE=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/Choi-Data-S1.gtf
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes.gtf
 	
 	
-	local OUTPUTDIR=${__EXE_PATH}/${REGIONTYPE}_Profiles/${INPUT_NAME}
+
+	
+	echo "Entering the processing directory"
+	cd ${__RAW_DATA_PATH_DIR}
+	echo "From islandfilted Reads bed file to calculate Profile."
+	echo "$(find -name "${INPUT_NAME}*-islandfiltered.bed" | sort -n | xargs)"
+	local INPUT_FILE="$( find -name "${INPUT_NAME}*-islandfiltered.bed" | sort -n | xargs)"
+	local INPUT_FILE="${__RAW_DATA_PATH_DIR}/${INPUT_FILE: 2}"
+	
+	local OUTPUTDIR=${__EXE_PATH}/${REGIONTYPE}_Profiles_Islandfiltered_Reads/${INPUT_NAME}
 	DIR_CHECK_CREATE ${OUTPUTDIR}
 	cd ${OUTPUTDIR}
 	
 	for GENELISTFILE in ${GENELIST_LIST[*]}
 	do
-	local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results/${INPUT_NAME}.bed
+	#local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results/${INPUT_NAME}.bed
 	#local INPUT_FILE=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed
-	echo "python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -e 'exon' \
+	echo "python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -e ${Gene_Type} \
 	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} -p ${Genic_Partition}"
-	python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -e 'exon' \
+	python ${EXE_PATH} -b ${INPUT_FILE} -c ${INPUT_NAME} -k ${GENE_LIST_FOLDER}/${GENELISTFILE} -l ${GENELISTFILE: :-4} -r ${RESOLUTION} -f ${FRAGMENTSIZE} -g ${GTFFILE} -e ${Gene_Type} \
 	-w ${WINDOWSIZE} -n ${NORMALIZATION} -t ${REGIONTYPE} -u ${UP_EXTENSION} -d ${DOWN_EXTENSION} -o ${OUTPUTDIR} -p ${Genic_Partition}
 	
 	echo ""
@@ -1063,8 +1103,8 @@ esac
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
-	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S $OUTPUT_BOWTIE2 --trim3 50" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
-	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 50 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 -S $OUTPUT_BOWTIE2 " #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
 	
 	echo ""
 	#### concordantly pair output
@@ -1128,7 +1168,7 @@ local SPECIES=${3}
 local Data_Provider=${4}
 
 #### OUTPUT FORMAT
-local OUTPUT_TOPHAT_FOLDER="${__EXE_PATH}/${INPUT_NAME}/Tophat_results"
+local OUTPUT_TOPHAT_FOLDER="${__EXE_PATH}/Tophat_Results/${INPUT_NAME}"
 DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
 
 local WINDOW_SIZE=200
@@ -1137,30 +1177,43 @@ local FRAGMENT_SIZE=50
 case ${SPECIES} in
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
-	local BOWTIEINDEXS=/${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm9_genes.gtf
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
 	;;
 	"mm10")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=${Annotation_DIR}/iGenomes/MM10/Mus_musculus/UCSC/mm10/Annotation/Archives/archive-2015-07-17-14-33-26/Genes/mm10.gtf
-	local BOWTIEINDEXS=${Annotation_DIR}/iGenomes/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes.gtf
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
 	;;
 	"hg19")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=${Annotation_DIR}/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
-	local BOWTIEINDEXS=${Annotation_DIR}/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/hg19_genes.gtf
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+	;;
+	"hg38")
+	echo "Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome
+	;;
+	"dm6") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/Drosophila_Melanogaster/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
 	exit
 	;;
 esac
+
+
 ########################################################################
-local SICER_DIR=/home/lxiang/Software/SICER1.1/SICER
-local EXEDIR=$SICER_DIR/extra/tools/wiggle
+
+
+local EXEDIR=/opt/tools
+local SICER_DIR=${EXEDIR}/SICER1.1/SICER
+local Wiggle=${SICER_DIR}/extra/tools/wiggle
 
 # Tang
-local EXEDIR=/opt/tools
+
 #
 ########################################################################
 
@@ -1182,11 +1235,11 @@ local EXEDIR=/opt/tools
 	mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
 	
 	echo "bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
-	bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
+	bedtools bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
 	
 	
-	echo "sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
-	sh $EXEDIR/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
+	echo "sh ${Wiggle}/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
+	sh ${Wiggle}/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
 	
 	### Then clear bed file.
 	if [ -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed ];then
@@ -1202,6 +1255,74 @@ local EXEDIR=/opt/tools
 	echo ""
 	}
 
+RUN_CELLRANGER(){
+#### Usage: RUN_TOPHAT $1 $2 $3
+
+echo "RUN_CELLRANGER_ANALYSIS"
+CHECK_arguments $# 3
+
+### Operation PARAMETERS Setting
+local INPUT_NAME=${1}
+local PROJECT_NAME=${2}
+local SPECIES=${3}
+#local Data_Provider=${4}
+
+
+
+#### INPUT FORMAT
+local INPUT_CELLRANGER=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}
+#### OUTPUT FORMAT
+local OUTPUT_TOPHAT_FOLDER="${__EXE_PATH}/CELLRANGER/${INPUT_NAME}"
+DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
+cd ${OUTPUT_TOPHAT_FOLDER}
+########################################################################
+case ${SPECIES} in
+	"mm10")
+	echo "Reference SPECIES is ${SPECIES}"
+	local TRANSCRIPTOME=~/cloud_research/PengGroup/XLi/Annotation/10X_GENOMICS/Cell_Ranger_Reference/refdata-cellranger-mm10-2.1.0
+	;;
+	"hg19")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/hg19_genes.gtf
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+	;;
+	"hg38")
+	echo "Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome
+	;;
+	"dm6") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/Drosophila_Melanogaster/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+########################################################################
+
+###
+	echo "cellranger count --id=${PROJECT_NAME} \
+	--transcriptome=${TRANSCRIPTOME} \
+	--sample=${INPUT_NAME: 7} \
+	--fastqs=${INPUT_CELLRANGER} \ "
+	#--localcores=8 \
+	#--localmem=32
+	## --expect-cells=1000
+	
+	
+	
+	cellranger count --id=${PROJECT_NAME} \
+	--transcriptome=${TRANSCRIPTOME} \
+	--sample=${INPUT_NAME: 7} \
+	--fastqs=${INPUT_CELLRANGER} \
+	#--localcores=16 \
+	#--localmem=32
+	#--expect-cells=1000
+	
+	echo "One CELLRANGER is completed."
+	echo ""
+	}
 ## Peaks Calling.
 RUN_SICER(){
 #### Usage: RUN_SICER $1 $2 $3 ($1 is input for SICER. $2 is the CONTRO Library, $3 is the Gap set.) 
@@ -1218,10 +1339,10 @@ local EFFECTIVEGENOME=0.85
 local FDR=0.05
 
 
-local IN_SICER_FOLDER=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}/bowtie2_results
+local IN_SICER_FOLDER=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}
 local IN_SICER_FILES=${INPUT_NAME}.bed
 
-local CONTRO_SICER_DIR=${__RAW_DATA_PATH_DIR}/${INPUI_CON}/bowtie2_results
+local CONTRO_SICER_DIR=${__RAW_DATA_PATH_DIR}/${INPUI_CON}
 local CONTRO_SICER_FILE=${INPUI_CON}.bed
 
 local OUT_SICER_FOLDER=${__EXE_PATH}/SICER_Results/${INPUT_NAME}
@@ -1229,13 +1350,13 @@ DIR_CHECK_CREATE ${OUT_SICER_FOLDER}
 
 cd ${OUT_SICER_FOLDER}
 
-echo "bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm10 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
-bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} "mm10" ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
+echo "bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm9 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
+bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} "mm9" ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
 
 
 
-RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME}-W200-normalized "34bc" "mm10" "Paul"
-RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized "34bc" "mm10" "Paul"
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME}-W200-normalized "Ezh2_ChIP_seq" "mm9" "Haihui"
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized "Ezh2_ChIP_seq" "mm9" "Haihui"
 
 
 	}
@@ -1266,7 +1387,7 @@ DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
 ### --BAMPE
-echo "python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
+echo "macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
 #python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 
@@ -1275,8 +1396,8 @@ macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CON
 #python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 ####      ${INPUT_NAME}_treat_pileup  for input
 
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_treat_pileup ${INPUT_LABEL} "mm10" "Haihui"
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_control_lambda ${INPUT_LABEL} "mm10" "Haihui"
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_treat_pileup ${INPUT_LABEL} "mm9" "Haihui"
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_control_lambda ${INPUT_LABEL} "mm9" "Haihui"
 }
 
 RUN_MACS2_Diff(){  ###Need Updated

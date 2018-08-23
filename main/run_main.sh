@@ -32,37 +32,11 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/Ezh2/ChIP_seq/Jul2018/Bowtie2_Results_filtered_S2/Bowtie2_Results
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/Hdac/RNA_seq/Aug2018/fastq_path
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/Ezh2/ChIP_seq/Jul2018
+__EXE_PATH=~/Data/Haihui/Hdac/RNA_seq/Aug2018
 ########################################################################
 
-###Pool 1
-__INPUT_SAMPLE_DIR_List=(
-Sample_Ctrl-D1_20180801000
-Sample_Ctrl-D1_20180801001
-Sample_Ctrl-D1_20180801002
-Sample_Ctrl-D1_20180801003
-Sample_Ctrl-DO_20180801000
-Sample_Ctrl-DO_20180801001
-Sample_Ctrl-DO_20180801002
-Sample_Ctrl-DO_20180801003
-Sample_Dko-D1_20180801000
-Sample_Dko-D1_20180801001
-Sample_Dko-D1_20180801002
-Sample_Dko-D1_20180801003
-Sample_Dko-DO_20180801000
-Sample_Dko-DO_20180801001
-Sample_Dko-DO_20180801002
-Sample_Dko-DO_20180801003
-)
-
-__INPUT_SAMPLE_DIR_List=(
-EKO1_Tfh
-EKO2_Tfh
-WT1_Tfh
-WT2_Tfh
-)
 
 __INPUT_SAMPLE_DIR_List=(
 Sample_Ezh2-ctrl-Tfh_20180702000  #0
@@ -74,8 +48,35 @@ Sample_K27me3-ctrl-Tfh_20180702000 #5
 Sample_K27me3-EKO-Tfh_20180702000 #6
 )
 
+__INPUT_SAMPLE_DIR_List=(
+Sample_IgGforStat5b_20180702000
+Sample_DKO-stat5b3h_20180702000
+Sample_DKO-stat5b24h_20180702000
+Sample_ctrl-stat5b3h-400_20180702000
+Sample_ctrl-stat5b3h_20180702000
+Sample_ctrl-stat5b24h-400_20180702000
+Sample_ctrl-stat5b24h_20180702000
+)
 
-
+###Pool 1
+__INPUT_SAMPLE_DIR_List=(
+Sample_Ctrl-DO_20180801000
+Sample_Ctrl-DO_20180801001
+Sample_Ctrl-DO_20180801002
+Sample_Ctrl-DO_20180801003
+Sample_Ctrl-D1_20180801000
+Sample_Ctrl-D1_20180801001
+Sample_Ctrl-D1_20180801002
+Sample_Ctrl-D1_20180801003
+Sample_Dko-D1_20180801000
+Sample_Dko-D1_20180801001
+Sample_Dko-D1_20180801002
+Sample_Dko-D1_20180801003
+Sample_Dko-DO_20180801000
+Sample_Dko-DO_20180801001
+Sample_Dko-DO_20180801002
+Sample_Dko-DO_20180801003
+)
 echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
 
 
@@ -102,20 +103,19 @@ echo ""
 echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 
-for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
+for (( i = 0; i <= $(expr $SAMPLE_NUM - 2); i++ ))
 do
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[2]} 'Ezh2_ChIP_seq_201807' &
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[2]} 'Ezh2_ChIP_seq_201807' &
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[5]} 'Ezh2_H3K27me3_201807' &
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[4]} ${__INPUT_SAMPLE_DIR_List[6]} 'Ezh2_H3K27me3_201807'
+	RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
+	#break
+	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[2]} 'Ezh2_ChIP_seq_201807' &
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz'
 	#RUN_FAST_QC &
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10" &
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm9"
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_Reads_Profile_Promoter 'TSS' ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
-	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]}
+	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Hdac_RNA-seq_201807" "mm10" "Haihui"
 	#RUN_Venn_Diagram ${__EXE_PATH} 'bed'
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10"
 	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
@@ -126,7 +126,7 @@ do
 	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} 'Tcf1' ${SPECIES} ${Data_Provider}
 	
 	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
-	break
+	#break
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}
@@ -134,7 +134,8 @@ do
 	#### Parallel TEST
 done
 	
-
+	RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[15]} "Hdac" "mm10"
+	
 	echo "End Date: `date`"
 	echo -e "\a FINISHED ALERT !"
 	
