@@ -695,35 +695,29 @@ RUN_BED2WIG(){
 	### Operation PARAMETERS Setting
 	local INPUT_NAME=${1}
 	local SPECIES=${2}
-
+	
+	local INPUT_DIR=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}
+	
 	#local SPECIES=hg19
 	local WINDOW_SIZE=200
 	local FRAGMENT_SIZE=50
 	########################################################################
-	#### mm9
-	local GTFFILE=${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
-	local BOWTIEINDEXS=${Annotation_DIR}/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
-
-	#### hg19
-	#local GTFFILE=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
-	#local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
-
 	########################################################################
-	local SICER_DIR=/home/lxiang/Software/SICER1.1/SICER
-	local EXEDIR=$SICER_DIR/extra/tools/wiggle
+	local EXEDIR=/opt/tools
+	local SICER_DIR=${EXEDIR}/SICER1.1/SICER
+	local Wiggle=${SICER_DIR}/extra/tools/wiggle
 ########################################################################
-	local FILE_NAME=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.wig
+	local FILE_NAME=${__EXE_PATH}/${INPUT_NAME}.wig
 	if [ ! -f ${FILE_NAME} ];then
-	echo "sh $EXEDIR/bed2wig.sh ${__EXE_PATH} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
-	sh $EXEDIR/bed2wig.sh ${__EXE_PATH} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
+	echo "sh $Wiggle/bed2wig.sh ${INPUT_DIR} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
+	sh ${Wiggle}/bed2wig.sh ${INPUT_DIR} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
 	fi
 
 #### Clear bed file.
 	if [ -f ${FILE_NAME} ];then
 	echo "rm ${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed"
-	rm ${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed
+	#rm ${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed
 	fi
-	
 	
 	}
 
@@ -734,11 +728,11 @@ RUN_Wig2BigWig (){
 #### Usage: RUN_Wig2BigWig $1 $2 $3
 	CHECK_arguments $# 5
 	
-	local Data_provider=${5}
-	local SPECIES=${4}
 	local Wig_DIR=${1}
 	local Tracks_NAME=${2}
 	local Data_label=${3}
+	local Data_provider=${5}
+	local SPECIES=${4}
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
 
 	####INPUT
@@ -763,13 +757,14 @@ esac
 
 	
 	cd ${Wig_DIR}
+	local Wig_File=$(find -name ${Tracks_NAME}*.wig | xargs)
 #### OUTPUT
 	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
 	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigWigs
 
 
-	echo "$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
-	$UCSC_DIR/wigToBigWig ${Tracks_NAME}.wig ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+	echo "${UCSC_DIR}/wigToBigWig ${Wig_File: 2} ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
+	${UCSC_DIR}/wigToBigWig ${Wig_File: 2} ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
 
 ###	Creating hub.txt
 	cd $OUTPUTDIR_tracks_hub
@@ -811,45 +806,86 @@ esac
 	}
 
 RUN_Bed2BigBed(){
-	#### Given a folder, change their all bed file to BigBed.
-	#### RUN_BED2BigBed $1 $2
-	echo "RUN_BED2WIG"
-	CHECK_arguments $# 2
-
-	### Operation PARAMETERS Setting
-	local INPUT_NAME=${1}
-	local SPECIES=${2}
-
-	local WINDOW_SIZE=200
-	local FRAGMENT_SIZE=50
-	########################################################################
-	#### mm9
-	local GTFFILE=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf
-	local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
-
-	#### hg19
-	#local GTFFILE=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Annotation/Archives/archive-2014-06-02-13-47-56/Genes/genes.gtf
-	#local BOWTIEINDEXS=/home/data/Annotation/iGenomes/Homo_sapiens_UCSC_hg19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
-
-########################################################################
-	local UCSC_DIR=/home/lxiang/Software/UCSC
-	#local chrom_sizes_mm10=${UCSC_DIR}/genome_sizes/mm10.chrom.sizes
-	local chrom_sizes_mm9=${UCSC_DIR}/genome_sizes/mm9.chrom.sizes
-	#local chrom_sizes_hg19=${UCSC_DIR}/genome_sizes/hg19.chrom.sizes
-
-########################################################################
-	local FILE_NAME=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bigBed
+	### A copy of RUN_Wig2BigWig
+	###RUN_Bed2BigBed $1 $2 $3 $4 $5 
+	#### ($1=INPUT_FOLDER $2=INPUT_NAME $3=Track_hub_label, $4 Species $5 Data Provider)
+	#### convert .bed to .bigbed and create the track hubs profiles.
+	echo "RUN_Bed2BigBed"
+	CHECK_arguments $# 5
 	
-	if [ ! -f ${FILE_NAME} ];then
-		echo "sort -kl,1 -k2,2n ${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed > ${__RAW_DATA_PATH_DIR}/${INPUT_NAME}_sorted.bed"
-		sort -kl,1 -k2,2n ${__RAW_DATA_PATH_DIR}/${INPUT_NAME}.bed > ${__RAW_DATA_PATH_DIR}/${INPUT_NAME}_sorted.bed
-		
-		
+	local Bed_DIR=${1}
+	local Tracks_NAME=${2}
+	local Data_label=${3}
+	local Data_provider=${5}
+	local SPECIES=${4}
+	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
+
+	####INPUT
+case ${SPECIES} in 
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/mm9.chrom.sizes"
+	;;
+	"mm10") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/mm10.chrom.sizes"
+	;;
+	"hg19")
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/hg19.chrom.sizes"
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
 	
+	cd ${Bed_DIR}
+#### OUTPUT
+	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
+	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigBeds
+
+
+	echo "${UCSC_DIR}/bedToBigBed ${Tracks_NAME}.bed ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigBeds/${Tracks_NAME}.bb"
+	${UCSC_DIR}/bedToBigBed ${Tracks_NAME}.bed ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigBeds/${Tracks_NAME}.bb
+
+###	Creating hub.txt
+	cd $OUTPUTDIR_tracks_hub
+	local filename=hub.txt
+	if [ ! -f $filename ];then
+	echo "hub ${Data_label}" >>$filename
+	echo "shortLabel ${Data_label}" >>$filename
+	echo "longLabel ${Data_label}_/${Data_provider}" >>$filename
+	echo "genomesFile genomes.txt" >>$filename
+	echo "email lux@gwu.edu" >>$filename
+	echo "descriptionUrl descriptionUrl" >>$filename
 	fi
+########################################################################
+
+###	Creating genomes.txt	
+
+	local filename=genomes.txt
+	if [ ! -f $filename ];then
+	echo "genome $SPECIES" >>$filename
+	echo "trackDb $SPECIES/trackDb.txt" >>$filename
+	fi
+########################################################################
+
+	DIR_CHECK_CREATE $OUTPUTDIR_tracks_hub/${SPECIES}	
+	cd $OUTPUTDIR_tracks_hub/${SPECIES}
 	
-	echo "$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg $Reference_genome_sizes ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
-	$UCSC_DIR/bedToBigBed ${__RAW_DATA_PATH_DIR}/${INPUT_NAME}_sorted.bed ${chrom_sizes_mm9} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+	local filename=trackDb.txt
+	local bw_Url=https://s3.amazonaws.com/xianglilab/tracks_hub/${Data_provider}/${Data_label}/BigBeds/${Tracks_NAME}.bb
+	echo "track ${Tracks_NAME}" >>$filename
+	echo "type bigWig" >>$filename
+	echo "bigDataUrl ${bw_Url}" >>$filename
+	echo "shortLabel ${Tracks_NAME: 0:18}" >>$filename
+	echo "longLabel ${Tracks_NAME}" >>$filename
+	echo "visibility full" >>$filename
+	echo "maxHeightPixels 128" >>$filename
+	echo "color 256,0,0" >>$filename
+	echo "autoScale on" >>$filename
+	echo -e "windowingFunction mean+whiskers \n" >>$filename
 ########################################################################
 ########################################################################
 #     Uncomleted! Apr.21.2018
@@ -1047,9 +1083,13 @@ RUN_Reads_Profile(){
 ########################################################################
 ## Alignor
 RUN_BOWTIE2(){
-	### RUN_BOWTIE2 $1 $2
+	### RUN_BOWTIE2 $1 $2 $3 $4
 	local INPUT_NAME=${1}
-	local SPECIES=${2}
+	local PROJECT_NAME=${2}
+	local SPECIES=${3}
+	local Data_Provider=${4}
+
+
 
 	CHECK_arguments $# 2
 	echo "RUN_BOWTIE2"
@@ -1136,23 +1176,10 @@ esac
 	echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
 	bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed
 	
-	
-###bamToBedGraph
-
-	#samtools sort ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
-
-
-###sam2bed  Normal
-#echo "samtools view $OUTPUT_BOWTIE2 -Sb | bamToBed -i stdin > $OUTPUT_BOWTIE2_FOLDER/$INPUT_NAME.bed"
-#samtools view $OUTPUT_BOWTIE2 -Sb | bamToBed -i stdin > $OUTPUT_BOWTIE2_FOLDER/$INPUT_NAME.bed 
-
-
-###bed2bedgraph
-	#echo "bedtools genomecov -ibam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam -bga > ${INPUT_NAME}.bdg"
-	#bedtools genomecov -ibam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam -bga > ${INPUT_NAME}.bdg
-
-	#RUN_BigGraph2BigWig ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} "Treg"
-
+	echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+	RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+	echo ""
+	echo "One Bowtie2 is Completed!"
 	}
 
 RUN_TOPHAT(){
@@ -1177,17 +1204,17 @@ local FRAGMENT_SIZE=50
 case ${SPECIES} in
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm9_genes.gtf
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/raw_mm9_genes.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
 	;;
 	"mm10")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes.gtf
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes_raw.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
 	;;
 	"hg19")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/hg19_genes.gtf
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/raw_hg19_genes.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
 	;;
 	"hg38")
@@ -1234,9 +1261,8 @@ local Wiggle=${SICER_DIR}/extra/tools/wiggle
 	echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
 	mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
 	
-	echo "bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
-	bedtools bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
-	
+	echo "bedtools bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
+	bedtools bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
 	
 	echo "sh ${Wiggle}/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
 	sh ${Wiggle}/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
@@ -1362,42 +1388,66 @@ RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized "Ezh2_ChIP_seq" 
 	}
 
 RUN_MACS2(){
-#### Usage: RUN_MACS2 $1 $2 $3 ($1 is input for MACS. $2 is the CONTRO Library $3 is label) 
+#### Usage: RUN_MACS2 $1 $2 $3 $4 $5 ($1 is input for MACS. $2 is the CONTRO Library $3 is label) 
 echo "RUN_MACS2"
 CHECK_arguments $# 3
 local EXEDIR="~/Software/python_tools/MACS2-2.1.1.20160309/bin"
 
 local INPUT_NAME=${1}
-local INPUI_CON=${2}
+local INPUT_CON=${2}
 local INPUT_LABEL=${3}
+local SPECIES=${4}
+local Data_Provider=${5}
 #local INPUT_LABEL=${INPUT_NAME: 7:3}
 ##Skip out of Sample_ (7), and forward with 4 more digits.
 
 #local FDR=0.05
 local p_value=0.00001
 
-local IN_FOLDER=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}
-local IN_FILES=${INPUT_NAME}.bam
 
-local CONTRO_DIR=${__RAW_DATA_PATH_DIR}/${INPUI_CON}
-local CONTRO_FILE=${INPUI_CON}.bam
+### Find Input File
+local IN_FOLDER=${__RAW_DATA_PATH_DIR}
+cd ${IN_FOLDER}
+local IN_FILES="$( find -name "*${INPUT_NAME}*.bam" | sort -n | xargs)"
 
-local OUT_FOLDER=${__EXE_PATH}/MACS2_results_BAMPE/${INPUT_NAME}
+local k=0
+for in_files in ${IN_FILES}
+do
+	IN_FILES[k]="${IN_FOLDER}/${in_files: 2}"
+	k=`expr $k + 1`
+done
+echo "Saving MACS2 INPUT File as ${IN_FILES[*]}"
+### Find Input File
+
+### Find Contro Files
+local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
+cd ${CONTRO_FOLDER}
+local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bam" | sort -n | xargs)"
+
+local k=0
+for in_files in ${CONTRO_FILE}
+do
+	CONTRO_FILE[k]="${CONTRO_FOLDER}/${in_files: 2}"
+	k=`expr $k + 1`
+done
+echo "Saving MACS2 Contro File as ${CONTRO_FILE[*]}"
+### Find Contro Files
+
+local OUT_FOLDER=${__EXE_PATH}/MACS2_results_BAMPE/${INPUT_NAME}_vs_${INPUT_CON}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
 ### --BAMPE
-echo "macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
-#python ${EXEDIR}/macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
-macs2 callpeak --format BAMPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
+echo "macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B -p ${p_value}" # -m 4 -q ${FDR}"
+macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B -p ${p_value} # -m 4 -q ${FDR}
 
 ### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
 #echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
 #python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 ####      ${INPUT_NAME}_treat_pileup  for input
 
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_treat_pileup ${INPUT_LABEL} "mm9" "Haihui"
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_control_lambda ${INPUT_LABEL} "mm9" "Haihui"
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
 }
 
 RUN_MACS2_Diff(){  ###Need Updated
