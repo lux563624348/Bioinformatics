@@ -32,39 +32,13 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/Bowtie2_Results
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE/Peaks_Calling/bed_format
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE/Peaks_Calling/bed_format
 ########################################################################
 
+#echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
 
-__INPUT_SAMPLE_DIR_List=(
-Sample_Ezh2-ctrl-Tfh_20180702000  #0
-Sample_Ezh2-TLKO-Tfh_20180702000  #1
-Sample_Ezh2-EKOCD4_20180702000    #2
-Sample_input-ctrl-Tfh_20180702000 #3
-Sample_input-EKO-Tfh_20180702000  #4
-Sample_K27me3-ctrl-Tfh_20180702000 #5
-Sample_K27me3-EKO-Tfh_20180702000 #6
-)
-
-
-###Pool 1
-__INPUT_SAMPLE_DIR_List=(
-Treg_C1
-Treg_C2
-Treg_dKO1
-Treg_dKO2
-)
-
-
-
-
-echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
-
-
-#__OUT_SAMPLE_NAME_List=(Unstim_Ctrl2_TCM Unstim_TKO1_TCM_bp Unstim_TKO2_TCM)
-SAMPLE_NUM=${#__INPUT_SAMPLE_DIR_List[*]}
 ########################################################################
 
 ########################################################################
@@ -73,14 +47,15 @@ SAMPLE_NUM=${#__INPUT_SAMPLE_DIR_List[*]}
 
 
 __INPUT_SAMPLE_DIR_List=(
-Sample_dKO-na1_20180709000
-Sample_dKO-na2_20180709000
-Sample_dKO-s1_20180709000
-Sample_dKO-s2_20180709000
-Sample_WT-na1_20180709000
-Sample_WT-na2_20180709000
-Sample_WT-s1_20180709000
-Sample_WT-s2_20180709000
+dKO-na1_20180709000_vs_Null_peaks
+dKO-na2_20180709000_vs_Null_peaks
+dKO-s1_20180709000_vs_Null_peaks
+dKO-s2_20180709000_vs_Null_peaks
+union_all_peaks
+WT-na1_20180709000_vs_Null_peaks
+WT-na2_20180709000_vs_Null_peaks
+WT-s1_20180709000_vs_Null_peaks
+WT-s2_20180709000_vs_Null_peaks
 )
 
 main() {
@@ -98,12 +73,14 @@ echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 SPECIES='mm9'
 Data_Provider='Haihui'
-for (( i = 0; i <= $(expr $SAMPLE_NUM - 2); i++ ))
+SAMPLE_NUM=${#__INPUT_SAMPLE_DIR_List[*]}
+for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do
-	#RUN_Bed2BigBed ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} 'CD8-HP-DNase_seq' ${SPECIES} ${Data_Provider}
+
+	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
-	#break
-	#RUN_MACS2 'dKO-na' 'dKO-s' 'CD8-HP-DNase_seq_macs2' ${SPECIES} ${Data_Provider}
+	RUN_Bed2BigBed ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP-DNase_seq_Macs2" ${SPECIES} ${Data_Provider}
+	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[i]} 'Null' 'CD8-HP-DNase_seq_Macs2_shift' ${SPECIES} ${Data_Provider}
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz'
 	#RUN_FAST_QC &
@@ -114,12 +91,12 @@ do
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Treg_RNA-seq_201806" "mm9" "Haihui"
 	#RUN_Venn_Diagram ${__EXE_PATH} 'bed'
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10"
-	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
+	
 	#RUN_Reads_Profile_Promoter_genebody ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Treg" "mm10" "WT_Online_Ref"
 	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	
-	RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} 'CD8-HP-DNase_seq' ${SPECIES} ${Data_Provider}
+	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} 'CD8-HP-DNase_seq' ${SPECIES} ${Data_Provider}
 	
 	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
 	break

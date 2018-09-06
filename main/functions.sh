@@ -158,6 +158,12 @@ RUN_FAST_QC (){
 	fastqc -o ${Output_fastqc} ${fastq_file}
 	done
 	
+	echo "cd ${Output_fastqc}"
+	cd ${Output_fastqc}
+	
+	echo "multiqc *fastqc.zip --ignore *.html"
+	multiqc *fastqc.zip --ignore *.html
+	
 	echo "Fastq Completed!"
 	}
 
@@ -246,8 +252,8 @@ RUN_Venn_Diagram(){
 	
 	
 	echo "Merge All files into one file!"
-	echo "cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin > union_all_0.txt"
-	cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin > union_all_0.txt
+	echo "cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin -c 4 -o count > union_all_0.txt"
+	cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin -c 4 -o count > union_all_0.txt
 	
 	
 	if [ ${Venn_Input_NUM} == 2 ]
@@ -358,10 +364,10 @@ RUN_RPKM(){
 	#### usage RUN_RPKM $1 $2
 	CHECK_arguments $# 2
 	local File_Name=${1}
-	local FILE_TYPE=${2}
+	local SPECIES=${2}
 	local PATH_python_tools=~/cloud_research/PengGroup/XLi/Python_tools/read_RPKM.py
 	
-	local Output_Path="${__EXE_PATH}/genes_RPKM"
+	local Output_Path="${__EXE_PATH}/RPKM"
 	DIR_CHECK_CREATE ${Output_Path}
 	
 	
@@ -369,34 +375,41 @@ RUN_RPKM(){
 	echo "Entering the processing directory"
 	cd ${__RAW_DATA_PATH_DIR}
 	echo "From Reads bed file to calculate reads count and its RPKM."
-	echo "$(find -name "${File_Name}*-islandfiltered.${FILE_TYPE}" | sort -n | xargs)"
-	local Input_B1="$( find -name "${File_Name}*-islandfiltered.${FILE_TYPE}" | sort -n | xargs)"
+	echo "$(find -name "${File_Name}.bed" | sort -n | xargs)"
+	local Input_B1="$( find -name "${File_Name}.bed" | sort -n | xargs)"
 	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
 	
 	
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
-	cd ${Gene_list_folder}
+	case ${SPECIES} in
+	"mm10")
+	echo "Reference SPECIES is ${SPECIES}"
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm10
+	;;
+	"mm9") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm9
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE/Peaks_Calling/bed_format
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+	
+	#cd ${Gene_list_folder}
 	#echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
-	
 	local Input_A1_Lists=(
-	ETN_34bc.bed
-	IAP_34bc.bed
-	MERVL_34bc.bed
-	MMERGLN_34bc.bed
-	MMERVK10C_34bc.bed
-	RLTR4_34bc.bed
-	SINE1_34bc.bed
-	Solo_LTR_MERVL_34bc.bed
+	union_all_peaks.bed
 	)
 	
 	for Input_A1 in ${Input_A1_Lists[*]}
 	do
-		local OUTPUT_NAME="genes_read_count_${1}_${Input_A1:: -4}"
+		local OUTPUT_NAME="read_count_${1}_${Input_A1:: -4}"
 		local Input_A1="${Gene_list_folder}/${Input_A1}"
-		echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}"
-		bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}
+		echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed"
+		bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed
 		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}"
 		python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}
 	done
@@ -721,6 +734,94 @@ RUN_BED2WIG(){
 	
 	}
 
+RUN_Bed2BigBed(){
+	### A copy of RUN_Wig2BigWig
+	###RUN_Bed2BigBed $1 $2 $3 $4 $5 
+	#### ($1=INPUT_FOLDER $2=INPUT_NAME $3=Track_hub_label, $4 Species $5 Data Provider)
+	#### convert .bed to .bigbed and create the track hubs profiles.
+	echo "RUN_Bed2BigBed"
+	CHECK_arguments $# 5
+	
+	local Bed_DIR=${1}
+	local Tracks_NAME=${2}
+	local Data_label=${3}
+	local SPECIES=${4}
+	local Data_provider=${5}
+	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
+
+	####INPUT
+case ${SPECIES} in 
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/mm9.chrom.sizes"
+	;;
+	"mm10") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/mm10.chrom.sizes"
+	;;
+	"hg19")
+	echo "Reference SPECIES is ${SPECIES}"
+	local chrom_sizes="${UCSC_DIR}/genome_sizes/hg19.chrom.sizes"
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+	
+	cd ${Bed_DIR}
+#### OUTPUT
+	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
+	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigBeds
+
+
+	echo "${UCSC_DIR}/bedToBigBed ${Tracks_NAME}.bed ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigBeds/${Tracks_NAME}.bb"
+	${UCSC_DIR}/bedToBigBed ${Tracks_NAME}.bed ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigBeds/${Tracks_NAME}.bb
+
+###	Creating hub.txt
+	cd $OUTPUTDIR_tracks_hub
+	local filename=hub.txt
+	if [ ! -f $filename ];then
+	echo "hub ${Data_label}" >>$filename
+	echo "shortLabel ${Data_label}" >>$filename
+	echo "longLabel ${Data_label}_/${Data_provider}" >>$filename
+	echo "genomesFile genomes.txt" >>$filename
+	echo "email lux@gwu.edu" >>$filename
+	echo "descriptionUrl descriptionUrl" >>$filename
+	fi
+########################################################################
+
+###	Creating genomes.txt	
+
+	local filename=genomes.txt
+	if [ ! -f $filename ];then
+	echo "genome $SPECIES" >>$filename
+	echo "trackDb $SPECIES/trackDb.txt" >>$filename
+	fi
+########################################################################
+
+	DIR_CHECK_CREATE $OUTPUTDIR_tracks_hub/${SPECIES}	
+	cd $OUTPUTDIR_tracks_hub/${SPECIES}
+	
+	local filename=trackDb.txt
+	local bw_Url=https://s3.amazonaws.com/xianglilab/tracks_hub/${Data_provider}/${Data_label}/BigBeds/${Tracks_NAME}.bb
+	echo "track ${Tracks_NAME}" >>$filename
+	echo "shortLabel ${Tracks_NAME: 0:18}" >>$filename
+	echo "longLabel ${Tracks_NAME}" >>$filename
+	echo "type bigBed" >>$filename
+	echo "visibility dense" >>$filename
+	echo "color 256,0,0" >>$filename
+	echo "autoScale on" >>$filename
+	echo "alwaysZero on" >>$filename
+	echo "maxHeightPixels 100:16:8" >>$filename
+	echo -e "bigDataUrl ${bw_Url} \n" >>$filename
+########################################################################
+########################################################################
+#     Uncomleted! Apr.21.2018
+########################################################################
+########################################################################	
+	}
+
 RUN_Wig2BigWig (){
 	###RUN_Wig2BigWig $1 $2 $3 $4 $5 
 	#### ($1=INPUT_FOLDER $2=INPUT_NAME $3=Track_hub_label, $4 Species $5 Data Provider)
@@ -794,103 +895,16 @@ esac
 	local filename=trackDb.txt
 	local bw_Url=https://s3.amazonaws.com/xianglilab/tracks_hub/${Data_provider}/${Data_label}/BigWigs/${Tracks_NAME}.bw
 	echo "track ${Tracks_NAME}" >>$filename
-	echo "type bigWig" >>$filename
-	echo "bigDataUrl ${bw_Url}" >>$filename
 	echo "shortLabel ${Tracks_NAME: 0:18}" >>$filename
 	echo "longLabel ${Tracks_NAME}" >>$filename
-	echo "visibility full" >>$filename
-	echo "maxHeightPixels 128" >>$filename
-	echo "color 256,0,0" >>$filename
-	echo "autoScale on" >>$filename
-	echo -e "windowingFunction mean+whiskers \n" >>$filename
-	}
-
-RUN_Bed2BigBed(){
-	### A copy of RUN_Wig2BigWig
-	###RUN_Bed2BigBed $1 $2 $3 $4 $5 
-	#### ($1=INPUT_FOLDER $2=INPUT_NAME $3=Track_hub_label, $4 Species $5 Data Provider)
-	#### convert .bed to .bigbed and create the track hubs profiles.
-	echo "RUN_Bed2BigBed"
-	CHECK_arguments $# 5
-	
-	local Bed_DIR=${1}
-	local Tracks_NAME=${2}
-	local Data_label=${3}
-	local Data_provider=${5}
-	local SPECIES=${4}
-	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
-
-	####INPUT
-case ${SPECIES} in 
-	"mm9")
-	echo "Reference SPECIES is ${SPECIES}"
-	local chrom_sizes="${UCSC_DIR}/genome_sizes/mm9.chrom.sizes"
-	;;
-	"mm10") 
-	echo "Reference SPECIES is ${SPECIES}"
-	local chrom_sizes="${UCSC_DIR}/genome_sizes/mm10.chrom.sizes"
-	;;
-	"hg19")
-	echo "Reference SPECIES is ${SPECIES}"
-	local chrom_sizes="${UCSC_DIR}/genome_sizes/hg19.chrom.sizes"
-	;;
-	*)
-	echo "ERR: Did Not Find Any Matched Reference...... Exit"
-	exit
-	;;
-esac
-	
-	cd ${Bed_DIR}
-#### OUTPUT
-	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
-	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigBeds
-
-
-	echo "${UCSC_DIR}/bedToBigBed ${Tracks_NAME}.bed ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigBeds/${Tracks_NAME}.bb"
-	${UCSC_DIR}/bedToBigBed ${Tracks_NAME}.bed ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigBeds/${Tracks_NAME}.bb
-
-###	Creating hub.txt
-	cd $OUTPUTDIR_tracks_hub
-	local filename=hub.txt
-	if [ ! -f $filename ];then
-	echo "hub ${Data_label}" >>$filename
-	echo "shortLabel ${Data_label}" >>$filename
-	echo "longLabel ${Data_label}_/${Data_provider}" >>$filename
-	echo "genomesFile genomes.txt" >>$filename
-	echo "email lux@gwu.edu" >>$filename
-	echo "descriptionUrl descriptionUrl" >>$filename
-	fi
-########################################################################
-
-###	Creating genomes.txt	
-
-	local filename=genomes.txt
-	if [ ! -f $filename ];then
-	echo "genome $SPECIES" >>$filename
-	echo "trackDb $SPECIES/trackDb.txt" >>$filename
-	fi
-########################################################################
-
-	DIR_CHECK_CREATE $OUTPUTDIR_tracks_hub/${SPECIES}	
-	cd $OUTPUTDIR_tracks_hub/${SPECIES}
-	
-	local filename=trackDb.txt
-	local bw_Url=https://s3.amazonaws.com/xianglilab/tracks_hub/${Data_provider}/${Data_label}/BigBeds/${Tracks_NAME}.bb
-	echo "track ${Tracks_NAME}" >>$filename
 	echo "type bigWig" >>$filename
 	echo "bigDataUrl ${bw_Url}" >>$filename
-	echo "shortLabel ${Tracks_NAME: 0:18}" >>$filename
-	echo "longLabel ${Tracks_NAME}" >>$filename
 	echo "visibility full" >>$filename
-	echo "maxHeightPixels 128" >>$filename
 	echo "color 256,0,0" >>$filename
 	echo "autoScale on" >>$filename
+	echo "alwaysZero on" >>$filename
+	echo "maxHeightPixels 100:24:8" >>$filename
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
-########################################################################
-########################################################################
-#     Uncomleted! Apr.21.2018
-########################################################################
-########################################################################	
 	}
 
 RUN_BigGraph2BigWig (){
@@ -899,12 +913,11 @@ RUN_BigGraph2BigWig (){
 #### Usage: RUN_Wig2BigWig $Sample_Wig_NAME
 	CHECK_arguments $# 5
 	
-	local Data_provider=${5}
-	local SPECIES=${4}
-	
 	local Wig_DIR=${1}
 	local Tracks_NAME=${2}
 	local Data_label=${3}
+	local Data_provider=${5}
+	local SPECIES=${4}
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
 	####INPUT
 case ${SPECIES} in 
@@ -931,11 +944,6 @@ case ${SPECIES} in
 esac
 
 	cd ${Wig_DIR}
-
-	#local chrom_sizes_mm10=${UCSC_DIR}/genome_sizes/mm10.chrom.sizes
-#	local chrom_sizes_mm9=${UCSC_DIR}/genome_sizes/mm9.chrom.sizes
-	#local chrom_sizes_hg19=${UCSC_DIR}/genome_sizes/hg19.chrom.sizes
-
 
 #### OUTPUT
 	local OUTPUTDIR_tracks_hub=${__EXE_PATH}/tracks_hub/${Data_provider}/${Data_label}
@@ -982,14 +990,15 @@ esac
 	local filename=trackDb.txt
 	local bw_Url=https://s3.amazonaws.com/xianglilab/tracks_hub/${Data_provider}/${Data_label}/BigWigs/${Tracks_NAME}.bw
 	echo "track ${Tracks_NAME}" >>$filename
-	echo "type bigWig" >>$filename
-	echo "bigDataUrl ${bw_Url}" >>$filename
 	echo "shortLabel ${Tracks_NAME: 0:18}" >>$filename
 	echo "longLabel ${Tracks_NAME}" >>$filename
+	echo "type bigWig" >>$filename
+	echo "bigDataUrl ${bw_Url}" >>$filename
 	echo "visibility full" >>$filename
-	echo "maxHeightPixels 128" >>$filename
 	echo "color 256,0,0" >>$filename
 	echo "autoScale on" >>$filename
+	echo "alwaysZero on" >>$filename
+	echo "maxHeightPixels 100:24:8" >>$filename
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
 }
 
@@ -1285,12 +1294,11 @@ RUN_CELLRANGER(){
 #### Usage: RUN_TOPHAT $1 $2 $3
 
 echo "RUN_CELLRANGER_ANALYSIS"
-CHECK_arguments $# 3
+CHECK_arguments $# 2
 
 ### Operation PARAMETERS Setting
 local INPUT_NAME=${1}
-local PROJECT_NAME=${2}
-local SPECIES=${3}
+local SPECIES=${2}
 #local Data_Provider=${4}
 
 
@@ -1338,7 +1346,7 @@ esac
 	
 	
 	
-	cellranger count --id=${PROJECT_NAME} \
+	cellranger count --id=${INPUT_NAME} \
 	--transcriptome=${TRANSCRIPTOME} \
 	--sample=${INPUT_NAME: 7} \
 	--fastqs=${INPUT_CELLRANGER} \
@@ -1390,7 +1398,7 @@ RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized "Ezh2_ChIP_seq" 
 RUN_MACS2(){
 #### Usage: RUN_MACS2 $1 $2 $3 $4 $5 ($1 is input for MACS. $2 is the CONTRO Library $3 is label) 
 echo "RUN_MACS2"
-CHECK_arguments $# 3
+CHECK_arguments $# 5
 local EXEDIR="~/Software/python_tools/MACS2-2.1.1.20160309/bin"
 
 local INPUT_NAME=${1}
@@ -1438,16 +1446,20 @@ DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
 ### --BAMPE
-echo "macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B -p ${p_value}" # -m 4 -q ${FDR}"
-macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B -p ${p_value} # -m 4 -q ${FDR}
+echo "macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value}" # -m 4 -q ${FDR}"
+macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # -m 4 -q ${FDR}
+
+# for DNaseq To find enriched cutting sites such as some DNAse-Seq datasets. In this case, all 5' ends of sequenced reads should be extended in both direction to smooth the pileup signals. 
+# If the wanted smoothing window is 200bps, then use '--nomodel --shift -100 --extsize 200'.
+#macs2 callpeak --format BAMPE -t ${IN_FILES[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200 # -m 4 -q ${FDR}
 
 ### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
 #echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
 #python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 ####      ${INPUT_NAME}_treat_pileup  for input
 
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
 }
 
 RUN_MACS2_Diff(){  ###Need Updated
