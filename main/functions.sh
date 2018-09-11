@@ -32,6 +32,7 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 	#Shang
 	UCSC_DIR=/opt/tools/UCSC
 	Tools_DIR=/opt/tools
+	Python_Tools_DIR=~/cloud_research/PengGroup/XLi/Python_tools
 	Annotation_DIR=/home/Data/Annotation
 	THREADS=8
 	# Tang
@@ -388,7 +389,7 @@ RUN_RPKM(){
 	"mm9") 
 	echo "Reference SPECIES is ${SPECIES}"
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm9
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE/Peaks_Calling/bed_format
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE/Peaks_Calling/bed_format/extra_peaks
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -401,7 +402,7 @@ esac
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
 	local Input_A1_Lists=(
-	union_all_peaks.bed
+	dKO-na_union_peaks.bed
 	)
 	
 	for Input_A1 in ${Input_A1_Lists[*]}
@@ -409,7 +410,7 @@ esac
 		local OUTPUT_NAME="read_count_${1}_${Input_A1:: -4}"
 		local Input_A1="${Gene_list_folder}/${Input_A1}"
 		echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed"
-		bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed
+		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed
 		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}"
 		python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}
 	done
@@ -1094,9 +1095,9 @@ RUN_Reads_Profile(){
 RUN_BOWTIE2(){
 	### RUN_BOWTIE2 $1 $2 $3 $4
 	local INPUT_NAME=${1}
-	local PROJECT_NAME=${2}
-	local SPECIES=${3}
-	local Data_Provider=${4}
+	#local PROJECT_NAME=${2}
+	local SPECIES=${2}
+	#local Data_Provider=${4}
 
 
 
@@ -1152,8 +1153,8 @@ esac
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
-	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 -S $OUTPUT_BOWTIE2 " #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
-	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 50 -S $OUTPUT_BOWTIE2 " #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 50 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
 	
 	echo ""
 	#### concordantly pair output
@@ -1185,8 +1186,8 @@ esac
 	echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
 	bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed
 	
-	echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-	RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+	#echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+	#RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
 	echo ""
 	echo "One Bowtie2 is Completed!"
 	}
@@ -1447,7 +1448,15 @@ cd ${OUT_FOLDER}
 
 ### --BAMPE
 echo "macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value}" # -m 4 -q ${FDR}"
-macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # -m 4 -q ${FDR}
+#macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # -m 4 -q ${FDR}
+
+### Generating filtered Peaks from MACS2 output.
+echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_results_BAMPE/${INPUT_NAME}_vs_${INPUT_CON} \
+-n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05"
+
+python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_results_BAMPE/${INPUT_NAME}_vs_${INPUT_CON} \
+-n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05
+
 
 # for DNaseq To find enriched cutting sites such as some DNAse-Seq datasets. In this case, all 5' ends of sequenced reads should be extended in both direction to smooth the pileup signals. 
 # If the wanted smoothing window is 200bps, then use '--nomodel --shift -100 --extsize 200'.
@@ -1458,8 +1467,8 @@ macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${
 #python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
 ####      ${INPUT_NAME}_treat_pileup  for input
 
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+#RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+#RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
 }
 
 RUN_MACS2_Diff(){  ###Need Updated

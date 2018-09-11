@@ -32,9 +32,9 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE/Peaks_Calling/bed_format
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE/Peaks_Calling/bed_format
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE
 ########################################################################
 
 #echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
@@ -47,15 +47,7 @@ __EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_res
 
 
 __INPUT_SAMPLE_DIR_List=(
-dKO-na1_20180709000_vs_Null_peaks
-dKO-na2_20180709000_vs_Null_peaks
-dKO-s1_20180709000_vs_Null_peaks
-dKO-s2_20180709000_vs_Null_peaks
-union_all_peaks
-WT-na1_20180709000_vs_Null_peaks
-WT-na2_20180709000_vs_Null_peaks
-WT-s1_20180709000_vs_Null_peaks
-WT-s2_20180709000_vs_Null_peaks
+Sample_dKO-na1_20180709000_vs_Null
 )
 
 main() {
@@ -79,8 +71,14 @@ do
 
 	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
-	RUN_Bed2BigBed ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP-DNase_seq_Macs2" ${SPECIES} ${Data_Provider}
-	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[i]} 'Null' 'CD8-HP-DNase_seq_Macs2_shift' ${SPECIES} ${Data_Provider}
+	#RUN_Bed2BigBed ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP-DNase_seq_Macs2" ${SPECIES} ${Data_Provider}
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} 
+	break
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[2]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} &
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} &
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[4]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} &
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[5]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} &
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[6]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} 
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz'
 	#RUN_FAST_QC &
