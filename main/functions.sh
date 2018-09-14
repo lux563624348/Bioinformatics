@@ -410,7 +410,10 @@ esac
 		local OUTPUT_NAME="read_count_${1}_${Input_A1:: -4}"
 		local Input_A1="${Gene_list_folder}/${Input_A1}"
 		echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed"
-		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed
+		bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed
+		
+		### A high memory efficient " -sorted " model requires both input files to be sorted. 
+		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed -sorted
 		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}"
 		python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}
 	done
