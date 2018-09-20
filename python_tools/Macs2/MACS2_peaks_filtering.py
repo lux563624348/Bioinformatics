@@ -18,7 +18,7 @@ def Return_filtered_peaks_bed_format(path_folder, name, fold_change, pvalue, qva
 	number_peaks = len(df)
 	df = df[ (df['-log10(pvalue)']>-np.log10(pvalue)) & (df['-log10(qvalue)']>-np.log10(qvalue)) & (df['fold_enrichment']>fold_change )].loc[:,['chr','start','end','name']]
 	df['name'] = df['name'].str[-10:]
-	df.to_csv(path_folder+'/'+name[:-4]+ '_'+str(number_peaks)+ '_filtered_peask_'+ str(len(df))+'.bed', sep='\t', index=False, header=False)
+	df.to_csv(path_folder + '_'+str(number_peaks)+ '_filtered_peask_'+ str(len(df))+'.bed', sep='\t', index=False, header=False)
 	return df
 
 

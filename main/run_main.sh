@@ -32,9 +32,9 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/Bowtie2_Results
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 
 #echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
@@ -47,7 +47,15 @@ __EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_res
 
 
 __INPUT_SAMPLE_DIR_List=(
-Sample_dKO-na1_20180709000_vs_Null
+Sample_WT-na1_20180709000
+Sample_WT-na2_20180709000
+Sample_WT-s1_20180709000
+Sample_WT-s2_20180709000)
+x=(
+Sample_dKO-na1_20180709000
+Sample_dKO-na2_20180709000
+Sample_dKO-s1_20180709000
+Sample_dKO-s2_20180709000
 )
 
 main() {
@@ -72,13 +80,8 @@ do
 	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
 	#RUN_Bed2BigBed ${__RAW_DATA_PATH_DIR} ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP-DNase_seq_Macs2" ${SPECIES} ${Data_Provider}
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} 
-	break
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[2]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} &
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} &
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[4]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} &
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[5]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} &
-	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[6]} ${__INPUT_SAMPLE_DIR_List[0]} 'CD8-HP_stat5b_ChIP_seq' ${SPECIES} ${Data_Provider} 
+	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bedpe' &
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[i]} 'Null' 'CD8-HP-DNase_seq_Macs2_SPMR' ${SPECIES} ${Data_Provider} 'bam' &
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz'
 	#RUN_FAST_QC &
@@ -97,12 +100,10 @@ do
 	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} 'CD8-HP-DNase_seq' ${SPECIES} ${Data_Provider}
 	
 	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
-	break
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}
 	
-	#### Parallel TEST
 done
 	
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[15]} "Hdac" "mm10"

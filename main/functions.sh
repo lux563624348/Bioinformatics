@@ -215,6 +215,7 @@ done
 
 RUN_Venn_Diagram(){
 	#### Usage: RUN_Bedtools_Merge $1 $2
+	### For bed format Venn
 	:'For example:
 	Chr	 start	 end
 	File A: Chr1 	1	20
@@ -340,23 +341,24 @@ RUN_Island_Filtered_Reads(){
 	
 	echo "Entering the processing directory"
 	cd ${__RAW_DATA_PATH_DIR}
-	echo "From Reads bed file to calculate reads count and its RPKM."
+	echo "From Reads bed file to get islandfiltered reads."
 	echo "$(find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
-	local Input_B1="$( find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
-	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
+	local Input_A1="$( find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
+	local Input_A1="${__RAW_DATA_PATH_DIR}/${Input_A1: 2}"
 	
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE_old_-SPMR/Peaks_Calling/bed_format/union_all_peaks
+	echo "find islands from ${Gene_list_folder}"
 	
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Paul/34bc/retrotransposons_marker/suggested_species_filtered/bed_format
 	cd ${Gene_list_folder}
-	echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
-	local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
+	echo "$( find -name "*.bed" | sort -n | xargs)"
+	local Input_Gene_Lists="$( find -name "*.bed" | sort -n | xargs)"
 	
-	for Input_A1 in ${Input_A1_Lists}
+	for Input_Gene in ${Input_Gene_Lists}
 	do
-		local OUTPUT_NAME="island_filtered_reads_${1}_${Input_A1: 2: -4}"
-		Input_A1="${Gene_list_folder}/${Input_A1: 2}"
-		echo "bedtools intersect -wa -u -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}"
-		bedtools intersect -wa -u -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}
+		local OUTPUT_NAME="island_filtered_reads_${1}_${Input_Gene: 2: -4}"
+		Input_Gene="${Gene_list_folder}/${Input_Gene: 2}"
+		echo "bedtools intersect -u -a ${Input_A1} -b ${Input_Gene} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}"
+		bedtools intersect -u -a ${Input_A1} -b ${Input_Gene} > ${Output_Path}/${OUTPUT_NAME}.${FILE_TYPE}
 	done
 
 }
@@ -1185,12 +1187,24 @@ esac
 	rm ${OUTPUT_BOWTIE2}
 	fi
 ###bam2bed
-
+	
+	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
+	then
+	echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
+	bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe
+	
+	echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+	RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+	
+	else
 	echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
 	bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed
 	
-	#echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-	#RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+	echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+	RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+	
+	fi
+
 	echo ""
 	echo "One Bowtie2 is Completed!"
 	}
@@ -1402,7 +1416,7 @@ RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized "Ezh2_ChIP_seq" 
 RUN_MACS2(){
 #### Usage: RUN_MACS2 $1 $2 $3 $4 $5 ($1 is input for MACS. $2 is the CONTRO Library $3 is label) 
 echo "RUN_MACS2"
-CHECK_arguments $# 5
+CHECK_arguments $# 6
 local EXEDIR="~/Software/python_tools/MACS2-2.1.1.20160309/bin"
 
 local INPUT_NAME=${1}
@@ -1410,6 +1424,7 @@ local INPUT_CON=${2}
 local INPUT_LABEL=${3}
 local SPECIES=${4}
 local Data_Provider=${5}
+local INPUT_TYPE=${6}
 #local INPUT_LABEL=${INPUT_NAME: 7:3}
 ##Skip out of Sample_ (7), and forward with 4 more digits.
 
@@ -1420,7 +1435,7 @@ local p_value=0.00001
 ### Find Input File
 local IN_FOLDER=${__RAW_DATA_PATH_DIR}
 cd ${IN_FOLDER}
-local IN_FILES="$( find -name "*${INPUT_NAME}*.bam" | sort -n | xargs)"
+local IN_FILES="$( find -name "*${INPUT_NAME}*.${INPUT_TYPE}" | sort -n | xargs)"
 
 local k=0
 for in_files in ${IN_FILES}
@@ -1434,7 +1449,7 @@ echo "Saving MACS2 INPUT File as ${IN_FILES[*]}"
 ### Find Contro Files
 local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
 cd ${CONTRO_FOLDER}
-local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bam" | sort -n | xargs)"
+local CONTRO_FILE="$( find -name "*${INPUT_CON}*.${INPUT_TYPE}" | sort -n | xargs)"
 
 local k=0
 for in_files in ${CONTRO_FILE}
@@ -1445,40 +1460,51 @@ done
 echo "Saving MACS2 Contro File as ${CONTRO_FILE[*]}"
 ### Find Contro Files
 
-local OUT_FOLDER=${__EXE_PATH}/MACS2_results_BAMPE/${INPUT_NAME}_vs_${INPUT_CON}
+local OUT_FOLDER=${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
-### --BAMPE
-echo "macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value}" # -m 4 -q ${FDR}"
-#macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # -m 4 -q ${FDR}
+case ${INPUT_TYPE} in
+	"bam")
+	echo "Reference SPECIES is ${SPECIES}"
+	### --BAMPE
+	echo "macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} " # --nomodel --shift -100 --extsize 200" 
+	macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
+	;;
+	"bedpe")
+	echo "Reference SPECIES is ${SPECIES}"
+	### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
+	echo "macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B --SPMR -p ${p_value}" # --nomodel --shift -100 --extsize 200"
+	macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Type...... Exit"
+	# for DNaseq To find enriched cutting sites such as some DNAse-Seq datasets. In this case, all 5' ends of sequenced reads should be extended in both direction to smooth the pileup signals. 
+	# If the wanted smoothing window is 200bps, then use '--nomodel --shift -100 --extsize 200'.
+	exit
+	;;
+esac
+
+
+####      ${INPUT_NAME}_treat_pileup  for input
 
 ### Generating filtered Peaks from MACS2 output.
-echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_results_BAMPE/${INPUT_NAME}_vs_${INPUT_CON} \
+echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05"
 
-python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_results_BAMPE/${INPUT_NAME}_vs_${INPUT_CON} \
+python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05
 
 
-# for DNaseq To find enriched cutting sites such as some DNAse-Seq datasets. In this case, all 5' ends of sequenced reads should be extended in both direction to smooth the pileup signals. 
-# If the wanted smoothing window is 200bps, then use '--nomodel --shift -100 --extsize 200'.
-#macs2 callpeak --format BAMPE -t ${IN_FILES[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200 # -m 4 -q ${FDR}
-
-### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
-#echo "python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value}" # -m 4  -q ${FDR}"
-#python ${EXEDIR}/macs2 callpeak --format BEDPE -t ${IN_FOLDER}/${IN_FILES} -c ${CONTRO_DIR}/${CONTRO_FILE} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B -p ${p_value} # -m 4 -q ${FDR}
-####      ${INPUT_NAME}_treat_pileup  for input
-
-#RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
-#RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
 }
 
 RUN_MACS2_Diff(){  ###Need Updated
 #### Usage: RUN_MACS2_Diff $1 $2 $3 $4 $5 $6 $threshold ($1 is input for con1. $2 is the CONTRO_1  $3 is Con2. $4 is the CONTRO_2 )
 echo "RUN_MACS2 Diff"
 CHECK_arguments $# 7
-local EXEDIR="/home/lxiang/Software/python_tools/MACS2-2.1.1.20160309/bin"
+local EXEDIR="~/Software/python_tools/MACS2-2.1.1.20160309/bin"
 
 local CON1_NAME=$1
 local CON1_TREAT=$2
@@ -1489,38 +1515,20 @@ local CON2_CONTRO=$6
 
 local p_value=0.00001
 ########################################################################
-	if [ false ]; then
-## Customized Part DIR
 ########################################################################
-local CON1_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON1_FOLDER=${__EXE_PATH}/Bowtie2_Results/${CON1_TREAT}
 local CON1_FILE=${CON1_TREAT}.bam
 
-local CON1_CONTRO_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON1_CONTRO_FOLDER=${__EXE_PATH}/Bowtie2_Results/${CON1_CONTRO}
 local CON1_CONTRO_FILE=${CON1_CONTRO}.bam
 
-local CON2_FOLDER=${__EXE_PATH}/bowtie2_results
+local CON2_FOLDER=${__EXE_PATH}/Bowtie2_Results/${CON2_TREAT}
 local CON2_FILE=${CON2_TREAT}.bam
 
-local CON2_CONTRO_FOLDER=${__EXE_PATH}/bowtie2_results
-local CON2_CONTRO_FILE=${CON2_CONTRO}.bam
-	fi
-
-########################################################################
-########################################################################
-local CON1_FOLDER=${__EXE_PATH}/${CON1_TREAT}/bowtie2_results
-local CON1_FILE=${CON1_TREAT}.bam
-
-local CON1_CONTRO_FOLDER=${__EXE_PATH}/${CON1_CONTRO}/bowtie2_results
-local CON1_CONTRO_FILE=${CON1_CONTRO}.bam
-
-local CON2_FOLDER=${__EXE_PATH}/${CON2_TREAT}/bowtie2_results
-local CON2_FILE=${CON2_TREAT}.bam
-
-local CON2_CONTRO_FOLDER=${__EXE_PATH}/${CON2_CONTRO}/bowtie2_results
+local CON2_CONTRO_FOLDER=${__EXE_PATH}/Bowtie2_Results/${CON2_CONTRO}
 local CON2_CONTRO_FILE=${CON2_CONTRO}.bam
 
 ########################################################################
-
 ########################################################################
 local OUT_FOLDER=${__EXE_PATH}/MACS2_Diff_results/${CON1_NAME}_vs_${CON2_NAME}
 DIR_CHECK_CREATE ${OUT_FOLDER}
