@@ -378,20 +378,20 @@ RUN_RPKM(){
 	echo "Entering the processing directory"
 	cd ${__RAW_DATA_PATH_DIR}
 	echo "From Reads bed file to calculate reads count and its RPKM."
-	echo "$(find -name "${File_Name}.bed" | sort -n | xargs)"
-	local Input_B1="$( find -name "${File_Name}.bed" | sort -n | xargs)"
+	echo "$(find -name "${File_Name}*.bedpe" | sort -n | xargs)"
+	local Input_B1="$( find -name "*${File_Name}*.bedpe" | sort -n | xargs)"
 	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
-	
-	
+	local Input_Size=$(wc -l ${Input_B1} | cut -d' ' -f1)
+
 	case ${SPECIES} in
 	"mm10")
 	echo "Reference SPECIES is ${SPECIES}"
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm10
 	;;
-	"mm9") 
+	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm9
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE/Peaks_Calling/bed_format/extra_peaks
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Macs_diff_Dnaseq
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -404,7 +404,7 @@ esac
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
 	local Input_A1_Lists=(
-	dKO-na_union_peaks.bed
+	genelist_RNA_seq_Stim_WT_Up_Tcf1-Dependent.bed
 	)
 	
 	for Input_A1 in ${Input_A1_Lists[*]}
@@ -416,8 +416,8 @@ esac
 		
 		### A high memory efficient " -sorted " model requires both input files to be sorted. 
 		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed -sorted
-		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}"
-		python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path}
+		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path} ${Input_Size}"
+		python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path} ${Input_Size}
 	done
 
 }
@@ -683,6 +683,28 @@ RUN_Counting_READS_Pair_End(){
 
 #RUN_Sam2Wig
 
+RUN_bam2bedpe(){
+	#### Usage: RUN_Sam2Wig $1 $2 ($1 = Input_Name, $2 = FRAGMENT_SIZE)
+CHECK_arguments $# 2
+local INPUT_PATH=${__RAW_DATA_PATH_DIR}/${1}/bowtie2_results/${1}
+local OUT_PATH=${__EXE_PATH}/${1}
+local FRAGMENT_SIZE=${2}
+########################################################################
+
+local SICER="/home/lxiang/Software/SICER1.1/SICER"
+local EXEDIR="${SICER}/extra/tools/wiggle"
+local WINDOW_SIZE=200
+local SPECIES=mm10
+
+
+#samtools view ${INPUT_PATH}.sam -Sb | bamToBed -i stdin > ${INPUT_PATH}.bed
+
+bamToBed -i ${INPUT_PATH}.bam > ${INPUT_PATH}.bed
+
+sh $EXEDIR/bed2wig.sh ${__RAW_DATA_PATH_DIR}/${1}/bowtie2_results ${1} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
+	
+	}
+
 RUN_Sam2Wig(){
 	#### Usage: RUN_Sam2Wig $1 $2 ($1 = Input_Name, $2 = FRAGMENT_SIZE)
 CHECK_arguments $# 2
@@ -913,7 +935,7 @@ esac
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
 	}
 
-RUN_BigGraph2BigWig (){
+RUN_BedGraph2BigWig (){
 	##RUN_BigGraph2BigWig   $INPUT_FOLDER $INPUT_NAME $Track_hub_label
 #### convert .wig to .bigwig and create the track hubs profiles.
 #### Usage: RUN_Wig2BigWig $Sample_Wig_NAME
@@ -1100,13 +1122,11 @@ RUN_Reads_Profile(){
 RUN_BOWTIE2(){
 	### RUN_BOWTIE2 $1 $2 $3 $4
 	local INPUT_NAME=${1}
-	#local PROJECT_NAME=${2}
 	local SPECIES=${2}
-	#local Data_Provider=${4}
+	local PROJECT_NAME=${3}
+	local Data_Provider=${4}
 
-
-
-	CHECK_arguments $# 2
+	CHECK_arguments $# 4
 	echo "RUN_BOWTIE2"
 	#### OUTPUT FORMAT
 	local OUTPUT_BOWTIE2_FOLDER="${__EXE_PATH}/Bowtie2_Results/${INPUT_NAME}"
@@ -1158,8 +1178,8 @@ esac
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
-	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 50 -S $OUTPUT_BOWTIE2 " #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
-	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 50 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 --trim5 0 -S $OUTPUT_BOWTIE2 " #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 --trim5 0 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
 	
 	echo ""
 	#### concordantly pair output
@@ -1171,8 +1191,8 @@ esac
 	
 	else
 	echo "Single End Mode."
-	echo "bowtie2 -p $THREADS --no-unal --non-deterministic -x $BOWTIEINDEXS -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S $OUTPUT_BOWTIE2"
-	bowtie2 -p ${THREADS} --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}
+	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S $OUTPUT_BOWTIE2 --trim3 0 --trim5 0"
+	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 0 --trim5 0
 	fi
 
 	echo ""
@@ -1190,6 +1210,7 @@ esac
 	
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
+	### In here, bedpe just represents the bed format of pair end reads. 
 	echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
 	bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe
 	
@@ -1460,7 +1481,7 @@ done
 echo "Saving MACS2 Contro File as ${CONTRO_FILE[*]}"
 ### Find Contro Files
 
-local OUT_FOLDER=${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON}
+local OUT_FOLDER=${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
@@ -1475,7 +1496,7 @@ case ${INPUT_TYPE} in
 	echo "Reference SPECIES is ${SPECIES}"
 	### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
 	echo "macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B --SPMR -p ${p_value}" # --nomodel --shift -100 --extsize 200"
-	macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
+	#macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Type...... Exit"
@@ -1492,12 +1513,12 @@ esac
 echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05"
 
-python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
+#python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05
 
 
 RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+#RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
 }
 
 RUN_MACS2_Diff(){  ###Need Updated
