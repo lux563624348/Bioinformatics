@@ -34,7 +34,7 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 	Tools_DIR=/opt/tools
 	Python_Tools_DIR=~/cloud_research/PengGroup/XLi/Python_tools
 	Annotation_DIR=/home/Data/Annotation
-	THREADS=8
+	THREADS=16
 	# Tang
 	#Annotation_DIR=/home/Data/Annotation
 	#THREADS=16
@@ -45,20 +45,39 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 
 ##	FUNDEMENTAL FUNCTIONS FOR ANALYSIS MODULES
 PRE_READS_DIR(){
-	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" 
-	CHECK_arguments $# 2 # No less than 3
-	echo "Entering one Library of RAW_DATA_DIR: $__RAW_DATA_PATH_DIR/$1"
-	echo "Searching file type as: $2"
-	local Current_DATA_DIR="${__RAW_DATA_PATH_DIR}/${1}"
-	cd ${Current_DATA_DIR}
-	
+	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "R1/R2 or Pairs"
+	CHECK_arguments $# 3 # No less than 3
+	echo "Entering one Library of RAW_DATA_DIR: $__RAW_DATA_PATH_DIR"
+	echo "Searching file type as: $1 + $3 + $2"
+	local Current_DATA_DIR=${__RAW_DATA_PATH_DIR}
+	cd ${__RAW_DATA_PATH_DIR}
+	Pair_Type=${3}
 	
 ########################################################################
 	#local DIRLIST_R1="$( find -name "*R1.fastq" | sort -n | xargs)"
 	#local DIRLIST_R2="$( find -name "*R2.fastq" | sort -n | xargs)" #
 	
-	local DIRLIST_R1_gz="$( find -name "*R1*.$2" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*R2*.$2" | sort -n | xargs)"
+	case ${Pair_Type} in
+	"R1")
+	echo "Single End, Only ${Pair_Type} "
+	local DIRLIST_R1_gz="$( find -name "*${1}*R1*.${2}" | sort -n | xargs)"
+	local DIRLIST_R2_gz=" "
+	;;
+	"R2")
+	echo "Single End, Only ${Pair_Type} "
+	local DIRLIST_R1_gz="$( find -name "*${1}*R2*.${2}" | sort -n | xargs)"
+	local DIRLIST_R2_gz=" "
+	;;
+	"Pairs")
+	echo "Pair End, Both"
+	local DIRLIST_R1_gz="$( find -name "*${1}*R1*.${2}" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*${1}*R2*.${2}" | sort -n | xargs)"
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
 	
 	## for 34bc
 	#local DIRLIST_R1_gz="$( find -name "un_conc_aligned_R1.$2" | sort -n | xargs)"
@@ -67,7 +86,7 @@ PRE_READS_DIR(){
 
 #### R1 Saving		
 	local k=0
-	for FILE_DIR in $DIRLIST_R1_gz
+	for FILE_DIR in ${DIRLIST_R1_gz[*]}
 	do
 		__FASTQ_DIR_R1[k]="${Current_DATA_DIR}/${FILE_DIR: 2}"
 		echo "Saving R1 reads DIR as ${__FASTQ_DIR_R1[k]}"
@@ -77,7 +96,7 @@ PRE_READS_DIR(){
 #### R2 Saving	
 	local k=0
 	__FASTQ_DIR_R2[k]=""
-	for FILE_DIR in $DIRLIST_R2_gz
+	for FILE_DIR in ${DIRLIST_R2_gz[*]}
 	do
 		__FASTQ_DIR_R2[k]="${Current_DATA_DIR}/${FILE_DIR: 2}"
 		echo "Saving R2 reads DIR as ${__FASTQ_DIR_R2[k]}"
@@ -1105,6 +1124,46 @@ RUN_Reads_Profile(){
 
 	}
 
+RUN_HomerTools(){
+	### RUN_HomerTools $1 $2 $3 $4
+	CHECK_arguments $# 2
+	echo ""
+	echo "RUN_HomerTools"
+	local 
+	local TRIM_TYPE=${1}
+	local Restriction_Enzyme=${2}
+	
+	
+	echo "3 <#> (trim this many bp off the 3' end of the sequence)"
+	echo "-5 <#> (trim this many bp off the 5' end of the sequence)"
+	for fastq_file in ${__FASTQ_DIR_R1[*]}
+	do
+		case ${TRIM_TYPE} in
+		"dist")
+		homerTools trim -3 0 -5 0 ${fastq_file}
+		gzip ${fastq_file}.trimmed
+		;;
+		"Restriction_Enzyme")
+		homerTools trim -3 ${Restriction_Enzyme} -mis 0 -matchStart 20 -min 20 ${fastq_file}
+		gzip ${fastq_file}.trimmed
+		;;
+		"barcode")
+		#homerTools barcodes
+		;;
+		"freq")
+		#homerTools freq
+		;;
+		*)
+		echo "ERR: Did Not Find Any Matched Reference...... Exit"
+		exit
+		;;
+		esac
+	done
+	
+	echo ""
+	echo "One RUN_HomerTools is Completed!"
+	}
+
 #RUN_Two_Conditions_diagonal_plot(){}
 
 ##END OF FUNDEMENTAL FUNCTIONS
@@ -1127,11 +1186,11 @@ RUN_BOWTIE2(){
 	local Data_Provider=${4}
 
 	CHECK_arguments $# 4
+	echo ""
 	echo "RUN_BOWTIE2"
 	#### OUTPUT FORMAT
 	local OUTPUT_BOWTIE2_FOLDER="${__EXE_PATH}/Bowtie2_Results/${INPUT_NAME}"
 	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
-	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
 	
 case ${SPECIES} in
 	"mm9")
@@ -1173,14 +1232,14 @@ esac
 	
 ########################################################################
 	
-	echo ""
-
+	echo "#5’ (left)  3’ (right) end of each read "
+    
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
-	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 --trim5 0 -S $OUTPUT_BOWTIE2 " #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
+	echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 --trim5 0 -S ${OUTPUT_BOWTIE2}" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
 	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 --trim5 0 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
-	
 	echo ""
 	#### concordantly pair output
 	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
@@ -1191,11 +1250,33 @@ esac
 	
 	else
 	echo "Single End Mode."
-	echo "bowtie2 -p $THREADS -t --no-unal --non-deterministic -x $BOWTIEINDEXS -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S $OUTPUT_BOWTIE2 --trim3 0 --trim5 0"
+	### cite ${Pair_Type} from Function PRE_READS_DIR
+	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_${Pair_Type}.sam"
+	echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 0 --trim5 0"
 	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 0 --trim5 0
 	fi
 
+########################################################################
+########################################################################
+	local yesno='yes'
+	case ${yesno} in
+	"yes")
+	echo "Make Align Stop here!"
 	echo ""
+	return 0 ;;
+	"no")
+	echo "Continue!" ;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit;;
+	esac
+########################################################################
+########################################################################
+	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
+	echo "samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
+	samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
+	fi
+
 ###sam2bam   ##FROM MACS2
 	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
 	echo "samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
@@ -1396,6 +1477,9 @@ esac
 	echo "One CELLRANGER is completed."
 	echo ""
 	}
+
+
+
 ## Peaks Calling.
 RUN_SICER(){
 #### Usage: RUN_SICER $1 $2 $3 ($1 is input for SICER. $2 is the CONTRO Library, $3 is the Gap set.) 
@@ -1832,6 +1916,7 @@ DIR_CHECK_CREATE(){
 	do
 		if [ ! -d $solo_dir ];then
 			echo "Dir check and create is $solo_dir"
+			echo ""
 			mkdir -p $solo_dir
 		fi
 	done
