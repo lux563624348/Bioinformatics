@@ -32,9 +32,9 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/ZZeng/raw_data/Haihui/Tcf1/Tcf1_HiCSeq_Jul2016
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq/Raw_Reads
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC_seq/Tcf1_HiCSeq_Jul2016
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Only_R1_TEST
 ########################################################################
 
 #echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
@@ -47,8 +47,14 @@ __EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC_seq/Tcf1_HiCSeq
 
 
 __INPUT_SAMPLE_DIR_List=(
-CTRL_CD8
-DKO_CD8
+WT-na1_20180709000
+WT-na2_20180709000
+WT-s1_20180709000
+WT-s2_20180709000
+dKO-na1_20180709000
+dKO-na2_20180709000
+dKO-s1_20180709000
+dKO-s2_20180709000
 )
 
 __INPUT_SAMPLE_BARCODE_List=(
@@ -72,16 +78,15 @@ echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 SPECIES='mm9'
 Data_Provider='Haihui'
 ####
+
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_DIR_List[*]} - 1); i++ ))
 do
-	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz.trimmed' 'R1'
+	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'R1'
+	#RUN_FAST_QC
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]} &
-	RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP-HiC_seq_bowtie2_Only_R1" ${Data_Provider} 
+	RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP_R1_Test" ${Data_Provider} &
+	
 	#break
-	
-	
-	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz.trimmed' 'R2'
-	RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP-HiC_seq_bowtie2_Only_R1" ${Data_Provider} 
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]}
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP-HiC_seq_bowtie2_Only_R2" ${Data_Provider} 
 	#break

@@ -181,8 +181,11 @@ RUN_FAST_QC (){
 	echo "cd ${Output_fastqc}"
 	cd ${Output_fastqc}
 	
+	#if [ -f multiqc_report.html ];then
 	echo "multiqc *fastqc.zip --ignore *.html"
 	multiqc *fastqc.zip --ignore *.html
+	#fi
+
 	
 	echo "Fastq Completed!"
 	}
@@ -1242,23 +1245,43 @@ esac
 	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 --trim5 0 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
 	echo ""
 	#### concordantly pair output
+	
 	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
 	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
 	# using un concordantly pair-ends do bowtie2 again.
 	#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}"
 	#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}
 	
+	###sam2bam   ##FROM MACS2
+	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
+	echo "samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
+	samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
+	fi
+	
 	else
 	echo "Single End Mode."
 	### cite ${Pair_Type} from Function PRE_READS_DIR
-	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_${Pair_Type}.sam"
-	echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 0 --trim5 0"
-	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 0 --trim5 0
+	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
+	echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 100 --trim5 5"
+	bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 100 --trim5 5
+	
+	### SINGLE END SAM TO BAM
+	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
+	echo "samtools view -b ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
+	samtools view -b ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
 	fi
-
+	
+	
+	fi
+### Then clear sam file.
+	if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
+	echo "rm ${OUTPUT_BOWTIE2}"
+	rm ${OUTPUT_BOWTIE2}
+	fi
+	
 ########################################################################
 ########################################################################
-	local yesno='yes'
+	local yesno='no'
 	case ${yesno} in
 	"yes")
 	echo "Make Align Stop here!"
@@ -1271,22 +1294,7 @@ esac
 	exit;;
 	esac
 ########################################################################
-########################################################################
-	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
-	echo "samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
-	samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
-	fi
 
-###sam2bam   ##FROM MACS2
-	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
-	echo "samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
-	samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
-	fi
-### Then clear sam file.
-	if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
-	echo "rm ${OUTPUT_BOWTIE2}"
-	rm ${OUTPUT_BOWTIE2}
-	fi
 ###bam2bed
 	
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
@@ -1597,7 +1605,7 @@ esac
 echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05"
 
-#python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
+python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05
 
 
