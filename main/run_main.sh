@@ -32,7 +32,7 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq/Raw_Reads
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Only_R1_TEST/Bowtie2_Results
 #### Execution or Output directory
 __EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Only_R1_TEST
 ########################################################################
@@ -47,13 +47,13 @@ __EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/
 
 
 __INPUT_SAMPLE_DIR_List=(
-WT-na1_20180709000
+#WT-na1_20180709000
 WT-na2_20180709000
-WT-s1_20180709000
+#WT-s1_20180709000
 WT-s2_20180709000
 dKO-na1_20180709000
-dKO-na2_20180709000
-dKO-s1_20180709000
+#dKO-na2_20180709000
+#dKO-s1_20180709000
 dKO-s2_20180709000
 )
 
@@ -81,21 +81,22 @@ Data_Provider='Haihui'
 
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_DIR_List[*]} - 1); i++ ))
 do
-	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'R1'
+	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'R1'
 	#RUN_FAST_QC
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]} &
-	RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP_R1_Test" ${Data_Provider} &
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP_R1_Test" ${Data_Provider} &
 	
 	#break
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]}
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP-HiC_seq_bowtie2_Only_R2" ${Data_Provider} 
 	#break
-	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
+
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
 	#RUN_Bed2BigBed ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP-Only_R1" ${SPECIES} ${Data_Provider}
 	#RUN_BedGraph2BigWig ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} "Bed2bdg2bigwig" ${SPECIES} ${Data_Provider}
-	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bedpe' &
-	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[i]} 'Null' 'TCF1_ChIP_Seq_Macs2_SPMR' ${SPECIES} ${Data_Provider} 'bam' &
+	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bed' 
+	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
+	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[i]} 'Null' 'CD8-HP_DNaseq_Only_R1_MACS2' ${SPECIES} ${Data_Provider} 'bam' &
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 
 	#RUN_FAST_QC &

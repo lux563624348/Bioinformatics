@@ -368,7 +368,7 @@ RUN_Island_Filtered_Reads(){
 	local Input_A1="$( find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
 	local Input_A1="${__RAW_DATA_PATH_DIR}/${Input_A1: 2}"
 	
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE_old_-SPMR/Peaks_Calling/bed_format/union_all_peaks
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Only_R1_TEST/MACS2_Results/bam/union_all_peaks
 	echo "find islands from ${Gene_list_folder}"
 	
 	cd ${Gene_list_folder}
@@ -398,10 +398,10 @@ RUN_RPKM(){
 	
 	
 	echo "Entering the processing directory"
-	cd ${__RAW_DATA_PATH_DIR}
+	cd ${__EXE_PATH}/island_filtered_reads
 	echo "From Reads bed file to calculate reads count and its RPKM."
-	echo "$(find -name "${File_Name}*.bedpe" | sort -n | xargs)"
-	local Input_B1="$( find -name "*${File_Name}*.bedpe" | sort -n | xargs)"
+	echo "$(find -name "${File_Name}*.bed" | sort -n | xargs)"
+	local Input_B1="$( find -name "*${File_Name}*.bed" | sort -n | xargs)"
 	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
 	local Input_Size=$(wc -l ${Input_B1} | cut -d' ' -f1)
 
@@ -413,7 +413,7 @@ RUN_RPKM(){
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm9
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Macs_diff_Dnaseq
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Only_R1_TEST/MACS2_Results/bam/union_all_peaks
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -426,7 +426,7 @@ esac
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
 	local Input_A1_Lists=(
-	genelist_RNA_seq_Stim_WT_Up_Tcf1-Dependent.bed
+	union_peaks_R1.bed
 	)
 	
 	for Input_A1 in ${Input_A1_Lists[*]}
@@ -1299,20 +1299,22 @@ esac
 	
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
-	### In here, bedpe just represents the bed format of pair end reads. 
+	### In here, bedpe just represents the bed format of pair end reads.
+	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe ];then
 	echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
 	bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe
 	
-	echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-	RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
-	
+	echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+	RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+	fi
 	else
+	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ];then
 	echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
 	bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed
 	
-	echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-	RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
-	
+	echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+	RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+	fi
 	fi
 
 	echo ""
@@ -1580,6 +1582,12 @@ cd ${OUT_FOLDER}
 case ${INPUT_TYPE} in
 	"bam")
 	echo "Reference SPECIES is ${SPECIES}"
+	### --BAM
+	echo "macs2 callpeak --format BAM -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} " # --nomodel --shift -100 --extsize 200" 
+	macs2 callpeak --format BAM -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
+	;;
+	"bampe")
+	echo "Reference SPECIES is ${SPECIES}"
 	### --BAMPE
 	echo "macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} " # --nomodel --shift -100 --extsize 200" 
 	macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
@@ -1602,15 +1610,15 @@ esac
 ####      ${INPUT_NAME}_treat_pileup  for input
 
 ### Generating filtered Peaks from MACS2 output.
-echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
+echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05"
 
-python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results_${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
+python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05
 
 
-RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
-#RUN_BigGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+#RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
 }
 
 RUN_MACS2_Diff(){  ###Need Updated
