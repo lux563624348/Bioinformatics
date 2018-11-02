@@ -1550,7 +1550,7 @@ local p_value=0.00001
 ### Find Input File
 local IN_FOLDER=${__RAW_DATA_PATH_DIR}
 cd ${IN_FOLDER}
-local IN_FILES="$( find -name "*${INPUT_NAME}*.${INPUT_TYPE}" | sort -n | xargs)"
+local IN_FILES="$( find -name "*${INPUT_NAME}*.bam" | sort -n | xargs)"
 
 local k=0
 for in_files in ${IN_FILES}
@@ -1564,7 +1564,7 @@ echo "Saving MACS2 INPUT File as ${IN_FILES[*]}"
 ### Find Contro Files
 local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
 cd ${CONTRO_FOLDER}
-local CONTRO_FILE="$( find -name "*${INPUT_CON}*.${INPUT_TYPE}" | sort -n | xargs)"
+local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bam" | sort -n | xargs)"
 
 local k=0
 for in_files in ${CONTRO_FILE}
@@ -1575,7 +1575,7 @@ done
 echo "Saving MACS2 Contro File as ${CONTRO_FILE[*]}"
 ### Find Contro Files
 
-local OUT_FOLDER=${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON}
+local OUT_FOLDER=${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}_NO_SPMR/${INPUT_NAME}_vs_${INPUT_CON}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
@@ -1589,8 +1589,8 @@ case ${INPUT_TYPE} in
 	"bampe")
 	echo "Reference SPECIES is ${SPECIES}"
 	### --BAMPE
-	echo "macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} " # --nomodel --shift -100 --extsize 200" 
-	macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
+	echo "macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B -p ${p_value} --SPMR"  # --nomodel --shift -100 --extsize 200" 
+	macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B -p ${p_value} --SPMR # --nomodel --shift -100 --extsize 200
 	;;
 	"bedpe")
 	echo "Reference SPECIES is ${SPECIES}"
@@ -1624,49 +1624,60 @@ RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${I
 RUN_MACS2_Diff(){  ###Need Updated
 #### Usage: RUN_MACS2_Diff $1 $2 $3 $4 $5 $6 $threshold ($1 is input for con1. $2 is the CONTRO_1  $3 is Con2. $4 is the CONTRO_2 )
 echo "RUN_MACS2 Diff"
-CHECK_arguments $# 7
+CHECK_arguments $# 2
 local EXEDIR="~/Software/python_tools/MACS2-2.1.1.20160309/bin"
 
-local CON1_NAME=$1
-local CON1_TREAT=$2
-local CON1_CONTRO=$3
-local CON2_NAME=$4
-local CON2_TREAT=$5
-local CON2_CONTRO=$6
+local CON1_NAME=${1}
+local CON2_NAME=${2}
 
-local p_value=0.00001
-########################################################################
-########################################################################
-local CON1_FOLDER=${__EXE_PATH}/Bowtie2_Results/${CON1_TREAT}
-local CON1_FILE=${CON1_TREAT}.bam
-
-local CON1_CONTRO_FOLDER=${__EXE_PATH}/Bowtie2_Results/${CON1_CONTRO}
-local CON1_CONTRO_FILE=${CON1_CONTRO}.bam
-
-local CON2_FOLDER=${__EXE_PATH}/Bowtie2_Results/${CON2_TREAT}
-local CON2_FILE=${CON2_TREAT}.bam
-
-local CON2_CONTRO_FOLDER=${__EXE_PATH}/Bowtie2_Results/${CON2_CONTRO}
-local CON2_CONTRO_FILE=${CON2_CONTRO}.bam
 
 ########################################################################
+### Find Input File
+local IN_FOLDER=${__RAW_DATA_PATH_DIR}
+cd ${IN_FOLDER}
+local IN_FILES="$( find -name "*${CON1_NAME}*.bdg" | sort -n | xargs)"
+
+local k=0
+for in_files in ${IN_FILES}
+do
+	IN_FILES[k]="${IN_FOLDER}/${in_files: 2}"
+	k=`expr $k + 1`
+done
+echo "Saving MACS2 Diff INPUT File as ${IN_FILES[*]}"
+### Find Input File
+
+### Find Contro Files
+local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
+cd ${CONTRO_FOLDER}
+local CONTRO_FILE="$( find -name "*${CON2_NAME}*.bdg" | sort -n | xargs)"
+
+local k=0
+for in_files in ${CONTRO_FILE}
+do
+	CONTRO_FILE[k]="${CONTRO_FOLDER}/${in_files: 2}"
+	k=`expr $k + 1`
+done
+echo "Saving MACS2 Diff Contro File as ${CONTRO_FILE[*]}"
+### Find Contro Files
+
+########################################################################
+
 ########################################################################
 local OUT_FOLDER=${__EXE_PATH}/MACS2_Diff_results/${CON1_NAME}_vs_${CON2_NAME}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 
-echo "python ${EXEDIR}/macs2 callpeak --format BAMPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' --nomodel --extsize 200"
-python ${EXEDIR}/macs2 callpeak --format BAMPE -B -t ${CON1_FOLDER}/${CON1_FILE} -c ${CON1_CONTRO_FOLDER}/${CON1_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON1_NAME} -g 'mm' -p ${p_value} # --nomodel --extsize 200 
+#This technique allows for a variable to be assigned a value if another variable is either empty or is undefined
 
-echo "python ${EXEDIR}/macs2 callpeak --format BAMPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' --nomodel --extsize 200"
-python ${EXEDIR}/macs2 callpeak --format BAMPE -B -t ${CON2_FOLDER}/${CON2_FILE} -c ${CON2_CONTRO_FOLDER}/${CON2_CONTRO_FILE} --outdir ${OUT_FOLDER} -n ${CON2_NAME} -g 'mm' -p ${p_value} # --nomodel --extsize 200 
+local Peaks_File="$( find -name "*${CON1_NAME}*_peaks.xls" | sort -n | xargs)"
+local Size_Treat1=$(egrep "fragments after filtering in treatment" ${IN_FOLDER}/${Peaks_File: 2} | grep -o '[0-9]*')
+local Size_Contro1=$(egrep "fragments after filtering in control" ${IN_FOLDER}/${Peaks_File: 2} | grep -o '[0-9]*')
+local Size_Contro1="${Size_Contro1:-0}"
 
-cd ${OUT_FOLDER}
 
-local Size_Treat1=$(egrep "fragments after filtering in treatment" ${CON1_NAME}_peaks.xls | grep -o '[0-9]*')
-local Size_Contro1=$(egrep "fragments after filtering in control" ${CON1_NAME}_peaks.xls | grep -o '[0-9]*')
-
-local Size_Treat2=$(egrep "fragments after filtering in treatment" ${CON2_NAME}_peaks.xls | grep -o '[0-9]*')
-local Size_Contro2=$(egrep "fragments after filtering in control" ${CON2_NAME}_peaks.xls | grep -o '[0-9]*')
+local Peaks_File="$( find -name "*${CON2_NAME}*_peaks.xls" | sort -n | xargs)"
+local Size_Treat2=$(egrep "fragments after filtering in treatment" ${CONTRO_FOLDER}/${Peaks_File: 2} | grep -o '[0-9]*')
+local Size_Contro2=$(egrep "fragments after filtering in control" ${CONTRO_FOLDER}/${Peaks_File: 2} | grep -o '[0-9]*')
+local Size_Contro2="${Size_Contro2:-0}"
 
 if [ ${Size_Treat1} -lt ${Size_Contro1} ];then 
 	local Size_1=${Size_Treat1}
@@ -1683,8 +1694,15 @@ if [ ${Size_Treat2} -lt ${Size_Contro2} ];then
 	echo "Size_Treat1: ${Size_Treat1} and Size_Contro1: ${Size_Contro1}, Size_1 equal ${Size_1}"
 	echo "Size_Treat2: ${Size_Treat2} and Size_Contro2: ${Size_Contro2}, Size_2 equal ${Size_2}"
 
-macs2 bdgdiff --t1 ${CON1_NAME}_treat_pileup.bdg --c1 ${CON1_NAME}_control_lambda.bdg --t2 ${CON2_NAME}_treat_pileup.bdg \
---c2 ${CON2_NAME}_control_lambda.bdg --d1 ${Size_1} --d2 ${Size_2} -g 60 -l 120 --o-prefix diff_${CON1_NAME}_vs_${CON2_NAME}
+cd ${OUT_FOLDER}
+
+
+echo "macs2 bdgdiff --t1 ${IN_FILES[1]} --c1 ${IN_FILES[0]} --t2 ${CONTRO_FILE[1]} \
+--c2 ${CONTRO_FILE[0]} --d1 ${Size_Treat1} --d2 ${Size_Treat2} -g 60 -l 120 --o-prefix diff_${CON1_NAME}_vs_${CON2_NAME}"
+
+
+macs2 bdgdiff --t1 ${IN_FILES[1]} --c1 ${IN_FILES[0]} --t2 ${CONTRO_FILE[1]} \
+--c2 ${CONTRO_FILE[0]} --d1 ${Size_Treat1} --d2 ${Size_Treat2} -g 60 -l 120 --o-prefix diff_${CON1_NAME}_vs_${CON2_NAME}
 
 }
 
@@ -1862,7 +1880,7 @@ FUNC_CHOOSE_EMAIL_ALERT(){
 		read -p "Try Again. (Yes or No)  " answer
 		iteration_num=$(expr ${iteration_num} + 1)
 		elif [[ $(grep $refer <<< "1YES") = "1YES" ]];then
-		echo "Email Alert Confirmed."
+		echo "No Email Alert Confirmed."
 		return 1 
 		break
 		else
