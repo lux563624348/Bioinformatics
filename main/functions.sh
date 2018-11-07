@@ -392,19 +392,19 @@ RUN_RPKM(){
 	local SPECIES=${2}
 	local PATH_python_tools=~/cloud_research/PengGroup/XLi/Python_tools/read_RPKM.py
 	
-	local Output_Path="${__EXE_PATH}/RPKM"
-	DIR_CHECK_CREATE ${Output_Path}
 	
 	
-	
-	echo "Entering the processing directory"
-	cd ${__EXE_PATH}/island_filtered_reads
-	echo "From Reads bed file to calculate reads count and its RPKM."
-	echo "$(find -name "${File_Name}*.bed" | sort -n | xargs)"
-	local Input_B1="$( find -name "*${File_Name}*.bed" | sort -n | xargs)"
+	echo "Entering the Raw Input directory"
+
+	cd ${__RAW_DATA_PATH_DIR}
+
+	echo "$(find -name "${File_Name}*.bedpe" | sort -n | xargs)"
+	local Input_B1="$( find -name "*${File_Name}*.bedpe" | sort -n | xargs)"
 	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
 	local Input_Size=$(wc -l ${Input_B1} | cut -d' ' -f1)
-
+	
+	cd ${__EXE_PATH}
+	echo "From Reads bed file to calculate reads count and its RPKM."
 	case ${SPECIES} in
 	"mm10")
 	echo "Reference SPECIES is ${SPECIES}"
@@ -413,7 +413,7 @@ RUN_RPKM(){
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm9
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Only_R1_TEST/MACS2_Results/bam/union_all_peaks
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE_old_-SPMR/Peaks_Calling/bed_format/replicates_union_peaks
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -426,20 +426,23 @@ esac
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
 	local Input_A1_Lists=(
-	union_peaks_R1.bed
+	dKO-na_peaks_sorted_unioned.bed
+	dKO-s_peaks_sorted_unioned.bed
+	WT-na_peaks_sorted_unioned.bed
+	WT-s_peaks_sorted_unioned.bed
 	)
 	
 	for Input_A1 in ${Input_A1_Lists[*]}
 	do
 		local OUTPUT_NAME="read_count_${1}_${Input_A1:: -4}"
 		local Input_A1="${Gene_list_folder}/${Input_A1}"
-		echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed"
-		bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed
+		echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${__EXE_PATH}/${OUTPUT_NAME}.bed"
+		bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${__EXE_PATH}/${OUTPUT_NAME}.bed
 		
 		### A high memory efficient " -sorted " model requires both input files to be sorted. 
 		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed -sorted
-		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path} ${Input_Size}"
-		python ${PATH_python_tools} ${OUTPUT_NAME} ${Output_Path} ${Input_Size}
+		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${__EXE_PATH} ${Input_Size}"
+		python ${PATH_python_tools} ${OUTPUT_NAME} ${__EXE_PATH} ${Input_Size}
 	done
 
 }
@@ -704,6 +707,69 @@ RUN_Counting_READS_Pair_End(){
 	}
 
 #RUN_Sam2Wig
+
+RUN_bed2fastq(){
+#### Usage: RUN_bed2fastq $1 $2 ($1 = Input_Name, $2 = FRAGMENT_SIZE)
+CHECK_arguments $# 2
+
+local INPUT_PATH=${__RAW_DATA_PATH_DIR}
+local OUT_PATH=${__EXE_PATH}/Associated_fastq
+local INPUT_NAME=${1}
+local SPECIES=${2}
+########################################################################
+DIR_CHECK_CREATE ${OUT_PATH}
+
+### Find Input File
+local IN_FOLDER=${__RAW_DATA_PATH_DIR}
+cd ${IN_FOLDER}
+local IN_FILES="$( find -name "*${INPUT_NAME}*.bed" | sort -n | xargs)"
+
+local k=0
+for in_files in ${IN_FILES}
+do
+	IN_FILES[k]="${IN_FOLDER}/${in_files: 2}"
+	k=`expr $k + 1`
+done
+echo "Saving Bed INPUT File as ${IN_FILES[*]}"
+### Find Input File
+
+case ${SPECIES} in
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local FA_SEQUENCE=~/cloud_research/PengGroup/XLi/Annotation/MM9/mm9.fa
+	;;
+	"mm10") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local FA_SEQUENCE=~/cloud_research/PengGroup/XLi/Annotation/MM10/mm10.fa
+	;;
+	"hg19")
+	echo "Reference SPECIES is ${SPECIES}"
+	local FA_SEQUENCE=~/cloud_research/PengGroup/XLi/Annotation/HG19/hg19.fa
+	;;
+	"hg38")
+	echo "Reference SPECIES is ${SPECIES}"
+	local FA_SEQUENCE=~/cloud_research/PengGroup/XLi/Annotation/HG38/hg38.fa
+	;;
+	"dm6") 
+	echo "Reference SPECIES is ${SPECIES} Not Setup Yet!"
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+
+### extension
+##awk '$2-=100' OFS='\t' WT-na_vs_Null_summits.bed | awk '$3+=100' OFS='\t' > WT-na_vs_Null_summits_Expansion_100.bed
+cd ${OUT_PATH}
+
+for input_file in ${IN_FILES[*]}
+do
+	echo "bedtools getfasta -fi ${FA_SEQUENCE} -bed ${input_file} -fo ${input_file::-4}.fastq"
+	bedtools getfasta -fi ${FA_SEQUENCE} -bed ${input_file} -fo ${input_file::-4}.fastq
+done
+
+	}
 
 RUN_bam2bedpe(){
 	#### Usage: RUN_Sam2Wig $1 $2 ($1 = Input_Name, $2 = FRAGMENT_SIZE)
@@ -1575,7 +1641,7 @@ done
 echo "Saving MACS2 Contro File as ${CONTRO_FILE[*]}"
 ### Find Contro Files
 
-local OUT_FOLDER=${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}_NO_SPMR/${INPUT_NAME}_vs_${INPUT_CON}
+local OUT_FOLDER=${__EXE_PATH}/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
@@ -1610,10 +1676,10 @@ esac
 ####      ${INPUT_NAME}_treat_pileup  for input
 
 ### Generating filtered Peaks from MACS2 output.
-echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
+echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05"
 
-python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
+python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05
 
 

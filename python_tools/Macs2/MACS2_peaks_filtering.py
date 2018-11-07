@@ -55,9 +55,9 @@ def main(argv):
 	print " "
 	print "Here is the Summary of your input."
 	print "Name of Input File: %s" % opt.input_name
-	print "Fold Change threshold: %f" % opt.fc
-	print "p value threshold %f" % opt.p_value
-	print "q value threshold %f" % opt.q_value
+	print "Fold Change threshold: " + str(opt.fc)
+	print "p value threshold " + str(opt.p_value)
+	print "q value threshold " + str(opt.q_value)
 	print " "
 	
 	Return_filtered_peaks_bed_format(opt.input_folder, opt.input_name, opt.fc, opt.p_value, opt.q_value)
