@@ -359,17 +359,15 @@ RUN_Island_Filtered_Reads(){
 	local Output_Path="${__EXE_PATH}/island_filtered_reads"
 	DIR_CHECK_CREATE ${Output_Path}
 	
-	
-	
 	echo "Entering the processing directory"
 	cd ${__RAW_DATA_PATH_DIR}
 	echo "From Reads bed file to get islandfiltered reads."
-	echo "$(find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
-	local Input_A1="$( find -name "${File_Name}.${FILE_TYPE}" | sort -n | xargs)"
+	echo "$(find -name "*${File_Name}*.${FILE_TYPE}" | sort -n | xargs)"
+	local Input_A1="$( find -name "*${File_Name}*.${FILE_TYPE}" | sort -n | xargs)"
 	local Input_A1="${__RAW_DATA_PATH_DIR}/${Input_A1: 2}"
 	
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Only_R1_TEST/MACS2_Results/bam/union_all_peaks
-	echo "find islands from ${Gene_list_folder}"
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/island_filtered_reads/combined_replicates_genelist
+	echo "Find islands from ${Gene_list_folder}"
 	
 	cd ${Gene_list_folder}
 	echo "$( find -name "*.bed" | sort -n | xargs)"
@@ -413,7 +411,7 @@ RUN_RPKM(){
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm9
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_results_BAMPE_old_-SPMR/Peaks_Calling/bed_format/replicates_union_peaks
+	#local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe_combined_repplicates/venn2
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -426,18 +424,17 @@ esac
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
 	local Input_A1_Lists=(
-	dKO-na_peaks_sorted_unioned.bed
-	dKO-s_peaks_sorted_unioned.bed
-	WT-na_peaks_sorted_unioned.bed
-	WT-s_peaks_sorted_unioned.bed
+	gene_Genebody_Up_EX_50k_unique.bed
+	#Union_WT-na_dKO-na.bed
 	)
+	
 	
 	for Input_A1 in ${Input_A1_Lists[*]}
 	do
 		local OUTPUT_NAME="read_count_${1}_${Input_A1:: -4}"
 		local Input_A1="${Gene_list_folder}/${Input_A1}"
-		echo "bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${__EXE_PATH}/${OUTPUT_NAME}.bed"
-		bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${__EXE_PATH}/${OUTPUT_NAME}.bed
+		echo "cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -header -c -a stdin -b ${Input_B1} > ${__EXE_PATH}/${OUTPUT_NAME}.bed"
+		cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -header -c -a stdin -b ${Input_B1} > ${__EXE_PATH}/${OUTPUT_NAME}.bed
 		
 		### A high memory efficient " -sorted " model requires both input files to be sorted. 
 		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed -sorted
@@ -709,7 +706,7 @@ RUN_Counting_READS_Pair_End(){
 #RUN_Sam2Wig
 
 RUN_bed2fastq(){
-#### Usage: RUN_bed2fastq $1 $2 ($1 = Input_Name, $2 = FRAGMENT_SIZE)
+#### Usage: RUN_bed2fastq $1 $2($1 = Input_Name, $2 = FRAGMENT_SIZE) 
 CHECK_arguments $# 2
 
 local INPUT_PATH=${__RAW_DATA_PATH_DIR}
@@ -760,14 +757,17 @@ case ${SPECIES} in
 esac
 
 ### extension
-##awk '$2-=100' OFS='\t' WT-na_vs_Null_summits.bed | awk '$3+=100' OFS='\t' > WT-na_vs_Null_summits_Expansion_100.bed
-cd ${OUT_PATH}
+local yesno='yes'
+#awk '$2-=100' OFS='\t' ${input_file} | awk '$3+=100' OFS='\t' > ${input_file}_ex
 
+cd ${OUT_PATH}
 for input_file in ${IN_FILES[*]}
 do
 	echo "bedtools getfasta -fi ${FA_SEQUENCE} -bed ${input_file} -fo ${input_file::-4}.fastq"
 	bedtools getfasta -fi ${FA_SEQUENCE} -bed ${input_file} -fo ${input_file::-4}.fastq
 done
+
+
 
 	}
 

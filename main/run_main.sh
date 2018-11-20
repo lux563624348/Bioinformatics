@@ -32,9 +32,9 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe/peaks
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/island_filtered_reads/combined_replicates_genelist
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe/peaks
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/RPKM/DEGS_EX_50k_DKO_0h_vs_WT_0h
 ########################################################################
 
 #echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
@@ -47,9 +47,9 @@ __EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Res
 
 
 __INPUT_SAMPLE_DIR_List=(
-WT-na
+reads_WT-na
 #WT-s
-#dKO-na
+reads_dKO-na
 #dKO-s
 )
 
@@ -91,12 +91,12 @@ do
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
 	#RUN_Bed2BigBed ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP-Only_R1" ${SPECIES} ${Data_Provider}
 	#RUN_BedGraph2BigWig ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} "Bed2bdg2bigwig" ${SPECIES} ${Data_Provider}
-	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bed' 
-	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
+	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bedpe' 
+	RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
 	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[i]} 'Null' 'CD8-HP_DNaseq_MACS2_Merge_Replicates' ${SPECIES} ${Data_Provider} 'bampe' &
-	RUN_bed2fastq ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
+	#RUN_bed2fastq ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
-	break
+	#break
 	#RUN_FAST_QC &
 	
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
