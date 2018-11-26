@@ -32,9 +32,11 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/island_filtered_reads/combined_replicates_genelist
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/ZZeng/Data/intron_retention/Yunjie/2D_Introns
+#__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/RPKM/DEGS_EX_50k_DKO_0h_vs_WT_0h
+__EXE_PATH=~/cloud_research/PengGroup/ZZeng/Data/intron_retention/Yunjie/2D_Introns
+#__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 
 #echo "INPUT_SAMPLE_DIR_List= (${__INPUT_SAMPLE_DIR_List[*]})"
@@ -47,10 +49,15 @@ __EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/RPKM/DEGS
 
 
 __INPUT_SAMPLE_DIR_List=(
-reads_WT-na
-#WT-s
-reads_dKO-na
-#dKO-s
+simple_genes_down_exons
+simple_genes_middle_introns
+simple_genes_up_exons
+#dKO-na_20180709000
+#WT-na_20180709000
+#dKO-na1_20180709000
+#dKO-na2_20180709000
+#WT-na1_20180709000
+#WT-na2_20180709000
 )
 
 
@@ -70,13 +77,13 @@ echo ""
 echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 ###
-SPECIES='mm9'
+SPECIES='hg19'
 Data_Provider='Haihui'
 ####
 
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_DIR_List[*]} - 1); i++ ))
 do
-	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'R1'
+	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'Pairs'
 	#RUN_FAST_QC
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]} &
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP_R1_Test" ${Data_Provider} &
@@ -85,16 +92,16 @@ do
 	
 	#break
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]}
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP-HiC_seq_bowtie2_Only_R2" ${Data_Provider} 
-
-
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP-HiC_seq_bowtie2_Only_R2" ${Data_Provider} &
+	#break
+	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
 	#RUN_Bed2BigBed ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP-Only_R1" ${SPECIES} ${Data_Provider}
 	#RUN_BedGraph2BigWig ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} "Bed2bdg2bigwig" ${SPECIES} ${Data_Provider}
-	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bedpe' 
-	RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
+	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bedpe' &
+	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
 	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[i]} 'Null' 'CD8-HP_DNaseq_MACS2_Merge_Replicates' ${SPECIES} ${Data_Provider} 'bampe' &
-	#RUN_bed2fastq ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
+	RUN_bed2fastq ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 	#break
 	#RUN_FAST_QC &
@@ -105,7 +112,6 @@ do
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Treg_RNA-seq_201806" "mm9" "Haihui"
 	#RUN_Venn_Diagram ${__RAW_DATA_PATH_DIR} 'bed'
 	#break
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} "mm10"
 	
 	#RUN_Reads_Profile_Promoter_genebody ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Treg" "mm10" "WT_Online_Ref"
