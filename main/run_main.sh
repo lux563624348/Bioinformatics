@@ -49,15 +49,12 @@ __EXE_PATH=~/cloud_research/PengGroup/ZZeng/Data/intron_retention/Yunjie/2D_Intr
 
 
 __INPUT_SAMPLE_DIR_List=(
-simple_genes_down_exons
-simple_genes_middle_introns
-simple_genes_up_exons
 #dKO-na_20180709000
 #WT-na_20180709000
-#dKO-na1_20180709000
-#dKO-na2_20180709000
-#WT-na1_20180709000
-#WT-na2_20180709000
+dKO-s1_20180709000
+dKO-s2_20180709000
+WT-s1_20180709000
+WT-s2_20180709000
 )
 
 
@@ -77,23 +74,20 @@ echo ""
 echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 ###
-SPECIES='hg19'
+SPECIES='mm9'
 Data_Provider='Haihui'
 ####
 
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_DIR_List[*]} - 1); i++ ))
 do
-	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'Pairs'
+	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'Pairs'
 	#RUN_FAST_QC
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]} &
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP_R1_Test" ${Data_Provider} &
 	
 	#RUN_MACS2_Diff ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[1]}
 	
 	#break
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]}
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8-HP-HiC_seq_bowtie2_Only_R2" ${Data_Provider} &
-	#break
 	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
 	#RUN_Bed2BigBed ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP-Only_R1" ${SPECIES} ${Data_Provider}
@@ -101,7 +95,7 @@ do
 	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bedpe' &
 	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
 	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[i]} 'Null' 'CD8-HP_DNaseq_MACS2_Merge_Replicates' ${SPECIES} ${Data_Provider} 'bampe' &
-	RUN_bed2fastq ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
+	#RUN_bed2fastq ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 	#break
 	#RUN_FAST_QC &
