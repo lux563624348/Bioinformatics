@@ -109,9 +109,20 @@ esac
 
 RUN_SRA2FASTQ(){
 	## Usage : RUN_SRA2FASTQ $sra_files_path
+	#https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/
+	CHECK_arguments $# 1
+	## Given a path contains SraAccList.txt
+	## Download all SRA files.
+	#prefetch --option-file SraAccList.txt
+	##
+	cd ${1}
+	local INPUT_SRA_LIST=$(cat SraAccList.txt)
 	echo "SRA to FASTQ"
-	echo "fastq-dump -I --split-files --gzip $1"
-	fastq-dump -I --split-files --gzip $1 
+	for SRA in ${INPUT_SRA_LIST[*]}
+	do
+		echo "fastq-dump –X 5 –Z -split-files --gzip ${SRA}"
+		fastq-dump –X 5 –Z -split-files --gzip ${SRA} &
+	done
 	}
 
 RUN_COPY_AND_CHANGE_NAME(){
@@ -169,21 +180,21 @@ RUN_FAST_QC (){
 	for fastq_file in ${__FASTQ_DIR_R1[*]}
 	do
 	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file}
+	fastqc -o ${Output_fastqc} ${fastq_file} &
 	done
 	
 	for fastq_file in ${__FASTQ_DIR_R2[*]}
 	do
 	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file}
+	fastqc -o ${Output_fastqc} ${fastq_file} &
 	done
 	
 	echo "cd ${Output_fastqc}"
 	cd ${Output_fastqc}
 	
 	#if [ -f multiqc_report.html ];then
-	echo "multiqc *fastqc.zip --ignore *.html"
-	multiqc *fastqc.zip --ignore *.html
+	#echo "multiqc *fastqc.zip --ignore *.html"
+	#multiqc *fastqc.zip --ignore *.html
 	#fi
 
 	
@@ -1267,7 +1278,8 @@ RUN_BOWTIE2(){
 	local SPECIES=${2}
 	local PROJECT_NAME=${3}
 	local Data_Provider=${4}
-
+	local just_align_yesno=${5}  ## This option is limit bowtie2 with only basic functions.
+	
 	CHECK_arguments $# 4
 	echo ""
 	echo "RUN_BOWTIE2"
@@ -1315,8 +1327,8 @@ esac
 	then
 		echo "Pair End Mode"
 		local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
-		echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 1000 --trim5 0 -S ${OUTPUT_BOWTIE2}" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
-		bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 100 --trim5 0 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+		echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 --trim5 0 -S ${OUTPUT_BOWTIE2}" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+		bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 --trim5 0 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
 		echo ""
 		#### concordantly pair output
 		
@@ -1335,8 +1347,8 @@ esac
 		echo "Single End Mode."
 		### cite ${Pair_Type} from Function PRE_READS_DIR
 		local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
-		echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 100 --trim5 5"
-		bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 100 --trim5 5
+		echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 0 --trim5 0"
+		bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 0 --trim5 0
 		
 		### SINGLE END SAM TO BAM
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
@@ -1344,38 +1356,18 @@ esac
 		samtools view -b ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
 		fi
 	fi
-## Remove Redundancy by Picard
-	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
 	
-	#echo "samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam "
-	#samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
-	
-
-	
-	echo "picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
-	M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true REMOVE_SEQUENCING_DUPLICATES=true ASSUME_SORT_ORDER=queryname"
-	picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
-	M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname
-	
-	echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam" 
-	rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam
-	
-	#echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
-	#rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
-	fi
-
+########################################################################
 ### Then clear sam file.
 	if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
-	echo "rm ${OUTPUT_BOWTIE2}"
-	rm ${OUTPUT_BOWTIE2}
+		echo "rm ${OUTPUT_BOWTIE2}"
+		rm ${OUTPUT_BOWTIE2}
 	fi
-	
 ########################################################################
-########################################################################
-	local yesno='no'
-	case ${yesno} in
+	local just_align_yesno=${5}
+	case ${just_align_yesno} in
 	"yes")
-	echo "Make Align Stop here!"
+	echo "Make Align Stop here, just need alignment!"
 	echo ""
 	return 0 ;;
 	"no")
@@ -1384,7 +1376,28 @@ esac
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
 	exit;;
 	esac
-########################################################################
+########################################################################	
+	
+	
+## Remove Redundancy by Picard
+	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
+		#echo "samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam "
+		#samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
+
+		echo "picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true REMOVE_SEQUENCING_DUPLICATES=true ASSUME_SORT_ORDER=queryname"
+		picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname
+		
+		echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam" 
+		rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam
+		
+		#echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
+		#rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
+	fi
+
+	
+
 
 ###bam2bed
 	
@@ -1783,7 +1796,9 @@ RUN_MACS2(){
 #### Usage: RUN_MACS2 $1 $2 $3 $4 $5 ($1 is input for MACS. $2 is the CONTRO Library $3 is label) 
 echo "RUN_MACS2"
 CHECK_arguments $# 6
-local EXEDIR="~/Software/python_tools/MACS2-2.1.1.20160309/bin"
+
+
+__RAW_DATA_PATH_DIR=${__EXE_PATH}
 
 local INPUT_NAME=${1}
 local INPUT_CON=${2}
@@ -1797,12 +1812,42 @@ local INPUT_TYPE=${6}
 #local FDR=0.05
 local p_value=0.00001
 
-
+#### Default Input for MACS2 is bam format.
 ### Find Input File
 local IN_FOLDER=${__RAW_DATA_PATH_DIR}
 cd ${IN_FOLDER}
 local IN_FILES="$( find -name "*${INPUT_NAME}*.bam" | sort -n | xargs)"
+### Find Contro Files
+local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
+cd ${CONTRO_FOLDER}
+local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bam" | sort -n | xargs)"
 
+case ${INPUT_TYPE} in
+	"bam")
+	echo "bam Format"
+	echo " "
+	;;
+	"bampe")
+	echo "bampe Format"
+	echo " "
+	;;
+	"bedpe")
+	echo "Reference SPECIES is ${SPECIES}"
+	local IN_FOLDER=${__RAW_DATA_PATH_DIR}
+	cd ${IN_FOLDER}
+	local IN_FILES="$( find -name "*${INPUT_NAME}*.bedpe" | sort -n | xargs)"
+	### Find Contro Files
+	local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
+	cd ${CONTRO_FOLDER}
+	local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bedpe" | sort -n | xargs)"
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Type...... Exit"
+	exit
+	;;
+esac
+
+#### Search and save all input files PATH
 local k=0
 for in_files in ${IN_FILES}
 do
@@ -1811,11 +1856,6 @@ do
 done
 echo "Saving MACS2 INPUT File as ${IN_FILES[*]}"
 ### Find Input File
-
-### Find Contro Files
-local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
-cd ${CONTRO_FOLDER}
-local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bam" | sort -n | xargs)"
 
 local k=0
 for in_files in ${CONTRO_FILE}
@@ -1826,7 +1866,7 @@ done
 echo "Saving MACS2 Contro File as ${CONTRO_FILE[*]}"
 ### Find Contro Files
 
-local OUT_FOLDER=${__EXE_PATH}/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON}
+local OUT_FOLDER=${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
@@ -1846,8 +1886,8 @@ case ${INPUT_TYPE} in
 	"bedpe")
 	echo "Reference SPECIES is ${SPECIES}"
 	### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
-	echo "macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B --SPMR -p ${p_value}" # --nomodel --shift -100 --extsize 200"
-	#macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
+	echo "macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B --SPMR -p ${p_value}"
+	macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value}
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Type...... Exit"
@@ -1861,15 +1901,17 @@ esac
 ####      ${INPUT_NAME}_treat_pileup  for input
 
 ### Generating filtered Peaks from MACS2 output.
-echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
+echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05"
 
-python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${__EXE_PATH}/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON} \
+python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05
 
+python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
+-n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 0.0 -p ${p_value} -q 1.0
 
 RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
-#RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
 }
 
 RUN_MACS2_Diff(){  ###Need Updated

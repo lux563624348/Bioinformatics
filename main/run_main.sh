@@ -32,10 +32,10 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/ZZeng/Data/intron_retention/Yunjie/2D_Introns
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/Tcf1/Foxp3_Ref/raw_reads
 #__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/ZZeng/Data/intron_retention/Yunjie/2D_Introns
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/Bowtie2_Results
 #__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 
@@ -49,13 +49,17 @@ __EXE_PATH=~/cloud_research/PengGroup/ZZeng/Data/intron_retention/Yunjie/2D_Intr
 
 
 __INPUT_SAMPLE_DIR_List=(
-#dKO-na_20180709000
-#WT-na_20180709000
-dKO-s1_20180709000
-dKO-s2_20180709000
-WT-s1_20180709000
-WT-s2_20180709000
+Sample_CD4_TCF1_20160827000
+Sample_Treg_TCF1_20160827000
+Sample_TKOCD4_TCF1_20160827000
 )
+ #(992.4mb) > Treg Foxp3 ChIP Rep1 (Tech Rep1)
+ #(6.3GB)   > Treg Foxp3 ChIP Rep1 (Tech Rep2); Mus musculus; ChIP-Seq
+ #(866mb)   > Treg Input Rep1; Mus musculus; ChIP-Seq
+ #(1.1GB)   > Treg Foxp3 ChIP Rep2; Mus musculus; ChIP-Seq
+ #(1006.9mb)> Treg Input Rep2; Mus musculus; ChIP-Seq
+
+
 
 
 __INPUT_SAMPLE_BARCODE_List=(
@@ -74,13 +78,20 @@ echo ""
 echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 ###
-SPECIES='mm9'
+SPECIES='mm10'
 Data_Provider='Haihui'
 ####
-
+RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[2]} 'Treg_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam' &
+RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[2]} 'Treg_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam'
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_DIR_List[*]} - 1); i++ ))
 do
-	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'Pairs'
+	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'Pairs'
+	#RUN_FAST_QC
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "Treg_Foxp3_ChIP_seq" ${Data_Provider} 'yes' &
+	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[4]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam' &
+	#RUN_MACS2 "Rep1_Tech" ${__INPUT_SAMPLE_DIR_List[2]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam'
+	#RUN_SRA2FASTQ /home/xli/cloud_research/PengGroup/XLi/Raw_Data/Haihui/Tcf1/Foxp3_Ref
+	break
 	#RUN_FAST_QC
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]} &
 	
@@ -98,7 +109,6 @@ do
 	#RUN_bed2fastq ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 	#FUNC_Download ${__INPUT_SAMPLE_DIR_List[i]}
 	#break
-	#RUN_FAST_QC &
 	
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	#RUN_Reads_Profile_Promoter 'TSS' ${__INPUT_SAMPLE_DIR_List[i]}
