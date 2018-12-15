@@ -21,6 +21,8 @@ Chr1 	1	30	1	1	0
 Chr1	45	60	0	0	0
 
 Because chr1	1	30 has overlap both in ‘A’ and ‘B’, then we says that this peak is common in A and B.
+
+But it leaves an potential issue, two close peaks will only count one if they both have intersection with another library.
 '''
 
 import pandas as pd
@@ -37,7 +39,7 @@ ConC=sys.argv[4]
 
 def main():
 	df1=pd.read_csv(INPUT_FILE, delimiter='	', header=-1, \
-	names= ['Chr', 'TSS','TES', ConA, ConB, ConC])
+	names= ['#Chr', 'TSS','TES', ConA, ConB, ConC])
 	
 	A_Sum=df1[ConA].sum()
 	B_Sum=df1[ConB].sum()
@@ -69,7 +71,7 @@ def main():
 	plt.title("Venn Diagram of 3 sets")
 	plt.savefig('Venn.png')
 
-	
+	df1.to_csv("Venn3_summary.txt", sep='\t', index=None)
 	#print (Con1)
 	#print (Con2)
 	#print (Con3)

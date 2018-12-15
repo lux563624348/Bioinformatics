@@ -32,10 +32,10 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/Tcf1/Foxp3_Ref/raw_reads
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/Bcatenin_comparing_with_paper
 #__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/Bowtie2_Results
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/Bcatenin_comparing_with_paper
 #__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 
@@ -49,9 +49,8 @@ __EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/Bowtie2_Resu
 
 
 __INPUT_SAMPLE_DIR_List=(
-Sample_CD4_TCF1_20160827000
-Sample_Treg_TCF1_20160827000
-Sample_TKOCD4_TCF1_20160827000
+SRR942890   #T-reg Input
+SRR942889	#T-reg Bcatenin;
 )
  #(992.4mb) > Treg Foxp3 ChIP Rep1 (Tech Rep1)
  #(6.3GB)   > Treg Foxp3 ChIP Rep1 (Tech Rep2); Mus musculus; ChIP-Seq
@@ -78,19 +77,20 @@ echo ""
 echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 ###
-SPECIES='mm10'
-Data_Provider='Haihui'
+SPECIES='hg19'
+Data_Provider='GSE49199'
 ####
-RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[2]} 'Treg_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam' &
-RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[2]} 'Treg_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam'
+
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_DIR_List[*]} - 1); i++ ))
 do
-	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'Pairs'
+	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_DIR_List[i]} 
+	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'SRA'
 	#RUN_FAST_QC
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "Treg_Foxp3_ChIP_seq" ${Data_Provider} 'yes' &
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "Treg_Foxp3_ChIP_seq" ${Data_Provider} 'yes' & 
+	RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[0]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam'
 	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[4]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam' &
 	#RUN_MACS2 "Rep1_Tech" ${__INPUT_SAMPLE_DIR_List[2]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam'
-	#RUN_SRA2FASTQ /home/xli/cloud_research/PengGroup/XLi/Raw_Data/Haihui/Tcf1/Foxp3_Ref
+	
 	break
 	#RUN_FAST_QC
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]} &
@@ -129,7 +129,7 @@ do
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}
 	
 done
-
+	
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[15]} "Hdac" "mm10"
 	
 	echo "End Date: `date`"

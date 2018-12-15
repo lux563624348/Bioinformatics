@@ -68,6 +68,11 @@ PRE_READS_DIR(){
 	local DIRLIST_R1_gz="$( find -name "*${1}*R2*.${2}" | sort -n | xargs)"
 	local DIRLIST_R2_gz=" "
 	;;
+	"SRA")
+	echo "SRA Mode"
+	local DIRLIST_R1_gz="$( find -name "*${1}*_1*.${2}" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*${1}*_2*.${2}" | sort -n | xargs)"
+	;;
 	"Pairs")
 	echo "Pair End, Both"
 	local DIRLIST_R1_gz="$( find -name "*${1}*R1*.${2}" | sort -n | xargs)"
@@ -113,15 +118,16 @@ RUN_SRA2FASTQ(){
 	CHECK_arguments $# 1
 	## Given a path contains SraAccList.txt
 	## Download all SRA files.
-	#prefetch --option-file SraAccList.txt
+	local exe_path=/opt/tools/sratoolkit.2.9.2-ubuntu64/bin
+	cd ${__RAW_DATA_PATH_DIR}
+	#${exe_path}/prefetch --option-file SraAccList.txt
 	##
-	cd ${1}
-	local INPUT_SRA_LIST=$(cat SraAccList.txt)
+	local INPUT_SRA_LIST=${1} #(cat SraAccList.txt)
 	echo "SRA to FASTQ"
 	for SRA in ${INPUT_SRA_LIST[*]}
 	do
 		echo "fastq-dump –X 5 –Z -split-files --gzip ${SRA}"
-		fastq-dump –X 5 –Z -split-files --gzip ${SRA} &
+		${exe_path}/fastq-dump –X 5 –Z -split-files --gzip ${SRA}
 	done
 	}
 
@@ -264,8 +270,7 @@ RUN_Venn_Diagram(){
 	Chr1 	1	30	1	1	0  
 	Chr1	45	60	0	0	0
 
-	Because chr1	1	30 has overlap both in ‘A’ and ‘B’, then we says that this peak is common in A and B.
-	'
+	Because chr1	1	30 has overlap both in ‘A’ and ‘B’, then we says that this peak is common in A and B.'
 	
 	CHECK_arguments $# 2
 	local Current_DATA_DIR=${1}
@@ -287,8 +292,8 @@ RUN_Venn_Diagram(){
 	
 	
 	echo "Merge All files into one file!"
-	echo "cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin -c 4 -o count > union_all_0.txt"
-	cat *.${FILE_TYPE} | sort -k1,1 -k2,2n | bedtools merge -i stdin -c 4 -o count > union_all_0.txt
+	echo "cat *.${FILE_TYPE} | cut -f 1,2,3 | sort -k1,1 -k2,2n | bedtools merge -i stdin -c 4 -o count > union_all_0.txt"
+	cat *.${FILE_TYPE} | cut -f 1,2,3 | sort -k1,1 -k2,2n | bedtools merge -i stdin > union_all_0.txt
 	
 	
 	if [ ${Venn_Input_NUM} == 2 ]
@@ -320,6 +325,7 @@ RUN_Venn_Diagram(){
 			local k=$(expr $k + 1)
 		done
 		python ${Tools_DIR}/Venn_Diagram_plot3.py "union_all_${j}.txt" "${__DIR[0]::-4}" "${__DIR[1]::-4}" "${__DIR[2]::-4}"
+		rm union_all_${j}.txt
 	fi
 	#### Manually 
 	#bedtools intersect -c -a union_all.${FILE_TYPE} -b TLE3-Tfh_peaks.bed | bedtools intersect -c -a stdin -b TLE3-Th1_peaks.bed | bedtools intersect -c -a stdin -b TLE3-CD4_peaks.bed > combine_sorted_count.bed 
@@ -1258,8 +1264,45 @@ RUN_HomerTools(){
 	echo "One RUN_HomerTools is Completed!"
 	}
 
-#RUN_Two_Conditions_diagonal_plot(){}
-
+RUN_Motif_Homer(){
+	### RUN_Motif_Homer $1 $2 $3 $4
+	CHECK_arguments $# 2
+	echo ""
+	echo "RUN_HomerTools"
+	local 
+	local TRIM_TYPE=${1}
+	local Restriction_Enzyme=${2}
+	
+	
+	echo "3 <#> (trim this many bp off the 3' end of the sequence)"
+	echo "-5 <#> (trim this many bp off the 5' end of the sequence)"
+	for fastq_file in ${__FASTQ_DIR_R1[*]}
+	do
+		case ${TRIM_TYPE} in
+		"dist")
+		homerTools trim -3 0 -5 0 ${fastq_file}
+		gzip ${fastq_file}.trimmed
+		;;
+		"Restriction_Enzyme")
+		homerTools trim -3 ${Restriction_Enzyme} -mis 0 -matchStart 20 -min 20 ${fastq_file}
+		gzip ${fastq_file}.trimmed
+		;;
+		"barcode")
+		#homerTools barcodes
+		;;
+		"freq")
+		#homerTools freq
+		;;
+		*)
+		echo "ERR: Did Not Find Any Matched Reference...... Exit"
+		exit
+		;;
+		esac
+	done
+	
+	echo ""
+	echo "One RUN_HomerTools is Completed!"
+	}
 ##END OF FUNDEMENTAL FUNCTIONS
 
 ######################################
