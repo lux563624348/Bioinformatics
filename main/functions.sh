@@ -79,7 +79,7 @@ PRE_READS_DIR(){
 	local DIRLIST_R2_gz="$( find -name "*${1}*R2*.${2}" | sort -n | xargs)"
 	;;
 	*)
-	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	echo "Reads ERR: Did Not Find Any Matched Reference...... Exit"
 	exit
 	;;
 esac
@@ -232,12 +232,12 @@ RUN_Read_Process_Data(){
 	done < $1 #INPUT file
 	}
 
-RUN_awk_Process_Data(){
-	#### USAGE: RUN_READLINE $INPUT $OUTPUT
+RUN_awk_Extension_Data(){
+	#### USAGE: RUN_awk_Extension_Data $INPUT $OUTPUT
 	CHECK_arguments $# 2
 	echo "READ_LINE"
 	awk 'BEGIN{print "Don\47t Panic!"}'
-		
+	awk '$2-=100' OFS='\t' ${${CONTRO_FOLDER}}/${CONTRO_FILE: 2} | awk '$3+=100' OFS='\t' > ${OUT_FOLDER}/${CONTRO_FILE: 2}_ex100
 	}
 
 RUN_CHANGE_STR(){
@@ -1263,46 +1263,6 @@ RUN_HomerTools(){
 	echo ""
 	echo "One RUN_HomerTools is Completed!"
 	}
-
-RUN_Motif_Homer(){
-	### RUN_Motif_Homer $1 $2 $3 $4
-	CHECK_arguments $# 2
-	echo ""
-	echo "RUN_HomerTools"
-	local 
-	local TRIM_TYPE=${1}
-	local Restriction_Enzyme=${2}
-	
-	
-	echo "3 <#> (trim this many bp off the 3' end of the sequence)"
-	echo "-5 <#> (trim this many bp off the 5' end of the sequence)"
-	for fastq_file in ${__FASTQ_DIR_R1[*]}
-	do
-		case ${TRIM_TYPE} in
-		"dist")
-		homerTools trim -3 0 -5 0 ${fastq_file}
-		gzip ${fastq_file}.trimmed
-		;;
-		"Restriction_Enzyme")
-		homerTools trim -3 ${Restriction_Enzyme} -mis 0 -matchStart 20 -min 20 ${fastq_file}
-		gzip ${fastq_file}.trimmed
-		;;
-		"barcode")
-		#homerTools barcodes
-		;;
-		"freq")
-		#homerTools freq
-		;;
-		*)
-		echo "ERR: Did Not Find Any Matched Reference...... Exit"
-		exit
-		;;
-		esac
-	done
-	
-	echo ""
-	echo "One RUN_HomerTools is Completed!"
-	}
 ##END OF FUNDEMENTAL FUNCTIONS
 
 ######################################
@@ -1438,8 +1398,6 @@ esac
 		#echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
 		#rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
 	fi
-
-	
 
 
 ###bam2bed
@@ -1842,54 +1800,70 @@ CHECK_arguments $# 6
 
 
 __RAW_DATA_PATH_DIR=${__EXE_PATH}
-
 local INPUT_NAME=${1}
 local INPUT_CON=${2}
 local INPUT_LABEL=${3}
 local SPECIES=${4}
 local Data_Provider=${5}
 local INPUT_TYPE=${6}
-#local INPUT_LABEL=${INPUT_NAME: 7:3}
-##Skip out of Sample_ (7), and forward with 4 more digits.
+
 
 #local FDR=0.05
-local p_value=0.00001
-
+local p_value=0.1
+########################################################################
 #### Default Input for MACS2 is bam format.
-### Find Input File
-local IN_FOLDER=${__RAW_DATA_PATH_DIR}
-cd ${IN_FOLDER}
-local IN_FILES="$( find -name "*${INPUT_NAME}*.bam" | sort -n | xargs)"
-### Find Contro Files
-local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
-cd ${CONTRO_FOLDER}
-local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bam" | sort -n | xargs)"
-
 case ${INPUT_TYPE} in
-	"bam")
-	echo "bam Format"
-	echo " "
+	"bam") 
+	local MODE='BAM'
 	;;
 	"bampe")
 	echo "bampe Format"
-	echo " "
+	local INPUT_TYPE='bam'
+	local MODE='BAMPE'
 	;;
-	"bedpe")
-	echo "Reference SPECIES is ${SPECIES}"
-	local IN_FOLDER=${__RAW_DATA_PATH_DIR}
-	cd ${IN_FOLDER}
-	local IN_FILES="$( find -name "*${INPUT_NAME}*.bedpe" | sort -n | xargs)"
-	### Find Contro Files
-	local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
-	cd ${CONTRO_FOLDER}
-	local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bedpe" | sort -n | xargs)"
+	"bed") 
+	local MODE='BED'
+	;;
+	"bedpe") 
+	local MODE='BEDPE'
 	;;
 	*)
-	echo "ERR: Did Not Find Any Matched Type...... Exit"
+	echo "MACS2 ERR: Did Not Find Any Matched Data Type...... Exit"
 	exit
 	;;
 esac
+echo "MACS2 INPUT DATA TYPE is ${INPUT_TYPE}!"
+########################################################################
+# Shortcuts genome sizes are mm,hs,dm,ce
+case ${SPECIES} in
+	"mm9")
+	local genome_shortcut='mm'
+	;;
+	"mm10")
+	local genome_shortcut='mm'
+	;;
+	"hg19")
+	local genome_shortcut='hs'
+	;;
+	"hg38")
+	local genome_shortcut='hs'
+	;;
+	*)
+	echo "MACS2 ERR: Did Not Find Any Matched Mode...... Exit"
+	exit
+	;;
+esac
+echo "MACS2 Pick Up Reference Genome as ${genome_shortcut}!"
 
+########################################################################
+### Find Input File
+local IN_FOLDER=${__RAW_DATA_PATH_DIR}
+cd ${IN_FOLDER}
+local IN_FILES="$( find -name "*${INPUT_NAME}*.${INPUT_TYPE}" | sort -n | xargs)"
+### Find Contro Files
+local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
+cd ${CONTRO_FOLDER}
+local CONTRO_FILE="$( find -name "*${INPUT_CON}*.${INPUT_TYPE}" | sort -n | xargs)"
 #### Search and save all input files PATH
 local k=0
 for in_files in ${IN_FILES}
@@ -1908,40 +1882,21 @@ do
 done
 echo "Saving MACS2 Contro File as ${CONTRO_FILE[*]}"
 ### Find Contro Files
+########################################################################
 
 local OUT_FOLDER=${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
-case ${INPUT_TYPE} in
-	"bam")
-	echo "Reference SPECIES is ${SPECIES}"
-	### --BAM
-	echo "macs2 callpeak --format BAM -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} " # --nomodel --shift -100 --extsize 200" 
-	macs2 callpeak --format BAM -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
-	;;
-	"bampe")
-	echo "Reference SPECIES is ${SPECIES}"
-	### --BAMPE
-	echo "macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B -p ${p_value} --SPMR"  # --nomodel --shift -100 --extsize 200" 
-	macs2 callpeak --format BAMPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B -p ${p_value} --SPMR # --nomodel --shift -100 --extsize 200
-	;;
-	"bedpe")
-	echo "Reference SPECIES is ${SPECIES}"
-	### --BEDPE  !!!!! BEDPE is a new formate of pair end reads, do not treat bed format as bedpe!!!!!
-	echo "macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME} -B --SPMR -p ${p_value}"
-	macs2 callpeak --format BEDPE -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g 'mm' -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value}
-	;;
-	*)
-	echo "ERR: Did Not Find Any Matched Type...... Exit"
-	# for DNaseq To find enriched cutting sites such as some DNAse-Seq datasets. In this case, all 5' ends of sequenced reads should be extended in both direction to smooth the pileup signals. 
-	# If the wanted smoothing window is 200bps, then use '--nomodel --shift -100 --extsize 200'.
-	exit
-	;;
-esac
 
+# for DNaseq To find enriched cutting sites such as some DNAse-Seq datasets. In this case, all 5' ends of sequenced reads should be extended in both direction to smooth the pileup signals. 
+# If the wanted smoothing window is 200bps, then use '--nomodel --shift -100 --extsize 200'.
+echo "Reference SPECIES is ${SPECIES}"
+echo "macs2 callpeak --format ${MODE} -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g ${genome_shortcut} -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} " # --nomodel --shift -100 --extsize 200" 
+macs2 callpeak --format ${MODE} -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g ${genome_shortcut} -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
 
-####      ${INPUT_NAME}_treat_pileup  for input
+### Not enough reads using --nomodel#
+#macs2 callpeak --format ${MODE} -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g ${genome_shortcut} -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} --nomodel # --shift -100 --extsize 200
 
 ### Generating filtered Peaks from MACS2 output.
 echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
@@ -1950,6 +1905,7 @@ echo "python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05
 
+#### Convert valid peaks to bed format
 python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 0.0 -p ${p_value} -q 1.0
 
@@ -2122,6 +2078,101 @@ RUN_Peaks_Distribution_Analysis(){
 	echo ""
 
 	}
+
+RUN_Motif_Homer(){
+# http://homer.ucsd.edu/homer/ngs/peakMotifs.html
+### RUN_Motif_Homer $1 $2 $3 $4
+	echo "RUN_Motif_Homer"
+	CHECK_arguments $# 4
+
+	__RAW_DATA_PATH_DIR=${__EXE_PATH}
+
+	local INPUT_NAME=${1}
+	local INPUT_CON=${2}
+	local SPECIES=${3}
+	local SUMMIT_YESNO=${4}
+########################################################################
+	local OUT_FOLDER=${__EXE_PATH}/Motif_Results/${INPUT_NAME}_vs_${INPUT_CON}
+	DIR_CHECK_CREATE ${OUT_FOLDER}
+
+#### Default Input for homer motif is bed format.
+# Shortcuts species 
+## To check if a species is available, 
+## run "perl /opt/miniconda2/share/homer-4.9.1-6/.//configureHomer.pl -list"
+	case ${SPECIES} in
+		"mm9")
+		local genome_shortcut='mm9'
+		;;
+		"mm10")
+		local genome_shortcut='mm10'
+		echo "${SPECIES} is Not available now "
+		exit
+		;;
+		"hg19")
+		local genome_shortcut='hg19'
+		echo "{SPECIES} is Not available now "
+		exit
+		;;
+		"hg38")
+		local genome_shortcut='hg38'
+		echo "{SPECIES} is Not available now "
+		exit
+		;;
+		*)
+		echo "MACS2 ERR: Did Not Find Any Matched Mode...... Exit"
+		exit
+		;;
+	esac
+	echo "Homer Motif Picks Up Reference Genome as ${genome_shortcut}!"
+	echo " "
+	########################################################################
+
+	case ${SUMMIT_YESNO} in
+	"yes")
+	echo "Using SUMMIT FILE FROM MACS2!"
+	echo " "
+	### Find Input File
+	local IN_FOLDER=${__RAW_DATA_PATH_DIR}
+	cd ${IN_FOLDER}
+	local IN_FILES="$( find -name "*${INPUT_NAME}*_summits.bed" | sort -n | xargs)"
+	echo "awk '{print \$2-=100}' OFS='\t' ${IN_FOLDER}/${IN_FILES: 2} | awk '{print \$3+=100}' OFS='\t' > ${IN_FOLDER}/${IN_FILES: 2}_ex100"
+	awk '{print \$2-=100}' OFS='\t' ${IN_FOLDER}/${IN_FILES: 2} | awk '{print \$3+=100}' OFS='\t' > ${IN_FOLDER}/${IN_FILES: 2}_ex100
+	
+	### Find Contro Files
+	local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
+	cd ${CONTRO_FOLDER}
+	local CONTRO_FILE="$( find -name "*${INPUT_CON}*_summits.bed" | sort -n | xargs)"
+	echo "awk '{print \$2-=100}' OFS='\t' ${${CONTRO_FOLDER}}/${CONTRO_FILE: 2} | awk '{print \$3+=100}' OFS='\t' > ${CONTRO_FOLDER}/${CONTRO_FILE: 2}_ex100"
+	awk '{print \$2-=100}' OFS='\t' ${${CONTRO_FOLDER}}/${CONTRO_FILE: 2} | awk '{print \$3+=100}' OFS='\t' > ${CONTRO_FOLDER}/${CONTRO_FILE: 2}_ex100
+	########################################################################
+	echo "Motif Analysis Start......"
+
+	echo "findMotifsGenome.pl ${IN_FILES: 2}_ex100 ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2}_ex100 -p ${THREADS}"
+	findMotifsGenome.pl ${IN_FILES: 2}_ex100 ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2}_ex100 -p ${THREADS}
+	;;
+	"no")
+	echo "Normal Peaks Region!" 
+	### Find Input File
+	local IN_FOLDER=${__RAW_DATA_PATH_DIR}
+	cd ${IN_FOLDER}
+	local IN_FILES="$( find -name "*${INPUT_NAME}*.bed" | sort -n | xargs)"
+	### Find Contro Files
+	local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
+	cd ${CONTRO_FOLDER}
+	local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bed" | sort -n | xargs)"
+	
+	echo "Motif Analysis Start......"
+	cd ${OUT_FOLDER}
+	echo "findMotifsGenome.pl ${IN_FILES: 2}  ${genome_shortcut} ${CONTRO_FILE: 2} -bg ${CONTRO_FILE[*]} -p ${THREADS}"
+	findMotifsGenome.pl ${IN_FILES: 2}  ${genome_shortcut} ${CONTRO_FILE: 2} -bg ${CONTRO_FILE[*]} -p ${THREADS}
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit;;
+	esac
+	
+	echo "One RUN_HomerTools is Completed!"	
+}
 
 RUN_HiC_Iterative_Mapping(){
 #### Usage: RUN_HiC_Iterative_Mapping #1 #2
@@ -2391,11 +2442,15 @@ FUNC_Max(){
 ########################################################################
 ########################################################################
 
+# HELP INFORMATION
 ######################################
-
+##local INPUT_LABEL=${INPUT_NAME: 7:3}
+##Skip out of Sample_ (7), and forward with 4 more digits.
 ########################################################################
-
+#AWK
+#https://www.gnu.org/software/gawk/manual/gawk.html#Quoting
+#In general, you can stop the shell from interpreting a metacharacter by escaping it with a backslash (\)
 ######################################
-
+#
 ##### Following Line is very IMPORTANT 
 #main "$@"

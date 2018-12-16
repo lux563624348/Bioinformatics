@@ -1,0 +1,1 @@
+cmd = WT-na_vs_Null_summits_ex100.bed mm9 ./motif/ -bg dKO-na_vs_Null_summits_ex+-100.bed -p 8
