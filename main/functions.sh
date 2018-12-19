@@ -416,17 +416,18 @@ RUN_RPKM(){
 
 	cd ${__RAW_DATA_PATH_DIR}
 
-	echo "$(find -name "${File_Name}*.bedpe" | sort -n | xargs)"
-	local Input_B1="$( find -name "*${File_Name}*.bedpe" | sort -n | xargs)"
+	echo "$(find -name "${File_Name}*.bam" | sort -n | xargs)"
+	local Input_B1="$( find -name "*${File_Name}*.bam" | sort -n | xargs)"
 	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
-	local Input_Size=$(wc -l ${Input_B1} | cut -d' ' -f1)
+	#local Input_Size=$(wc -l ${Input_B1} | cut -d' ' -f1)
+	local Input_Size=$(samtools view ${Input_B1} | wc -l | cut -d' ' -f1)
 	
 	cd ${__EXE_PATH}
 	echo "From Reads bed file to calculate reads count and its RPKM."
 	case ${SPECIES} in
 	"mm10")
 	echo "Reference SPECIES is ${SPECIES}"
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm10
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/Response_To_Review/RPKM_Genelist/repeats_removed
 	;;
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
@@ -444,7 +445,10 @@ esac
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
 	local Input_A1_Lists=(
-	Union_WT-na_dKO-na_1934_CTCF_top_2k_plus.bed
+	1215_from_1308_Lef1_specific_repeats_removed.bed
+	3046_from_3844_Tcf1_specific_repeats_removed.bed
+	524_from_675_intersection_Tcf1_ref_repeats_removed.bed
+	685_from_744_intersection_Lef1_Ref_repeats_removed.bed
 	)
 	
 	
@@ -1283,7 +1287,7 @@ RUN_BOWTIE2(){
 	local Data_Provider=${4}
 	local just_align_yesno=${5}  ## This option is limit bowtie2 with only basic functions.
 	
-	CHECK_arguments $# 4
+	CHECK_arguments $# 5
 	echo ""
 	echo "RUN_BOWTIE2"
 	#### OUTPUT FORMAT
@@ -1294,10 +1298,12 @@ case ${SPECIES} in
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/MM9/1070327_mm9_simple_repeat_and_Satellite.bed
 	;;
 	"mm10") 
 	echo "Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
+	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/MM10/1063167_mm10_simple_repeat_and_Satellite.bed
 	;;
 	"hg19")
 	echo "Reference SPECIES is ${SPECIES}"
@@ -1384,19 +1390,20 @@ esac
 	
 ## Remove Redundancy by Picard
 	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
-		#echo "samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam "
-		#samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
-
-		echo "picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
-		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true REMOVE_SEQUENCING_DUPLICATES=true ASSUME_SORT_ORDER=queryname"
-		picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
-		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname
+	
+		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ];then
+		echo "samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam "
+		samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
 		
-		echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam" 
+		echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
 		rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam
 		
-		#echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
-		#rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
+		fi
+		echo "picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true REMOVE_SEQUENCING_DUPLICATES=true ASSUME_SORT_ORDER=queryname"
+		picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname
+		
 	fi
 
 
@@ -1404,22 +1411,30 @@ esac
 	
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
-	### In here, bedpe just represents the bed format of pair end reads.
-	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe ];then
-	echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
-	bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
-	
-	echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-	RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+		### In here, bedpe just represents the bed format of pair end reads.
+		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe ];then
+		echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
+		bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
+		
+		echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+		RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+		
+		echo "bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe"
+		bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe
+		
 	fi
 	else
-	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed ];then
-	echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
-	bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
-	
-	echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-	RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
-	fi
+		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed ];then
+		echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
+		bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
+		
+		## 50% peaks overlap rate will be dropped.
+		echo "bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed"
+		bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
+		
+		echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+		RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+		fi
 	fi
 
 	echo ""

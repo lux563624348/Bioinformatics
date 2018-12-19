@@ -52,7 +52,6 @@ def main():
 	B_solo=B_Sum-AB_com
 
 
-
 	v=venn2(subsets = (A_solo, B_solo, AB_com), \
 	set_labels = (ConA, ConB))
 	#c=venn3_circles(subsets = (10, 8, 22, 6,9,4,2), linestyle='dashed', linewidth=1, color="grey")

@@ -32,10 +32,11 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/ChIP_seq_Haihui_201706/Bowtie2_Results
+
 #__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/ChIP_seq_Haihui_201706/Bowtie2_Results
 #__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 
@@ -49,8 +50,8 @@ __EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Res
 
 
 __INPUT_SAMPLE_DIR_List=(
-WT-na   #T-reg Input
-dKO-na	#T-reg Bcatenin;
+CD4_TCF1
+LEF1_CD4
 )
  #(992.4mb) > Treg Foxp3 ChIP Rep1 (Tech Rep1)
  #(6.3GB)   > Treg Foxp3 ChIP Rep1 (Tech Rep2); Mus musculus; ChIP-Seq
@@ -77,21 +78,22 @@ echo ""
 echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 ###
-SPECIES='mm9'
-Data_Provider='GSE49199'
+SPECIES='mm10'
+Data_Provider='Haihui'
 ####
 
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_DIR_List[*]} - 1); i++ ))
 do
 	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_DIR_List[i]} 
-	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'SRA'
+	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'Pairs'
 	#RUN_FAST_QC
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "Treg_Foxp3_ChIP_seq" ${Data_Provider} 'yes' & 
+	RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD4_ChIP_seq" ${Data_Provider} 'no' & 
 	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[0]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bed'
 	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[4]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam' &
 	#RUN_MACS2 "Rep1_Tech" ${__INPUT_SAMPLE_DIR_List[2]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam'
-	RUN_Motif_Homer ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[1]} ${SPECIES} 'no'
-	break
+	#RUN_Motif_Homer ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[1]} ${SPECIES} 'no'
+	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} 
+	#break
 	#RUN_FAST_QC
 	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]} &
 	
