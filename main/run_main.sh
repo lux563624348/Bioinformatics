@@ -32,11 +32,11 @@ echo "Import functions.sh"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/ChIP_seq_Haihui_201706/Bowtie2_Results
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe
 
 #__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/ChIP_seq_Haihui_201706/Bowtie2_Results
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe/Motif_Results
 #__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 
@@ -50,15 +50,9 @@ __EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/ChIP_seq_Hai
 
 
 __INPUT_SAMPLE_DIR_List=(
-CD4_TCF1
-LEF1_CD4
+WT-na
+dKO-na
 )
- #(992.4mb) > Treg Foxp3 ChIP Rep1 (Tech Rep1)
- #(6.3GB)   > Treg Foxp3 ChIP Rep1 (Tech Rep2); Mus musculus; ChIP-Seq
- #(866mb)   > Treg Input Rep1; Mus musculus; ChIP-Seq
- #(1.1GB)   > Treg Foxp3 ChIP Rep2; Mus musculus; ChIP-Seq
- #(1006.9mb)> Treg Input Rep2; Mus musculus; ChIP-Seq
-
 
 
 
@@ -78,33 +72,35 @@ echo ""
 echo "__FASTQ_DIR_R1 __FASTQ_DIR_R2 are the READS_FULL_DIR FOR ANALYSIS"
 
 ###
-SPECIES='mm10'
+SPECIES='mm9'
 Data_Provider='Haihui'
 ####
 
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_DIR_List[*]} - 1); i++ ))
 do
 	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_DIR_List[i]} 
-	PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'Pairs'
+	#PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} 'fastq.gz' 'Pairs'
 	#RUN_FAST_QC
-	RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD4_ChIP_seq" ${Data_Provider} 'no' & 
-	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[1]} ${__INPUT_SAMPLE_DIR_List[0]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bed'
-	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[4]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam' &
-	#RUN_MACS2 "Rep1_Tech" ${__INPUT_SAMPLE_DIR_List[2]} 'Treg_Foxp3_ChIP_seq_Macs2' ${SPECIES} ${Data_Provider} 'bam'
-	#RUN_Motif_Homer ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[1]} ${SPECIES} 'no'
-	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} 
-	#break
-	#RUN_FAST_QC
-	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]} &
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} "CD8_TCF1_ChIPseq" ${Data_Provider} 'no' & 
+	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[1]} 'CD8_TCF1_ChIPseq' ${SPECIES} ${Data_Provider} 'bampe' &
+	
+	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
+	
+	RUN_Motif_Homer ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[1]} ${SPECIES} 'yes'
+
+	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[1]} 'bed' ${SPECIES} 
+	break
+
+
 	
 	#RUN_MACS2_Diff ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[1]}
 	
 	#break
-	#RUN_HomerTools 'Restriction_Enzyme' ${__INPUT_SAMPLE_BARCODE_List[i]}
-	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
+	
+	
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
-	#RUN_Bed2BigBed ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} "CD8-HP-Only_R1" ${SPECIES} ${Data_Provider}
-	#RUN_BedGraph2BigWig ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} "Bed2bdg2bigwig" ${SPECIES} ${Data_Provider}
+	
+	
 	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bedpe' &
 	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
 	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[i]} 'Null' 'CD8-HP_DNaseq_MACS2_Merge_Replicates' ${SPECIES} ${Data_Provider} 'bampe' &

@@ -44,8 +44,82 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 ######################################
 
 ##	FUNDEMENTAL FUNCTIONS FOR ANALYSIS MODULES
+RUN_BBDUK_Trimming (){
+####	RUN_BBDUK_Trimming
+####	Usage: RUN_BBDUK_Trimming $INPUT_DATA_DIR
+########################################################################
+### FASTQC Output DIR setting ...
+	local Output_Trimmed=${__RAW_DATA_PATH_DIR}/Trimmed_Results
+	DIR_CHECK_CREATE ${Output_Trimmed}
+	cd ${__RAW_DATA_PATH_DIR}
+	
+	#Force-Trimming:
+	#bbduk.sh in=reads.fq out=clean.fq ftl=10 ftr=139
+	#  This will trim the leftmost 10 bases (ftl=10) and also trim the right end after to position 139 (zero-based). The resulting read would be 130bp long. For example, a 150bp read would have the first 10 bases trimmed (bases 0-9, keeping 10+) and the last 10 bases trimmed (bases 140-149, keeping 139 and lower).
+
+	for file in ${__FASTQ_DIR_R1[*]}
+	do
+	echo "fastqc -o ${Output_fastqc} $fastq_file"
+	fastqc -o ${Output_fastqc} ${fastq_file}
+	done
+	
+	for fastq_file in ${__FASTQ_DIR_R2[*]}
+	do
+	echo "fastqc -o ${Output_fastqc} $fastq_file"
+	fastqc -o ${Output_fastqc} ${fastq_file}
+	done
+	
+	echo "Fastq Completed!"
+	}
+	
+RUN_COPY_AND_CHANGE_NAME(){
+	### RUN_COPY_AND_CHANGE_NAME $1 $2 $3 ($1 is INPUT_NAME $2> OUTPUT_NAME $3 "fastq.gz")
+	CHECK_arguments $# 3
+	local INPUT_DATA_PATH="${__RAW_DATA_PATH_DIR}/${1}"
+	local OUTPUT_DATA_PATH="${__EXE_PATH}/${2}"
+	
+	mkdir -p ${OUTPUT_DATA_PATH}
+	
+	cp ${INPUT_DATA_PATH}.${3} ${OUTPUT_DATA_PATH}/${2}.${3}
+	echo "Finished Copying File: ${2}"
+	}
+	
+RUN_FAST_QC (){
+	
+####	RUN_FAST_QC
+####	Usage: RUN_FAST_QC $INPUT_DATA_DIR
+########################################################################
+### FASTQC Output DIR setting ...
+	local Output_fastqc=${__RAW_DATA_PATH_DIR}/fastqc
+	DIR_CHECK_CREATE ${Output_fastqc}
+	cd ${__RAW_DATA_PATH_DIR}
+	
+	for fastq_file in ${__FASTQ_DIR_R1[*]}
+	do
+	echo "fastqc -o ${Output_fastqc} $fastq_file"
+	fastqc -o ${Output_fastqc} ${fastq_file} &
+	done
+	
+	for fastq_file in ${__FASTQ_DIR_R2[*]}
+	do
+	echo "fastqc -o ${Output_fastqc} $fastq_file"
+	fastqc -o ${Output_fastqc} ${fastq_file} &
+	done
+	
+	echo "cd ${Output_fastqc}"
+	cd ${Output_fastqc}
+	
+	#if [ -f multiqc_report.html ];then
+	#echo "multiqc *fastqc.zip --ignore *.html"
+	#multiqc *fastqc.zip --ignore *.html
+	#fi
+
+	
+	echo "Fastq Completed!"
+	}
+	
 PRE_READS_DIR(){
-	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "R1/R2 or Pairs"
+	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "Pairs SRA or anyother pattern"
 	CHECK_arguments $# 3 # No less than 3
 	echo "Entering one Library of RAW_DATA_DIR: $__RAW_DATA_PATH_DIR"
 	echo "Searching file type as: $1 + $3 + $2"
@@ -54,29 +128,22 @@ PRE_READS_DIR(){
 	Pair_Type=${3}
 	
 ########################################################################
-	#local DIRLIST_R1="$( find -name "*R1.fastq" | sort -n | xargs)"
-	#local DIRLIST_R2="$( find -name "*R2.fastq" | sort -n | xargs)" #
-	
+
 	case ${Pair_Type} in
-	"R1")
-	echo "Single End, Only ${Pair_Type} "
+	"Pairs")
+	echo "Pair End, Both"
 	local DIRLIST_R1_gz="$( find -name "*${1}*R1*.${2}" | sort -n | xargs)"
-	local DIRLIST_R2_gz=" "
-	;;
-	"R2")
-	echo "Single End, Only ${Pair_Type} "
-	local DIRLIST_R1_gz="$( find -name "*${1}*R2*.${2}" | sort -n | xargs)"
-	local DIRLIST_R2_gz=" "
+	local DIRLIST_R2_gz="$( find -name "*${1}*R2*.${2}" | sort -n | xargs)"
 	;;
 	"SRA")
 	echo "SRA Mode"
 	local DIRLIST_R1_gz="$( find -name "*${1}*_1*.${2}" | sort -n | xargs)"
 	local DIRLIST_R2_gz="$( find -name "*${1}*_2*.${2}" | sort -n | xargs)"
 	;;
-	"Pairs")
-	echo "Pair End, Both"
+	"R1")
+	echo "Single End, Only ${Pair_Type} "
 	local DIRLIST_R1_gz="$( find -name "*${1}*R1*.${2}" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*${1}*R2*.${2}" | sort -n | xargs)"
+	local DIRLIST_R2_gz=" "
 	;;
 	*)
 	echo "Reads ERR: Did Not Find Any Matched Reference...... Exit"
@@ -129,82 +196,6 @@ RUN_SRA2FASTQ(){
 		echo "fastq-dump –X 5 –Z -split-files --gzip ${SRA}"
 		${exe_path}/fastq-dump –X 5 –Z -split-files --gzip ${SRA}
 	done
-	}
-
-RUN_COPY_AND_CHANGE_NAME(){
-	### RUN_COPY_AND_CHANGE_NAME $1 $2 $3 ($1 is INPUT_NAME $2> OUTPUT_NAME $3 "fastq.gz")
-	CHECK_arguments $# 3
-	local INPUT_DATA_PATH="${__RAW_DATA_PATH_DIR}/${1}"
-	local OUTPUT_DATA_PATH="${__EXE_PATH}/${2}"
-	
-	mkdir -p ${OUTPUT_DATA_PATH}
-	
-	cp ${INPUT_DATA_PATH}.${3} ${OUTPUT_DATA_PATH}/${2}.${3}
-	echo "Finished Copying File: ${2}"
-	
-	
-	
-	}
-
-RUN_BBDUK_Trimming (){
-####	RUN_BBDUK_Trimming
-####	Usage: RUN_BBDUK_Trimming $INPUT_DATA_DIR
-########################################################################
-### FASTQC Output DIR setting ...
-	local Output_Trimmed=${__RAW_DATA_PATH_DIR}/Trimmed_Results
-	DIR_CHECK_CREATE ${Output_Trimmed}
-	cd ${__RAW_DATA_PATH_DIR}
-	
-	#Force-Trimming:
-	#bbduk.sh in=reads.fq out=clean.fq ftl=10 ftr=139
-	#  This will trim the leftmost 10 bases (ftl=10) and also trim the right end after to position 139 (zero-based). The resulting read would be 130bp long. For example, a 150bp read would have the first 10 bases trimmed (bases 0-9, keeping 10+) and the last 10 bases trimmed (bases 140-149, keeping 139 and lower).
-
-	for file in ${__FASTQ_DIR_R1[*]}
-	do
-	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file}
-	done
-	
-	for fastq_file in ${__FASTQ_DIR_R2[*]}
-	do
-	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file}
-	done
-	
-	echo "Fastq Completed!"
-	}
-
-RUN_FAST_QC (){
-####	RUN_FAST_QC
-####	Usage: RUN_FAST_QC $INPUT_DATA_DIR
-########################################################################
-### FASTQC Output DIR setting ...
-	local Output_fastqc=${__RAW_DATA_PATH_DIR}/fastqc
-	DIR_CHECK_CREATE ${Output_fastqc}
-	cd ${__RAW_DATA_PATH_DIR}
-	
-	for fastq_file in ${__FASTQ_DIR_R1[*]}
-	do
-	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file} &
-	done
-	
-	for fastq_file in ${__FASTQ_DIR_R2[*]}
-	do
-	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file} &
-	done
-	
-	echo "cd ${Output_fastqc}"
-	cd ${Output_fastqc}
-	
-	#if [ -f multiqc_report.html ];then
-	#echo "multiqc *fastqc.zip --ignore *.html"
-	#multiqc *fastqc.zip --ignore *.html
-	#fi
-
-	
-	echo "Fastq Completed!"
 	}
 
 RUN_READLINE(){
@@ -405,29 +396,28 @@ RUN_Island_Filtered_Reads(){
 
 RUN_RPKM(){
 	#### usage RUN_RPKM $1 $2
-	CHECK_arguments $# 2
+	CHECK_arguments $# 3
 	local File_Name=${1}
-	local SPECIES=${2}
+	local File_Type=${2}
+	local SPECIES=${3}
 	local PATH_python_tools=~/cloud_research/PengGroup/XLi/Python_tools/read_RPKM.py
-	
-	
 	
 	echo "Entering the Raw Input directory"
 
 	cd ${__RAW_DATA_PATH_DIR}
 
-	echo "$(find -name "${File_Name}*.bam" | sort -n | xargs)"
-	local Input_B1="$( find -name "*${File_Name}*.bam" | sort -n | xargs)"
+	echo "$(find -name "${File_Name}*.${File_Type}" | sort -n | xargs)"
+	local Input_B1="$( find -name "*${File_Name}*.${File_Type}" | sort -n | xargs)"
 	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
-	#local Input_Size=$(wc -l ${Input_B1} | cut -d' ' -f1)
-	local Input_Size=$(samtools view ${Input_B1} | wc -l | cut -d' ' -f1)
+	local Input_Size=$(wc -l ${Input_B1} | cut -d' ' -f1)
+	#local Input_Size=$(samtools view ${Input_B1} | wc -l | cut -d' ' -f1)
 	
 	cd ${__EXE_PATH}
 	echo "From Reads bed file to calculate reads count and its RPKM."
 	case ${SPECIES} in
 	"mm10")
 	echo "Reference SPECIES is ${SPECIES}"
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/Treg/ChIP_seq/Response_To_Review/RPKM_Genelist/repeats_removed
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1_Treg/ChIP_seq/Response_To_Review/RPKM_Genelist/repeats_removed
 	;;
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
@@ -445,10 +435,10 @@ esac
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
 	local Input_A1_Lists=(
-	1215_from_1308_Lef1_specific_repeats_removed.bed
-	3046_from_3844_Tcf1_specific_repeats_removed.bed
-	524_from_675_intersection_Tcf1_ref_repeats_removed.bed
-	685_from_744_intersection_Lef1_Ref_repeats_removed.bed
+	1249_1308_specific_D4_TCF1_filtered_peaks_4519.bed
+	3830_3844_Tcf1_specific.bed
+	675_intersection_peaks.bed
+	741_744_intersection_CD4_Lef1_Tcf1_peaks.bed
 	)
 	
 	
@@ -463,6 +453,65 @@ esac
 		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed -sorted
 		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${__EXE_PATH} ${Input_Size}"
 		python ${PATH_python_tools} ${OUTPUT_NAME} ${__EXE_PATH} ${Input_Size}
+	done
+
+}
+
+RUN_ROSE_SUPER_Enhancer(){
+	#### usage RUN_RPKM $1 $2
+	echo "RUN_ROSE_SUPER_Enhancer!"
+	CHECK_arguments $# 2
+	local File_Name=${1}
+	local SPECIES=${2}
+	local PATH_python_tools=/opt/tools/young_computation-rose/ROSE_main.py
+	
+	echo "Entering the Raw Input directory"
+
+	cd ${__RAW_DATA_PATH_DIR}
+
+	echo "$(find -name "*${File_Name}*.bam" | sort -n | xargs)"
+	local Input_B1="$( find -name "*${File_Name}*.bam" | sort -n | xargs)"
+	local Input_B1="${__RAW_DATA_PATH_DIR}/${Input_B1: 2}"
+	
+	DIR_CHECK_CREATE ${__EXE_PATH}/Super_enhancer
+	cd ${__EXE_PATH}/Super_enhancer
+	
+	case ${SPECIES} in
+	"mm10")
+	echo "Reference SPECIES is ${SPECIES}"
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1_Treg/ChIP_seq/Response_To_Review/RPKM_Genelist/repeats_removed
+	;;
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/Super_enhancer/peaks
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+	
+	#cd ${Gene_list_folder}
+	#echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
+	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
+	
+	local Input_A1_Lists=(
+	#14818_WT_CD8_TCF1_final_removal.bed
+	#20514_WT_CD8_H3K27AC_final_removal.bed
+	#3572_intersection_CD8_TCF1_H3K27Ac.bed
+	#CD8_TCF1_H3K27Ac_union_peaks.bed
+	4293_Tcf7_motif+_WT_CD8_TCF1_peaks.bed
+	)
+		
+	cd /opt/tools/young_computation-rose
+	for Input_A1 in ${Input_A1_Lists[*]}
+	do
+		Out_DIR=${__EXE_PATH}/Super_enhancer/${Input_A1::-4}
+		DIR_CHECK_CREATE ${Out_DIR}
+		
+		local Input_A1="${Gene_list_folder}/${Input_A1}"		
+		echo "python ${PATH_python_tools} -g ${SPECIES} -i ${Input_A1} -r ${Input_B1} -o ${Out_DIR}"
+		python ${PATH_python_tools} -g ${SPECIES} -i ${Input_A1} -r ${Input_B1} -o ${Out_DIR}
 	done
 
 }
@@ -1298,12 +1347,12 @@ case ${SPECIES} in
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
-	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/MM9/1070327_mm9_simple_repeat_and_Satellite.bed
+	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/MM9/RepeatMasker/1070327_mm9_simple_repeat_and_Satellite.bed
 	;;
 	"mm10") 
 	echo "Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
-	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/MM10/1063167_mm10_simple_repeat_and_Satellite.bed
+	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/MM10/RepeatMasker/1052512_mm10_simple_repeat_Satellite.bed
 	;;
 	"hg19")
 	echo "Reference SPECIES is ${SPECIES}"
@@ -1402,8 +1451,10 @@ esac
 		echo "picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
 		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true REMOVE_SEQUENCING_DUPLICATES=true ASSUME_SORT_ORDER=queryname"
 		picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
-		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true
 		
+		echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
+		rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
 	fi
 
 
@@ -1416,8 +1467,8 @@ esac
 		echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
 		bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
 		
-		echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-		RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+		#echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+		#RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
 		
 		echo "bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe"
 		bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe
@@ -1432,8 +1483,11 @@ esac
 		echo "bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed"
 		bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
 		
-		echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-		RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+		echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
+		rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
+		
+		#echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+		#RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
 		fi
 	fi
 
@@ -1824,7 +1878,7 @@ local INPUT_TYPE=${6}
 
 
 #local FDR=0.05
-local p_value=0.1
+local p_value=0.00001
 ########################################################################
 #### Default Input for MACS2 is bam format.
 case ${INPUT_TYPE} in
@@ -1899,7 +1953,7 @@ echo "Saving MACS2 Contro File as ${CONTRO_FILE[*]}"
 ### Find Contro Files
 ########################################################################
 
-local OUT_FOLDER=${__EXE_PATH}/MACS2_Results/${INPUT_TYPE}/${INPUT_NAME}_vs_${INPUT_CON}
+local OUT_FOLDER=${__EXE_PATH}/MACS2_Results/${MODE}/${INPUT_NAME}_vs_${INPUT_CON}
 DIR_CHECK_CREATE ${OUT_FOLDER}
 cd ${OUT_FOLDER}
 
@@ -2100,14 +2154,12 @@ RUN_Motif_Homer(){
 	echo "RUN_Motif_Homer"
 	CHECK_arguments $# 4
 
-	__RAW_DATA_PATH_DIR=${__EXE_PATH}
-
 	local INPUT_NAME=${1}
 	local INPUT_CON=${2}
 	local SPECIES=${3}
 	local SUMMIT_YESNO=${4}
 ########################################################################
-	local OUT_FOLDER=${__EXE_PATH}/Motif_Results/${INPUT_NAME}_vs_${INPUT_CON}
+	local OUT_FOLDER=/home/data/www/Homer_Results/Motif_Results/${INPUT_NAME}_vs_${INPUT_CON}
 	DIR_CHECK_CREATE ${OUT_FOLDER}
 
 #### Default Input for homer motif is bed format.
@@ -2125,8 +2177,6 @@ RUN_Motif_Homer(){
 		;;
 		"hg19")
 		local genome_shortcut='hg19'
-		echo "{SPECIES} is Not available now "
-		exit
 		;;
 		"hg38")
 		local genome_shortcut='hg38'
@@ -2145,25 +2195,18 @@ RUN_Motif_Homer(){
 	case ${SUMMIT_YESNO} in
 	"yes")
 	echo "Using SUMMIT FILE FROM MACS2!"
+	### homer can automatically extend region with respect to its center.
 	echo " "
 	### Find Input File
 	local IN_FOLDER=${__RAW_DATA_PATH_DIR}
 	cd ${IN_FOLDER}
 	local IN_FILES="$( find -name "*${INPUT_NAME}*_summits.bed" | sort -n | xargs)"
-	echo "awk '{print \$2-=100}' OFS='\t' ${IN_FOLDER}/${IN_FILES: 2} | awk '{print \$3+=100}' OFS='\t' > ${IN_FOLDER}/${IN_FILES: 2}_ex100"
-	awk '{print \$2-=100}' OFS='\t' ${IN_FOLDER}/${IN_FILES: 2} | awk '{print \$3+=100}' OFS='\t' > ${IN_FOLDER}/${IN_FILES: 2}_ex100
-	
 	### Find Contro Files
-	local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
-	cd ${CONTRO_FOLDER}
 	local CONTRO_FILE="$( find -name "*${INPUT_CON}*_summits.bed" | sort -n | xargs)"
-	echo "awk '{print \$2-=100}' OFS='\t' ${${CONTRO_FOLDER}}/${CONTRO_FILE: 2} | awk '{print \$3+=100}' OFS='\t' > ${CONTRO_FOLDER}/${CONTRO_FILE: 2}_ex100"
-	awk '{print \$2-=100}' OFS='\t' ${${CONTRO_FOLDER}}/${CONTRO_FILE: 2} | awk '{print \$3+=100}' OFS='\t' > ${CONTRO_FOLDER}/${CONTRO_FILE: 2}_ex100
 	########################################################################
 	echo "Motif Analysis Start......"
-
-	echo "findMotifsGenome.pl ${IN_FILES: 2}_ex100 ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2}_ex100 -p ${THREADS}"
-	findMotifsGenome.pl ${IN_FILES: 2}_ex100 ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2}_ex100 -p ${THREADS}
+	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS}"
+	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS}
 	;;
 	"no")
 	echo "Normal Peaks Region!" 
@@ -2178,8 +2221,8 @@ RUN_Motif_Homer(){
 	
 	echo "Motif Analysis Start......"
 	cd ${OUT_FOLDER}
-	echo "findMotifsGenome.pl ${IN_FILES: 2}  ${genome_shortcut} ${CONTRO_FILE: 2} -bg ${CONTRO_FILE[*]} -p ${THREADS}"
-	findMotifsGenome.pl ${IN_FILES: 2}  ${genome_shortcut} ${CONTRO_FILE: 2} -bg ${CONTRO_FILE[*]} -p ${THREADS}
+	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS}"
+	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS}
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -2251,15 +2294,15 @@ FUNC_TEST(){
 
 FUNC_BED_Sort(){
 	CHECK_arguments $# 2
-	Tracks_NAME=${1}
+	Input_NAME=${1}
 	File_Type=${2}
 	
-	if [ ! -f ${Tracks_NAME}_sorted.${File_Type} ];then
-	echo "sort -k1,1 -k2,2n ${Tracks_NAME}.${File_Type} > ${Tracks_NAME}_sorted.${File_Type}"
-	sort -k1,1 -k2,2n ${Tracks_NAME}.${File_Type} > ${Tracks_NAME}_sorted.${File_Type}
+	if [ ! -f ${Input_NAME}_sorted.${File_Type} ];then
+	echo "sort -k1,1 -k2,2n ${Input_NAME}.${File_Type} > ${Input_NAME}_sorted.${File_Type}"
+	sort -k1,1 -k2,2n ${Input_NAME}.${File_Type} > ${Input_NAME}_sorted.${File_Type}
 	
 	echo "After sort, delete oringinal file"
-	rm ${Tracks_NAME}.${File_Type}
+	rm ${Input_NAME}.${File_Type}
 	fi
 	
 	
@@ -2401,47 +2444,17 @@ FUNC_CLEAN(){
 	fi
 	}
 
-FUNC_CUT_Columns (){
-	####RUN_CUT_Columns $Filename $start $end
-	CHECK_arguments $# 3
-	local File_type='bed'
-	local File_Path=${__RAW_DATA_PATH_DIR}/${1}.${File_type}
-	local start=${2}
-	local end=${3}
-	local delimiter="	"
-	cut -f ${start}-${end} ${File_Path} > ${__RAW_DATA_PATH_DIR}/${1}_Columns_${start}_${end}.${File_type}
-	echo ""
-	echo ""
-	}
-
 FUNC_CUT_Rows (){
 	####FUNC_CUT_Rows $Filename $start $end
-	
 	#### Normally sam file format, '1,24d' is removing all header.
-	#CHECK_arguments $# 3
+	CHECK_arguments $# 3
 	local File_type='sam'
 	local File_Path=${__RAW_DATA_PATH_DIR}/${1}.${File_type}
 	local start=${2}
 	local end=${3}
 	sed '${start},${end}d' ${File_Path} > ${__RAW_DATA_PATH_DIR}/${1}_Row_${start}_${end}.${File_type}
 	echo ""
-	echo ""
 }
-
-FUNC_CUT_Rows_Redirect (){
-	####FUNC_CUT_Rows $Filename $start $end
-	
-	#### Normally sam file format, '1,24d' is removing all header.
-	#CHECK_arguments $# 3
-	local File_type='sam'
-	local File_Path=${__RAW_DATA_PATH_DIR}/${1}.${File_type}
-	local start=${2}
-	local end=${3}
-	sed -e '${start},${end}d' ${File_Path} > ${__RAW_DATA_PATH_DIR}/${1}_Row_${start}_${end}.${File_type}
-	echo "a"
-	echo ""
-}
-
 
 FUNC_Max(){
 ## Usage: Larger_value = $(RUN_Max $num_a $num_b)
