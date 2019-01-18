@@ -7,6 +7,10 @@ set -u #### prevents the error by aborting the script if a variable’s value is
 set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 #set -o noclobber ####The noclobber option tells bash not to overwrite any existing files when you redirect output.
 
+#echo "[$(date "+%Y-%m-%d %H:%M")]  <YOUR CONTENT>"
+
+
+
 ## INTRODUCTION
 ########################################################################
 ## 12/01/2017
@@ -39,8 +43,6 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 	#Annotation_DIR=/home/Data/Annotation
 	#THREADS=16
 	#
-
-
 ######################################
 
 ##	FUNDEMENTAL FUNCTIONS FOR ANALYSIS MODULES
@@ -84,43 +86,42 @@ RUN_COPY_AND_CHANGE_NAME(){
 	echo "Finished Copying File: ${2}"
 	}
 	
-RUN_FAST_QC (){
-	
+RUN_FAST_QC(){
 ####	RUN_FAST_QC
 ####	Usage: RUN_FAST_QC $INPUT_DATA_DIR
 ########################################################################
 ### FASTQC Output DIR setting ...
+	echo "[$(date "+%Y-%m-%d %H:%M")]-----------------------RUN_FAST_QC"
 	local Output_fastqc=${__RAW_DATA_PATH_DIR}/fastqc
 	DIR_CHECK_CREATE ${Output_fastqc}
 	cd ${__RAW_DATA_PATH_DIR}
 	
 	for fastq_file in ${__FASTQ_DIR_R1[*]}
 	do
-	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file} &
+	echo "fastqc -q -o ${Output_fastqc} $fastq_file"
+	fastqc -q -o ${Output_fastqc} ${fastq_file} &
 	done
 	
 	for fastq_file in ${__FASTQ_DIR_R2[*]}
 	do
-	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file} &
+	echo "fastqc -q -o ${Output_fastqc} $fastq_file"
+	fastqc -q -o ${Output_fastqc} ${fastq_file} &
 	done
+	echo "[$(date "+%Y-%m-%d %H:%M")]---------RUN_FAST_QC-----COMPLETED!"
+	echo " "
 	
-	echo "cd ${Output_fastqc}"
-	cd ${Output_fastqc}
-	
+	#echo "cd ${Output_fastqc}"
+	#cd ${Output_fastqc}
 	#if [ -f multiqc_report.html ];then
 	#echo "multiqc *fastqc.zip --ignore *.html"
 	#multiqc *fastqc.zip --ignore *.html
 	#fi
-
-	
-	echo "Fastq Completed!"
 	}
 	
 PRE_READS_DIR(){
 	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "Pairs SRA or anyother pattern"
 	CHECK_arguments $# 3 # No less than 3
+	echo "[$(date "+%Y-%m-%d %H:%M")]--------------INPUT FILE PREPARING"
 	echo "Entering one Library of RAW_DATA_DIR: $__RAW_DATA_PATH_DIR"
 	echo "Searching file type as: $1 + $3 + $2"
 	local Current_DATA_DIR=${__RAW_DATA_PATH_DIR}
@@ -131,17 +132,17 @@ PRE_READS_DIR(){
 
 	case ${Pair_Type} in
 	"Pairs")
-	echo "Pair End, Both"
+	echo "Found Pair End, Both"
 	local DIRLIST_R1_gz="$( find -name "*${1}*R1*.${2}" | sort -n | xargs)"
 	local DIRLIST_R2_gz="$( find -name "*${1}*R2*.${2}" | sort -n | xargs)"
 	;;
 	"SRA")
-	echo "SRA Mode"
+	echo "Found SRA Mode"
 	local DIRLIST_R1_gz="$( find -name "*${1}*_1*.${2}" | sort -n | xargs)"
 	local DIRLIST_R2_gz="$( find -name "*${1}*_2*.${2}" | sort -n | xargs)"
 	;;
 	"R1")
-	echo "Single End, Only ${Pair_Type} "
+	echo "Found Single End, Only ${Pair_Type} "
 	local DIRLIST_R1_gz="$( find -name "*${1}*R1*.${2}" | sort -n | xargs)"
 	local DIRLIST_R2_gz=" "
 	;;
@@ -176,6 +177,8 @@ esac
 	done
 	
 	echo "Finish Preparing READS of Library: $1"
+	echo "INPUT FILE PREPARING COMPLETED!------------------------------"
+	echo " "
 	unset k
 	}
 
@@ -496,12 +499,10 @@ esac
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
 	local Input_A1_Lists=(
-	#14818_WT_CD8_TCF1_final_removal.bed
-	#20514_WT_CD8_H3K27AC_final_removal.bed
-	#3572_intersection_CD8_TCF1_H3K27Ac.bed
-	#CD8_TCF1_H3K27Ac_union_peaks.bed
-	4293_Tcf7_motif+_WT_CD8_TCF1_peaks.bed
+	21129_ctrl_CD8_K27Ac_vs_ctrl_CD8_input_final_removal.bed
+	#9472_Intersection_ctrl_CD8_K27Ac_CD8_TCF1_peaks.bed
 	)
+	
 		
 	cd /opt/tools/young_computation-rose
 	for Input_A1 in ${Input_A1_Lists[*]}
@@ -1498,7 +1499,7 @@ esac
 RUN_TOPHAT(){
 #### Usage: RUN_TOPHAT $1 $2 $3 $4
 
-echo "RUN_TOPHAT_ANALYSIS"
+echo "[$(date "+%Y-%m-%d %H:%M")]--------------------RUN_TOPHAT_ANALYSIS"
 CHECK_arguments $# 4
 
 ### Operation PARAMETERS Setting
@@ -1512,30 +1513,33 @@ local OUTPUT_TOPHAT_FOLDER="${__EXE_PATH}/Tophat_Results/${INPUT_NAME}"
 DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
 
 local WINDOW_SIZE=200
-local FRAGMENT_SIZE=50
+local FRAGMENT_SIZE=$( expr $(zcat ${__FASTQ_DIR_R1[0]} | head -n 4 | sed '2q;d' | wc -c) - 1 + 50 )
 ########################################################################
 case ${SPECIES} in
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/raw_mm9_genes.gtf
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
 	;;
 	"mm10")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes_raw.gtf
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
 	;;
 	"hg19")
+	echo "Not ready yet!"
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/raw_hg19_genes.gtf
+	#local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
 	;;
 	"hg38")
 	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/hg38_2015.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome
 	;;
 	"dm6") 
 	echo "Reference SPECIES is ${SPECIES}"
+	echo "Not ready yet!"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/Drosophila_Melanogaster/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome
 	;;
 	*)
@@ -1543,28 +1547,18 @@ case ${SPECIES} in
 	exit
 	;;
 esac
-
-
 ########################################################################
-
-
 local EXEDIR=/opt/tools
 local SICER_DIR=${EXEDIR}/SICER1.1/SICER
 local Wiggle=${SICER_DIR}/extra/tools/wiggle
-
-# Tang
-
-#
-########################################################################
-
 
 #### Decide single end or pair ends mode
 #### NOW it is only compatible with single file. Not with pieces files.
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 	echo "Pair End Mode"
-	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
-	tophat -p ${THREADS} -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
+	echo "tophat -p ${THREADS} --no-discordant --no-mixed -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
+	tophat -p ${THREADS} --no-discordant --no-mixed -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
 	else
 	echo "Single End Mode."
 	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
@@ -1574,8 +1568,11 @@ local Wiggle=${SICER_DIR}/extra/tools/wiggle
 	echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
 	mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
 	
-	echo "bedtools bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
-	bedtools bamToBed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam | sort -k1,1 -k2,2n > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
+	REMOVE_REDUNDANCY_PICARD ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}
+	
+	
+	echo "bedtools bamtobed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
+	bedtools bamtobed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
 	
 	echo "sh ${Wiggle}/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
 	sh ${Wiggle}/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
@@ -1590,7 +1587,7 @@ local Wiggle=${SICER_DIR}/extra/tools/wiggle
 	echo "RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
 	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
 	
-	echo "One TopHat is completed."
+	echo "echo [$(date "+%Y-%m-%d %H:%M")] RUN_TOPHAT_ANALYSIS---COMPLETED!"
 	echo ""
 	}
 
@@ -2281,6 +2278,30 @@ RUN_HiC_Iterative_Mapping(){
 ##BASIC FUNCTIONS
 ########################################################################
 ########################################################################
+REMOVE_REDUNDANCY_PICARD(){
+	## Remove Redundancy by Picard
+	CHECK_arguments $# 1
+	echo "[$(date "+%Y-%m-%d %H:%M")]--------Remove Redundancy by Picard"
+	local INPUT_FILE=${1}
+	if [ ! -f ${INPUT_FILE}_Dup_Removed.bam ];then
+		if [ ! -f ${INPUT_FILE}_sorted.bam ];then
+		echo "samtools sort -n -l 1 -o ${INPUT_FILE}_sorted.bam ${INPUT_FILE}.bam"
+		samtools sort -n -l 1 -o ${INPUT_FILE}_sorted.bam ${INPUT_FILE}.bam 
+		
+		echo "rm ${INPUT_FILE}.bam"
+		rm ${INPUT_FILE}.bam
+		
+		fi
+		echo "picard MarkDuplicates I=${INPUT_FILE}_sorted.bam O=${INPUT_FILE}_Dup_Removed.bam \
+		M=${INPUT_FILE}_Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true"
+		picard MarkDuplicates I=${INPUT_FILE}_sorted.bam O=${INPUT_FILE}_Dup_Removed.bam \
+		M=${INPUT_FILE}_Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true
+		
+		echo "rm ${INPUT_FILE}_sorted.bam"
+		rm ${INPUT_FILE}_sorted.bam
+	fi
+	echo "[$(date "+%Y-%m-%d %H:%M")]Remove Redundancy-------Comepleted!"
+	}
 
 FUNC_TEST(){
 	local AAA=$1
@@ -2342,10 +2363,10 @@ EMAIL_ME(){
 	}
 
 FUNC_Download (){
-	CHECK_arguments $# 1
+	CHECK_arguments $# 2
 ### Download Login information and the download directory.
 #### -nH --cut-dirs=3   Skip 3 directory components.
-	local Web_Address="http://dnacore454.healthcare.uiowa.edu/20180801-0173_Xue_Qiang10xlHvkfpSaYwqguDJdpweNNwvWQABoPGDdUkPXVGMZ/results/Project_Xue_Qiang10x/"
+	local Web_Address=${2}
 	local Directory_Skip_Num=4
 	local USER="gec"
 	local USER=""
@@ -2387,16 +2408,15 @@ CHECK_arguments(){
 DIR_CHECK_CREATE(){
 ### Saving DIR Check and Create
 #### Usage: DIR_CHECK_CREATE $@
-	echo ""
 	echo "DIR_CHECK_CREATE!"
-	echo "Input Dir: $@"
 	local Dirs=$@
 	for solo_dir in $Dirs
 	do
 		if [ ! -d $solo_dir ];then
 			echo "Dir check and create is $solo_dir"
-			echo ""
 			mkdir -p $solo_dir
+		else
+			echo "$solo_dir Exists."
 		fi
 	done
 	}
@@ -2472,13 +2492,14 @@ FUNC_Max(){
 
 # HELP INFORMATION
 ######################################
-##local INPUT_LABEL=${INPUT_NAME: 7:3}
+#${INPUT_FILE::-4}
+##local INPUT_LABEL=${INPUT_NAME: 7:4}
 ##Skip out of Sample_ (7), and forward with 4 more digits.
 ########################################################################
 #AWK
 #https://www.gnu.org/software/gawk/manual/gawk.html#Quoting
 #In general, you can stop the shell from interpreting a metacharacter by escaping it with a backslash (\)
 ######################################
-#
+# echo "[$(date "+%Y-%m-%d %H:%M")]  <YOUR CONTENT>"
 ##### Following Line is very IMPORTANT 
 #main "$@"
