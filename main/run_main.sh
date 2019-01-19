@@ -32,33 +32,29 @@ echo "Import functions.sh Completed!"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/TEST_Raw_Data/RNA_seq
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/2019/1901/RNA_seq/Tophat_Results
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Raw_Data/TEST_Data/RNA_seq
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/2019/1901/Treg_RNA_seq
 #__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 ########################################################################
 ##	MAIN BODY
 ########################################################################
 __INPUT_SAMPLE_List=(
-Sample_FY1_20190114000
-Sample_FY2_20190114000
-Sample_FY3_20190114000
-Sample_FY4_20190114000
-Sample_FY5_20190114000
-Sample_SP1_20190114000
-Sample_SP2_20190114000
-Sample_SP3_20190114000
-Sample_SP4_20190114000
-Sample_SP5_20190114000
-Sample_SP6_20190114000
-Sample_SP7_20190114000
-Sample_SP8_20190114000
-Sample_SP9_20190114000
-Sample_SP10_20190114000
+GK1_
+GK2
+GK3
+GK4
+GK5
+GK6
+GK7
+GK8
+GK9
+GK10
+GK11
 )
 
-__INPUT_SAMPLE_List=(
+__INPUT_SAMPLE_List_2=(
 Sample_GK1_20190114000
 Sample_GK2_20190114000
 Sample_GK3_20190114000
@@ -72,9 +68,6 @@ Sample_GK10_20190114000
 Sample_GK11_20190114000
 )
 
-__INPUT_SAMPLE_List=(
-FY1_test
-)
 
 main() {
 #### Saving DIR Check and Create
@@ -95,13 +88,13 @@ Data_Provider='Haihui'
 
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_List[*]} - 1); i++ ))
 do
-	FUNC_Download ${__INPUT_SAMPLE_List[i]} "http://shang.phys.gwu.edu/Test_Data"
+	#FUNC_Download ${__INPUT_SAMPLE_List[i]} "http://shang.phys.gwu.edu/Test_Data"
 	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_DIR_List[i]} 
-	PRE_READS_DIR ${__INPUT_SAMPLE_List[i]} 'fastq.gz' 'Pairs'
-	RUN_FAST_QC  
+	#PRE_READS_DIR ${__INPUT_SAMPLE_List[i]} 'fastq.gz' 'Pairs'
+	#RUN_FAST_QC  
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_List[i]} ${SPECIES} "Pre_Tfh_Th1" ${Data_Provider} 'no' &
-	RUN_TOPHAT ${__INPUT_SAMPLE_List[i]} "TEST" ${SPECIES} ${Data_Provider} 
-	#RUN_CUFFDIFF ${__INPUT_SAMPLE_DIR_List[*]}
+	#RUN_TOPHAT ${__INPUT_SAMPLE_List[i]} "TEST" ${SPECIES} ${Data_Provider} 
+	RUN_CUFFDIFF ${__INPUT_SAMPLE_List[*]}
 	#PRE_READS_DIR ${__INPUT_SAMPLE_List[0]} 'fastq.gz' 'Pairs'
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_List[0]} ${SPECIES} "CD8_hm_ChIPseq" ${Data_Provider} 'no'  
 	#RUN_MACS2 ${__INPUT_SAMPLE_List[0]} ${__INPUT_SAMPLE_DIR_List[1]} 'CD8_hm_ChIPseq' ${SPECIES} ${Data_Provider} 'bam'

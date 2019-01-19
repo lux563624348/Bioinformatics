@@ -999,7 +999,7 @@ esac
 	echo "longLabel ${Tracks_NAME}" >>$filename
 	echo "type bigBed" >>$filename
 	echo "visibility dense" >>$filename
-	echo "color 256,0,0" >>$filename
+	echo "color 0,100,0" >>$filename
 	echo "autoScale on" >>$filename
 	echo "alwaysZero on" >>$filename
 	echo "maxHeightPixels 100:16:8" >>$filename
@@ -1089,7 +1089,7 @@ esac
 	echo "type bigWig" >>$filename
 	echo "bigDataUrl ${bw_Url}" >>$filename
 	echo "visibility full" >>$filename
-	echo "color 256,0,0" >>$filename
+	echo "color 0,100,0" >>$filename
 	echo "autoScale on" >>$filename
 	echo "alwaysZero on" >>$filename
 	echo "maxHeightPixels 100:24:8" >>$filename
@@ -1184,7 +1184,7 @@ esac
 	echo "type bigWig" >>$filename
 	echo "bigDataUrl ${bw_Url}" >>$filename
 	echo "visibility full" >>$filename
-	echo "color 256,0,0" >>$filename
+	echo "color 0,100,0" >>$filename
 	echo "autoScale on" >>$filename
 	echo "alwaysZero on" >>$filename
 	echo "maxHeightPixels 100:24:8" >>$filename
@@ -1498,7 +1498,7 @@ esac
 
 RUN_TOPHAT(){
 #### Usage: RUN_TOPHAT $1 $2 $3 $4
-
+### for xx in $(find -name align_summary.txt); do echo $xx; sed -n '1,8p' $xx; done
 echo "[$(date "+%Y-%m-%d %H:%M")]--------------------RUN_TOPHAT_ANALYSIS"
 CHECK_arguments $# 4
 
@@ -2067,42 +2067,51 @@ macs2 bdgdiff --t1 ${IN_FILES[1]} --c1 ${IN_FILES[0]} --t2 ${CONTRO_FILE[1]} \
 RUN_CUFFDIFF(){
 	### RUN_CUFFDIFF $1 $2
 	####
-CHECK_arguments $# 4
+CHECK_arguments $# 11
 local INPUT_Args=("$@")
 local SAMPLE_NUM=${#INPUT_Args[*]}
-local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes.gtf
-local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm9_genes.gtf
+local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
+#local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
 local OUTPUT_Cuffdiff=${__EXE_PATH}/Cuffdiff_Results
+echo "[$(date "+%Y-%m-%d %H:%M")]-----RUN_CUFFDIFF---------------------"
 DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}
-
+echo "CUFFDIFF INPUT LIBS"
 #### Preparing the .bam files for cuffdiff
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do	
-	cd ${__RAW_DATA_PATH_DIR}
-	local DATA_BAM[$i]="$( find -name "${INPUT_Args[i]}.bam" | sort -n | xargs)"
+	cd ${__EXE_PATH}
+	local DATA_BAM[$i]="$( find -name "*${INPUT_Args[i]}*_Dup_Removed.bam" | sort -n | xargs)"
+	echo "samtools sort -l 1 -o ${DATA_BAM[$i]::-4}_sorted.bam ${DATA_BAM[$i]} "
+	#samtools sort -l 1 -o ${DATA_BAM[$i]::-4}_sorted.bam ${DATA_BAM[$i]} 
 	echo ""
-	echo "CuffDiff Library"
-	echo ${DATA_BAM[$i]}
-	echo ""
+	local DATA_BAM[$i]=${DATA_BAM[$i]::-4}_sorted.bam 
 done
 
 ### Four GROUP, each group has 3 DATA FILES, 
 ########################################################################
-if [ ${SAMPLE_NUM} -eq "4" ]
+if [ ${SAMPLE_NUM} -eq "11" ]
 then
-	local A_Label="WT_Tfh_Day8"
-	local B_Label="EKO_Tfh_Day8"
+	local A_Label="Eed_WT"
+	local B_Label="Eed_KO"
 	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
 	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}"
-	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]}
+	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]},${DATA_BAM[5]},${DATA_BAM[6]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]},${DATA_BAM[5]},${DATA_BAM[6]} &
 	echo ""
 	echo ""
+	
+	
+	local A_Label="Hdac12_WT"
+	local B_Label="Hdac12_KO"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
+	echo "${INPUT_Args} Data files are loading..."
+	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[7]},${DATA_BAM[8]},${DATA_BAM[9]},${DATA_BAM[10]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[7]},${DATA_BAM[8]},${DATA_BAM[9]},${DATA_BAM[10]}
+	
 fi
-
 ########################################################################
 
-echo "CuffDiff Completed!"
+echo "[$(date "+%Y-%m-%d %H:%M")]----------------RUN_CUFFDIFF COMPLETED!"
 	}
 
 RUN_Quant_IRI(){
@@ -2280,6 +2289,7 @@ RUN_HiC_Iterative_Mapping(){
 ########################################################################
 REMOVE_REDUNDANCY_PICARD(){
 	## Remove Redundancy by Picard
+	### for xx in $(find -name *Marked_dup_metrics.txt); do echo $xx; sed -n '7,8p' $xx | cut -f 9; done
 	CHECK_arguments $# 1
 	echo "[$(date "+%Y-%m-%d %H:%M")]--------Remove Redundancy by Picard"
 	local INPUT_FILE=${1}
