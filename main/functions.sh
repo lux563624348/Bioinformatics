@@ -2157,15 +2157,15 @@ RUN_Peaks_Distribution_Analysis(){
 RUN_Motif_Homer(){
 # http://homer.ucsd.edu/homer/ngs/peakMotifs.html
 ### RUN_Motif_Homer $1 $2 $3 $4
-	echo "RUN_Motif_Homer"
+	
 	CHECK_arguments $# 4
-
 	local INPUT_NAME=${1}
 	local INPUT_CON=${2}
 	local SPECIES=${3}
 	local SUMMIT_YESNO=${4}
+	echo "[$(date "+%Y-%m-%d %H:%M")] --------------RUN_Motif_Homer----"
 ########################################################################
-	local OUT_FOLDER=/home/data/www/Homer_Results/Motif_Results/${INPUT_NAME}_vs_${INPUT_CON}
+	local OUT_FOLDER=/home/data/www/Homer_Results/Motif_Results/${INPUT_NAME}_vs_${INPUT_CON}_test
 	DIR_CHECK_CREATE ${OUT_FOLDER}
 
 #### Default Input for homer motif is bed format.
@@ -2205,14 +2205,14 @@ RUN_Motif_Homer(){
 	echo " "
 	### Find Input File
 	local IN_FOLDER=${__RAW_DATA_PATH_DIR}
-	cd ${IN_FOLDER}
+	cd ${__RAW_DATA_PATH_DIR}
 	local IN_FILES="$( find -name "*${INPUT_NAME}*_summits.bed" | sort -n | xargs)"
 	### Find Contro Files
 	local CONTRO_FILE="$( find -name "*${INPUT_CON}*_summits.bed" | sort -n | xargs)"
 	########################################################################
 	echo "Motif Analysis Start......"
-	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS}"
-	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS}
+	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 20"
+	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 20
 	;;
 	"no")
 	echo "Normal Peaks Region!" 
@@ -2227,15 +2227,30 @@ RUN_Motif_Homer(){
 	
 	echo "Motif Analysis Start......"
 	cd ${OUT_FOLDER}
-	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS}"
-	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS}
+	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 20"
+	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 20
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
 	exit;;
 	esac
 	
-	echo "One RUN_HomerTools is Completed!"	
+	cd ${OUT_FOLDER}/homerResults/
+	for (( i = 1; i <= 20 ; i++ ))
+	do
+		echo "annotatePeaks.pl ${IN_FILES: 2} ${genome_shortcut} -m motif${i}.motif > motif_${i}.bed12"
+		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/homerResults/motif${i}.motif | cut -f 2,3,4,5,16,22 | awk  '$6!=""' > motif${i}.bed12.txt &
+	done
+	
+	
+	cd ${OUT_FOLDER}/knownResults/
+	for (( i = 1; i <= 20; i++ ))
+	do
+		echo "annotatePeaks.pl ${IN_FILES: 2} ${genome_shortcut} -m known${i}.motif > known${i}.bed12"
+		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/knownResults/known${i}.motif | cut -f 2,3,4,5,16,22 | awk  '$6!=""' > known${i}.bed12.txt &
+	done
+	
+	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_Motif_Homer Completed!--------"
 }
 
 RUN_HiC_Iterative_Mapping(){
