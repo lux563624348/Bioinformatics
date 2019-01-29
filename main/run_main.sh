@@ -32,42 +32,27 @@ echo "Import functions.sh Completed!"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/2019/1901/RNA_seq/Tophat_Results
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/TEST_Raw_Data
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/2019/1901/Treg_RNA_seq
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Raw_Data/TEST_Data_all_in_one
 #__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 ########################################################################
 ##	MAIN BODY
 ########################################################################
 __INPUT_SAMPLE_List=(
-GK1_
-GK2
-GK3
-GK4
-GK5
-GK6
-GK7
-GK8
-GK9
-GK10
-GK11
+K1_
+K2
+K3
+K4
+K5
+K6
+K7
+K8
+K9
+K10
+K11
 )
-
-__INPUT_SAMPLE_List_2=(
-Sample_GK1_20190114000
-Sample_GK2_20190114000
-Sample_GK3_20190114000
-Sample_GK4_20190114000
-Sample_GK5_20190114000
-Sample_GK6_20190114000
-Sample_GK7_20190114000
-Sample_GK8_20190114000
-Sample_GK9_20190114000
-Sample_GK10_20190114000
-Sample_GK11_20190114000
-)
-
 
 main() {
 #### Saving DIR Check and Create
@@ -83,56 +68,36 @@ echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 
 ###
 SPECIES='mm10'
-Data_Provider='Haihui'
+Data_Provider='XiangLi'
 ####
 
+FUNC_Download "http://shang.phys.gwu.edu/Test_Data" "test_Pipeline"
+### Loop Operation
+# https://stackoverflow.com/questions/10909685/run-parallel-multiple-commands-at-once-in-the-same-terminal
+#Num_Loop=$(expr $(expr ${#__INPUT_SAMPLE_List[*]} - 1) / 4)
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_List[*]} - 1); i++ ))
 do
-	#FUNC_Download ${__INPUT_SAMPLE_List[i]} "http://shang.phys.gwu.edu/Test_Data"
-	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_DIR_List[i]} 
-	#PRE_READS_DIR ${__INPUT_SAMPLE_List[i]} 'fastq.gz' 'Pairs'
-	#RUN_FAST_QC  
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_List[i]} ${SPECIES} "Pre_Tfh_Th1" ${Data_Provider} 'no' &
-	#RUN_TOPHAT ${__INPUT_SAMPLE_List[i]} "TEST" ${SPECIES} ${Data_Provider} 
-	RUN_CUFFDIFF ${__INPUT_SAMPLE_List[*]}
-	#PRE_READS_DIR ${__INPUT_SAMPLE_List[0]} 'fastq.gz' 'Pairs'
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_List[0]} ${SPECIES} "CD8_hm_ChIPseq" ${Data_Provider} 'no'  
-	#RUN_MACS2 ${__INPUT_SAMPLE_List[0]} ${__INPUT_SAMPLE_DIR_List[1]} 'CD8_hm_ChIPseq' ${SPECIES} ${Data_Provider} 'bam'
-	
-	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_List[i]} ${SPECIES}
-	
-	#RUN_Motif_Homer ${__INPUT_SAMPLE_DIR_List[0]} ${__INPUT_SAMPLE_DIR_List[1]} ${SPECIES} 'yes'
-
-	#RUN_RPKM ${__INPUT_SAMPLE_DIR_List[1]} 'bed' ${SPECIES} 
+	PRE_READS_DIR ${__INPUT_SAMPLE_List[i]} 'fastq.gz' 'Pairs'
+	#RUN_FAST_QC &
+	RUN_TOPHAT ${__INPUT_SAMPLE_List[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
+	PID_LIST+=" $pid";
 	#break
-	
-	#RUN_MACS2_Diff ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[1]}
-	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
-	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bedpe' &
-	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
-	#RUN_MACS2 ${__INPUT_SAMPLE_DIR_List[i]} 'Null' 'CD8-HP_DNaseq_MACS2_Merge_Replicates' ${SPECIES} ${Data_Provider} 'bampe' &
-	#RUN_bed2fastq ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
-
-	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
-	#RUN_Reads_Profile_Promoter 'TSS' ${__INPUT_SAMPLE_DIR_List[i]}
-	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]} 'bed'
-	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Treg_RNA-seq_201806" "mm9" "Haihui"
-	#RUN_Venn_Diagram ${__RAW_DATA_PATH_DIR} 'bed'
-	#break
-	
-	#RUN_Reads_Profile_Promoter_genebody ${__INPUT_SAMPLE_DIR_List[i]}
-	#RUN_TOPHAT ${__INPUT_SAMPLE_DIR_List[i]} "Treg" "mm10" "WT_Online_Ref"
-	#RUN_BED2WIG ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
-	
-	#RUN_Wig2BigWig ${__RAW_DATA_PATH_DIR}/${__INPUT_SAMPLE_DIR_List[i]} ${__INPUT_SAMPLE_DIR_List[i]} 'CD8-HP-DNase_seq' ${SPECIES} ${Data_Provider}
-	
-	#
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}
-	
 done
+#trap "kill $PID_LIST" SIGINT
+
+echo "Parallel processes have started";
+echo "wait ${PID_LIST}}....................................."
+wait ${PID_LIST}
+
+RUN_CUFFDIFF ${__INPUT_SAMPLE_List[*]}
+### Loop Operation
+
+### Single Operation
 	
+### Single Operation
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[15]} "Hdac" "mm10"
 	
 	echo "End Date: `date`"

@@ -38,7 +38,7 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 	Tools_DIR=/opt/tools
 	Python_Tools_DIR=~/cloud_research/PengGroup/XLi/Python_tools
 	Annotation_DIR=/home/Data/Annotation
-	THREADS=16
+	THREADS=8
 	# Tang
 	#Annotation_DIR=/home/Data/Annotation
 	#THREADS=16
@@ -183,7 +183,7 @@ esac
 	}
 
 RUN_SRA2FASTQ(){
-	## Usage : RUN_SRA2FASTQ $sra_files_path
+	## Usage : RUN_SRA2FASTQ ${__INPUT_SAMPLE_List[i]} 
 	#https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/
 	CHECK_arguments $# 1
 	## Given a path contains SraAccList.txt
@@ -248,6 +248,7 @@ done
 
 RUN_Venn_Diagram(){
 	#### Usage: RUN_Bedtools_Merge $1 $2
+		#RUN_Venn_Diagram ${__RAW_DATA_PATH_DIR} 'bed'
 	### For bed format Venn
 	:'For example:
 	Chr	 start	 end
@@ -363,6 +364,7 @@ RUN_Bedtools_Intersect(){
 
 RUN_Island_Filtered_Reads(){
 	#### usage RUN_RPKM $1 $2
+	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_DIR_List[i]} 'bedpe' &
 	CHECK_arguments $# 2
 	local File_Name=${1}
 	local FILE_TYPE=${2}
@@ -398,7 +400,7 @@ RUN_Island_Filtered_Reads(){
 }
 
 RUN_RPKM(){
-	#### usage RUN_RPKM $1 $2
+	#### usage: RUN_RPKM ${__INPUT_SAMPLE_List[1]} 'bed' ${SPECIES} 
 	CHECK_arguments $# 3
 	local File_Name=${1}
 	local File_Type=${2}
@@ -462,6 +464,7 @@ esac
 
 RUN_ROSE_SUPER_Enhancer(){
 	#### usage RUN_RPKM $1 $2
+	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_List[i]} ${SPECIES}
 	echo "RUN_ROSE_SUPER_Enhancer!"
 	CHECK_arguments $# 2
 	local File_Name=${1}
@@ -780,6 +783,7 @@ RUN_Counting_READS_Pair_End(){
 
 RUN_bed2fastq(){
 #### Usage: RUN_bed2fastq $1 $2($1 = Input_Name, $2 = FRAGMENT_SIZE) 
+#	#RUN_bed2fastq ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES}
 CHECK_arguments $# 2
 
 local INPUT_PATH=${__RAW_DATA_PATH_DIR}
@@ -1194,7 +1198,7 @@ esac
 RUN_Reads_Profile(){
 	### Usage: RUN_Reads_Profile $1 $2
 	####
-	
+	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
 	
 	CHECK_arguments $# 3
 	#### TSS or TES or GeneBody
@@ -1330,7 +1334,7 @@ RUN_HomerTools(){
 ########################################################################
 ## Alignor
 RUN_BOWTIE2(){
-	### RUN_BOWTIE2 $1 $2 $3 $4
+	### #RUN_BOWTIE2 ${__INPUT_SAMPLE_List[i]} ${SPECIES} "Pre_Tfh_Th1" ${Data_Provider} 'no' &
 	local INPUT_NAME=${1}
 	local SPECIES=${2}
 	local PROJECT_NAME=${3}
@@ -1497,7 +1501,7 @@ esac
 	}
 
 RUN_TOPHAT(){
-#### Usage: RUN_TOPHAT $1 $2 $3 $4
+#### Usage: RUN_TOPHAT ${__INPUT_SAMPLE_List[i]} "TEST" ${SPECIES} ${Data_Provider} 
 ### for xx in $(find -name align_summary.txt); do echo $xx; sed -n '1,8p' $xx; done
 echo "[$(date "+%Y-%m-%d %H:%M")]--------------------RUN_TOPHAT_ANALYSIS"
 CHECK_arguments $# 4
@@ -1512,8 +1516,8 @@ local Data_Provider=${4}
 local OUTPUT_TOPHAT_FOLDER="${__EXE_PATH}/Tophat_Results/${INPUT_NAME}"
 DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
 
-local WINDOW_SIZE=200
-local FRAGMENT_SIZE=$( expr $(zcat ${__FASTQ_DIR_R1[0]} | head -n 4 | sed '2q;d' | wc -c) - 1 + 50 )
+#local WINDOW_SIZE=200
+#local FRAGMENT_SIZE=$( expr $(zcat ${__FASTQ_DIR_R1[0]} | head -n 4 | sed '2q;d' | wc -c) - 1 + 50 )
 ########################################################################
 case ${SPECIES} in
 	"mm9")
@@ -1525,6 +1529,8 @@ case ${SPECIES} in
 	echo "Reference SPECIES is ${SPECIES}"
 	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
+	local Genome=~/cloud_research/PengGroup/XLi/Annotation/genome_sizes/mm10.chrom.sizes
+	local genome_shortcut="mm"
 	;;
 	"hg19")
 	echo "Not ready yet!"
@@ -1548,52 +1554,56 @@ case ${SPECIES} in
 	;;
 esac
 ########################################################################
-local EXEDIR=/opt/tools
-local SICER_DIR=${EXEDIR}/SICER1.1/SICER
-local Wiggle=${SICER_DIR}/extra/tools/wiggle
 
 #### Decide single end or pair ends mode
 #### NOW it is only compatible with single file. Not with pieces files.
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
-	echo "Pair End Mode"
-	echo "tophat -p ${THREADS} --no-discordant --no-mixed -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
-	tophat -p ${THREADS} --no-discordant --no-mixed -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
+		echo "Pair End Mode"
+		echo "tophat -p ${THREADS} --no-discordant --no-mixed --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
+		tophat -p ${THREADS} --no-discordant --no-mixed --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
+		## --read-gap-length 2 --read-mismatches 2 
+		echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
+		mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+		
+		echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
+		macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
+		
+		### a pipe to produce bedpe and then generate bdg.
+		#if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bedpe ];then
+		#	echo "samtools sort -n -l 1 ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam | bamToBed -bedpe -i stdin | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bedpe"
+		#	samtools sort -n -l 1 ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam | bamToBed -bedpe -i stdin | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bedpe
+		#fi
+		#local Input_Size=$(wc -l ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bedpe | cut -d' ' -f1)
+		#echo "bedtools genomecov -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bedpe -bga -split -g ${Genome} | awk -v size=${Input_Size} '{$4 = $4 * 1000000000 / size }1' > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bdg"
+		#bedtools genomecov -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bedpe -bga -split -g ${Genome} | awk -v size=${Input_Size} '{$4 = $4 * 1000000000 / size }1' > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bdg
+		### a pipe to produce bedpe and then generate bdg.
+		
 	else
-	echo "Single End Mode."
-	echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
-	tophat -p ${THREADS} -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
+		echo "Single End Mode."
+		echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
+		tophat -p ${THREADS} --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
+		echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
+		mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+		
+		echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
+		macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
 	fi
+	
+	### RNAseq no need to remove redundancy!!! 
+	#REMOVE_REDUNDANCY_PICARD ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}
+	### RNAseq no need to remove redundancy!!!
 
-	echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
-	mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_BedGraph2BigWig ${OUTPUT_TOPHAT_FOLDER}/macs2 ${INPUT_NAME}_treat_pileup ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
+	RUN_BedGraph2BigWig ${OUTPUT_TOPHAT_FOLDER}/macs2 ${INPUT_NAME}_treat_pileup ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
 	
-	REMOVE_REDUNDANCY_PICARD ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}
-	
-	
-	echo "bedtools bamtobed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
-	bedtools bamtobed -i ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
-	
-	echo "sh ${Wiggle}/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}"
-	sh ${Wiggle}/bed2wig.sh ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${SPECIES}
-	
-	### Then clear bed file.
-	if [ -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed ];then
-	echo "rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed"
-	rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bed
-	fi
-
-	
-	echo "RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-	RUN_Wig2BigWig ${OUTPUT_TOPHAT_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-RPKM ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
-	
-	echo "echo [$(date "+%Y-%m-%d %H:%M")] RUN_TOPHAT_ANALYSIS---COMPLETED!"
+	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_TOPHAT_ANALYSIS---COMPLETED!"
 	echo ""
 	}
 
 RUN_CELLRANGER(){
 #### Usage: RUN_TOPHAT $1 $2 $3
-
+	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
 echo "RUN_CELLRANGER_ANALYSIS"
 CHECK_arguments $# 2
 
@@ -1861,6 +1871,8 @@ RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized "Ezh2_ChIP_seq" 
 
 RUN_MACS2(){
 #### Usage: RUN_MACS2 $1 $2 $3 $4 $5 ($1 is input for MACS. $2 is the CONTRO Library $3 is label) 
+	#RUN_MACS2 ${__INPUT_SAMPLE_List[0]} ${__INPUT_SAMPLE_DIR_List[1]} 'CD8_hm_ChIPseq' ${SPECIES} ${Data_Provider} 'bam'
+
 echo "RUN_MACS2"
 CHECK_arguments $# 6
 
@@ -1981,6 +1993,7 @@ RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda $
 
 RUN_MACS2_Diff(){  ###Need Updated
 #### Usage: RUN_MACS2_Diff $1 $2 $3 $4 $5 $6 $threshold ($1 is input for con1. $2 is the CONTRO_1  $3 is Con2. $4 is the CONTRO_2 )
+#	#RUN_MACS2_Diff ${__INPUT_SAMPLE_DIR_List[3]} ${__INPUT_SAMPLE_DIR_List[1]}
 echo "RUN_MACS2 Diff"
 CHECK_arguments $# 2
 local EXEDIR="~/Software/python_tools/MACS2-2.1.1.20160309/bin"
@@ -2067,9 +2080,15 @@ macs2 bdgdiff --t1 ${IN_FILES[1]} --c1 ${IN_FILES[0]} --t2 ${CONTRO_FILE[1]} \
 RUN_CUFFDIFF(){
 	### RUN_CUFFDIFF $1 $2
 	####
-CHECK_arguments $# 11
+CHECK_arguments $# 5
 local INPUT_Args=("$@")
 local SAMPLE_NUM=${#INPUT_Args[*]}
+local Fold_Change=2.0
+local q_value=0.05
+local Num_Replicates_per_lib=23
+###Number of Replicates per lib. Such as 23 means one rep for first lib, 3 replicates for second and 2 for third.
+########################################################################
+########################################################################
 local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
 #local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
 local OUTPUT_Cuffdiff=${__EXE_PATH}/Cuffdiff_Results
@@ -2080,36 +2099,52 @@ echo "CUFFDIFF INPUT LIBS"
 for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
 do	
 	cd ${__EXE_PATH}
-	local DATA_BAM[$i]="$( find -name "*${INPUT_Args[i]}*_Dup_Removed.bam" | sort -n | xargs)"
-	echo "samtools sort -l 1 -o ${DATA_BAM[$i]::-4}_sorted.bam ${DATA_BAM[$i]} "
-	#samtools sort -l 1 -o ${DATA_BAM[$i]::-4}_sorted.bam ${DATA_BAM[$i]} 
+	local DATA_BAM[$i]="$( find -name "*${INPUT_Args[i]}*.bam" | sort -n | xargs)"
+	#echo "samtools sort -l 1 -o ${DATA_BAM[$i]::-4}_sorted.bam ${DATA_BAM[$i]} "
+	#samtools sort -l 1 -o ${DATA_BAM[$i]::-4}_sorted.bam ${DATA_BAM[$i]} & pid=$!
+	#local PID_LIST+=" $pid";
 	echo ""
-	local DATA_BAM[$i]=${DATA_BAM[$i]::-4}_sorted.bam 
+	#local DATA_BAM[$i]=${DATA_BAM[$i]::-4}_sorted.bam
 done
 
+#echo "wait ${PID_LIST}....................................."
+#wait ${PID_LIST}
 ### Four GROUP, each group has 3 DATA FILES, 
 ########################################################################
-if [ ${SAMPLE_NUM} -eq "11" ]
+if [ ${#DATA_BAM[*]}  -eq "5" ]
+then
+	local A_Label="Pre-_Tfh"
+	local B_Label="Pre-_Th1"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
+	echo "${INPUT_Args} Data files are loading..."
+	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[4]}"
+	#cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[4]}
+	echo ""
+fi
+
+if [ ${#DATA_BAM[*]} -eq "11" ]
 then
 	local A_Label="Eed_WT"
 	local B_Label="Eed_KO"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
+	#DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
 	echo "${INPUT_Args} Data files are loading..."
 	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]},${DATA_BAM[5]},${DATA_BAM[6]}"
-	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]},${DATA_BAM[5]},${DATA_BAM[6]} &
-	echo ""
+	#cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]},${DATA_BAM[5]},${DATA_BAM[6]} &
 	echo ""
 	
-	
-	local A_Label="Hdac12_WT"
+	local A_Label="Treg_WT"
 	local B_Label="Hdac12_KO"
 	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
 	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[7]},${DATA_BAM[8]},${DATA_BAM[9]},${DATA_BAM[10]}"
-	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[7]},${DATA_BAM[8]},${DATA_BAM[9]},${DATA_BAM[10]}
+	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[7]},${DATA_BAM[8]},${DATA_BAM[9]},${DATA_BAM[10]}"
+	#cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[7]},${DATA_BAM[8]},${DATA_BAM[9]},${DATA_BAM[10]}
 	
 fi
 ########################################################################
+
+echo "[$(date "+%Y-%m-%d %H:%M")]---------------------------------------"
+echo "[PCA_Heatmap_After_CuffDiff.py -i ${__EXE_PATH} -n RNAseq -l ${Num_Replicates_per_lib} -f ${Fold_Change} -q ${q_value}]"
+python ${Python_Tools_DIR}/PCA_Heatmap_After_CuffDiff.py -i ${__EXE_PATH} -n "RNAseq" -l ${Num_Replicates_per_lib} -f ${Fold_Change} -q ${q_value}
 
 echo "[$(date "+%Y-%m-%d %H:%M")]----------------RUN_CUFFDIFF COMPLETED!"
 	}
@@ -2130,6 +2165,7 @@ RUN_Quant_IRI(){
 
 RUN_Peaks_Distribution_Analysis(){
 	####RUN_Peaks_Distribution_Analysis $1
+	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	CHECK_arguments $# 2
 	
 	local INPUT_NAME=${1}
@@ -2156,7 +2192,8 @@ RUN_Peaks_Distribution_Analysis(){
 
 RUN_Motif_Homer(){
 # http://homer.ucsd.edu/homer/ngs/peakMotifs.html
-### RUN_Motif_Homer $1 $2 $3 $4
+###RUN_Motif_Homer ${__INPUT_SAMPLE_List[0]} ${__INPUT_SAMPLE_List[1]} ${SPECIES} 'yes'
+
 	
 	CHECK_arguments $# 4
 	local INPUT_NAME=${1}
@@ -2165,7 +2202,7 @@ RUN_Motif_Homer(){
 	local SUMMIT_YESNO=${4}
 	echo "[$(date "+%Y-%m-%d %H:%M")] --------------RUN_Motif_Homer----"
 ########################################################################
-	local OUT_FOLDER=/home/data/www/Homer_Results/Motif_Results/${INPUT_NAME}_vs_${INPUT_CON}_test
+	local OUT_FOLDER=/home/data/www/Homer_Results/Motif_Results/${INPUT_NAME}_vs_${INPUT_CON}
 	DIR_CHECK_CREATE ${OUT_FOLDER}
 
 #### Default Input for homer motif is bed format.
@@ -2391,31 +2428,30 @@ FUNC_Download (){
 	CHECK_arguments $# 2
 ### Download Login information and the download directory.
 #### -nH --cut-dirs=3   Skip 3 directory components.
-	local Web_Address=${2}
-	local Directory_Skip_Num=4
+	local Web_Address=${1}
+	local Directory_Skip_Num=5
 	local USER="gec"
 	local USER=""
 	local PASSWORD="aardvark dryer rummage"
 	local PASSWORD=""
-	cd ${__RAW_DATA_PATH_DIR}
-	local DOWNLOAD_TARGET_NAME=${1}/;
+	local DOWNLOAD_STORE_NAME=${1};
+	
+	local Down_dir=${__RAW_DATA_PATH_DIR}/${DOWNLOAD_STORE_NAME}/;
+	DIR_CHECK_CREATE ${Down_dir}
 ####If download file is a folder. IT MUST END WITH trailing slash  "/"
 ########################################################################
-
-
-
-	local Down_dir=${__RAW_DATA_PATH_DIR}/${DOWNLOAD_TARGET_NAME}/;
-	
+	cd ${Down_dir}
 	if [ -n "${USER}" -a -n "${PASSWORD}" ]
 	then
-	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}"
-	wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --user="${USER}" --password="${PASSWORD}" --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}
+	echo " [$(date "+%Y-%m-%d %H:%M")] Start Download................."
+	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}"
+	wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --user="${USER}" --password="${PASSWORD}" --accept=gz --no-parent ${Web_Address}
 	else
 #### NO PASSCODE
-	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}"
-	wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --accept=gz --no-parent ${Web_Address}/${DOWNLOAD_TARGET_NAME}
+	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --accept=gz --no-parent ${Web_Address}"
+	wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --accept=gz --no-parent ${Web_Address}
 	fi
-	echo "${DOWNLOAD_TARGET_NAME} Downloaded Completed"
+	echo "[$(date "+%Y-%m-%d %H:%M")] Downloaded Completed"
 	echo ""
 
 	}
