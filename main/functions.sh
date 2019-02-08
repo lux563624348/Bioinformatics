@@ -247,8 +247,7 @@ done
 	}
 
 RUN_Venn_Diagram(){
-	#### Usage: RUN_Bedtools_Merge $1 $2
-		#RUN_Venn_Diagram ${__RAW_DATA_PATH_DIR} 'bed'
+	#####RUN_Venn_Diagram ${__RAW_DATA_PATH_DIR} 'bed'
 	### For bed format Venn
 	:'For example:
 	Chr	 start	 end
@@ -489,7 +488,7 @@ RUN_ROSE_SUPER_Enhancer(){
 	;;
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/Super_enhancer/peaks
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/Super_enhancer/peaks
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -497,13 +496,15 @@ RUN_ROSE_SUPER_Enhancer(){
 	;;
 esac
 	
-	#cd ${Gene_list_folder}
+	cd ${Gene_list_folder}
 	#echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
 	local Input_A1_Lists=(
-	21129_ctrl_CD8_K27Ac_vs_ctrl_CD8_input_final_removal.bed
-	#9472_Intersection_ctrl_CD8_K27Ac_CD8_TCF1_peaks.bed
+	#13449_ctrl_CD8_K27Ac.bed
+	11956_dKO_CD8_K27Ac.bed
+	#1650_dKO_CD8_K27Ac_final.bed
+	#2236_ctrl_CD8_K27Ac_final.bed
 	)
 	
 		
@@ -1196,7 +1197,7 @@ esac
 }
 
 RUN_Reads_Profile(){
-	### Usage: RUN_Reads_Profile $1 $2
+	### Usage: RUN_Reads_Profile $1 $2 $3
 	####
 	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_DIR_List[i]} ${SPECIES} &
 	
@@ -1209,9 +1210,9 @@ RUN_Reads_Profile(){
 	
 	
 	
-	local FRAGMENTSIZE=100
-	local UP_EXTENSION=5000
-	local DOWN_EXTENSION=5000
+	local FRAGMENTSIZE=150
+	local UP_EXTENSION=2000
+	local DOWN_EXTENSION=2000
 	local WINDOWSIZE=100
 	local RESOLUTION=10
 	local NORMALIZATION=1.0
@@ -1219,9 +1220,10 @@ RUN_Reads_Profile(){
 	
 	
 	#### Genelist for Profile
-	local GENE_LIST_FOLDER=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe_combined_repplicates
+	local GENE_LIST_FOLDER=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe/Union_all
 	GENELIST_LIST=(
-	Union_WT-na_dKO-na.bed
+	1297_Tcf1_Motif_+_Union_peaks.bed
+	12532_TCF1+_TCF1_MOTIF_-_Union_peaks.bed
 	)
 	#### Genelist for Profile
 	
@@ -1475,8 +1477,8 @@ esac
 		#echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
 		#RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
 		
-		echo "bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe"
-		bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe
+		echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe"
+		bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe
 		
 	fi
 	else
@@ -1484,9 +1486,9 @@ esac
 		echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
 		bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
 		
-		## 50% peaks overlap rate will be dropped.
-		echo "bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed"
-		bedtools intersect -v -e -f 0.5 -F 0.1 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
+		## either 50% of A is covered OR 50% of B is covered
+		echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed"
+		bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
 		
 		echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
 		rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
@@ -1833,40 +1835,42 @@ esac
 
 ## Peaks Calling.
 RUN_SICER(){
-#### Usage: RUN_SICER $1 $2 $3 ($1 is input for SICER. $2 is the CONTRO Library, $3 is the Gap set.) 
+#### Usage: RUN_SICER $1 $2 $3 ($1 is input for SICER. $2 is the CONTRO Library, $3 is the Gap set.)
+### RUN_SICER ${__INPUT_SAMPLE_List[1]} ${__INPUT_SAMPLE_List[0]} 400 "CD8-K27Ac" ${SPECIES} ${Data_Provider} 
 echo "RUN_SICER"
-CHECK_arguments $# 3
+CHECK_arguments $# 6
 local EXEDIR="${Tools_DIR}/SICER1.1/SICER"
-local FRAGMENT_SIZE=100
+local FRAGMENT_SIZE=50
 local REDUNDANCY=1
-local WINDOW_SIZE=200
+local WINDOW_SIZE=20
 local INPUT_NAME=${1}
 local INPUI_CON=${2}
 local GAP_SET=${3}
-local EFFECTIVEGENOME=0.85 
+local INPUT_LABEL=${4}
+local SPECIES=${5}
+local Data_Provider=${6}
+local EFFECTIVEGENOME=0.85
 local FDR=0.05
 
-
 local IN_SICER_FOLDER=${__RAW_DATA_PATH_DIR}/${INPUT_NAME}
-local IN_SICER_FILES=${INPUT_NAME}.bed
+local IN_SICER_FILES=${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
 
 local CONTRO_SICER_DIR=${__RAW_DATA_PATH_DIR}/${INPUI_CON}
-local CONTRO_SICER_FILE=${INPUI_CON}.bed
+local CONTRO_SICER_FILE=${INPUI_CON}_Dup_Simple_Repeats_Removed.bed
 
 local OUT_SICER_FOLDER=${__EXE_PATH}/SICER_Results/${INPUT_NAME}
 DIR_CHECK_CREATE ${OUT_SICER_FOLDER}
 
 cd ${OUT_SICER_FOLDER}
 
-echo "bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} mm9 ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
-bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} "mm9" ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
+echo "bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} ${SPECIES} ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
+#bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} ${SPECIES} ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
 
 
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME}_Dup_Simple_Repeats_Removed-W${WINDOW_SIZE}-normalized ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}_Dup_Simple_Repeats_Removed-W${WINDOW_SIZE}-normalized ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
 
-RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME}-W200-normalized "Ezh2_ChIP_seq" "mm9" "Haihui"
-RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W200-normalized "Ezh2_ChIP_seq" "mm9" "Haihui"
-
-
+echo "[$(date "+%Y-%m-%d %H:%M")]  SICER IS FINISHED................"
 	}
 
 RUN_MACS2(){
@@ -2193,8 +2197,6 @@ RUN_Peaks_Distribution_Analysis(){
 RUN_Motif_Homer(){
 # http://homer.ucsd.edu/homer/ngs/peakMotifs.html
 ###RUN_Motif_Homer ${__INPUT_SAMPLE_List[0]} ${__INPUT_SAMPLE_List[1]} ${SPECIES} 'yes'
-
-	
 	CHECK_arguments $# 4
 	local INPUT_NAME=${1}
 	local INPUT_CON=${2}
@@ -2248,8 +2250,8 @@ RUN_Motif_Homer(){
 	local CONTRO_FILE="$( find -name "*${INPUT_CON}*_summits.bed" | sort -n | xargs)"
 	########################################################################
 	echo "Motif Analysis Start......"
-	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 20"
-	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 20
+	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 10"
+	#findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 10
 	;;
 	"no")
 	echo "Normal Peaks Region!" 
@@ -2264,8 +2266,8 @@ RUN_Motif_Homer(){
 	
 	echo "Motif Analysis Start......"
 	cd ${OUT_FOLDER}
-	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 20"
-	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 20
+	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10"
+	#findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -2273,20 +2275,37 @@ RUN_Motif_Homer(){
 	esac
 	
 	cd ${OUT_FOLDER}/homerResults/
-	for (( i = 1; i <= 20 ; i++ ))
+	for (( i = 1; i <= 10 ; i++ ))
 	do
-		echo "annotatePeaks.pl ${IN_FILES: 2} ${genome_shortcut} -m motif${i}.motif > motif_${i}.bed12"
-		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/homerResults/motif${i}.motif | cut -f 2,3,4,5,16,22 | awk  '$6!=""' > motif${i}.bed12.txt &
+		echo "annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/homerResults/motif${i}.motif -mbed motif${i}.bed.txt"
+		#annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/homerResults/motif${i}.motif -mbed motif${i}.bed.txt  
+		annotatePeaks.pl motif${i}.bed.txt ${genome_shortcut} -gtf ~/cloud_research/PengGroup/XLi/Annotation/gtf_files/GFF3/mm9_2015.gff3 -gene ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h/gene_exp.diff  > expression_motif${i}.bed.txt
+		break
+		PID_LIST+=" $pid";
 	done
 	
+	echo "Parallel processes have started";
+	echo "wait ${PID_LIST}}....................................."
+	#wait ${PID_LIST}
+	echo "python ${Python_Tools_DIR}/genelist_associated_expression.py -m ${OUT_FOLDER}/homerResults -i "~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h""
+	#python ${Python_Tools_DIR}/genelist_associated_expression.py -m ${OUT_FOLDER}/homerResults -i "~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h"
 	
+		
 	cd ${OUT_FOLDER}/knownResults/
-	for (( i = 1; i <= 20; i++ ))
+	for (( i = 1; i <= 10; i++ ))
 	do
-		echo "annotatePeaks.pl ${IN_FILES: 2} ${genome_shortcut} -m known${i}.motif > known${i}.bed12"
-		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/knownResults/known${i}.motif | cut -f 2,3,4,5,16,22 | awk  '$6!=""' > known${i}.bed12.txt &
+		echo " "
+		#echo "annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/knownResults/known${i}.motif | cut -f 2,3,4,10,16 | awk 'BEGIN {FS="\t"; OFS="\t"} {print $1,$2,$3,$5,$4}' > known${i}.bed12.txt"
+		#annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/knownResults/known${i}.motif | cut -f 2,3,4,10,16 | awk 'BEGIN {FS="\t"; OFS="\t"} {print $1,$2,$3,$5,$4}' > known${i}.bed12.txt & pid=$!
+		#PID_LIST+=" $pid";
 	done
 	
+	echo "Parallel processes have started";
+	#echo "wait ${PID_LIST}}....................................."
+#wait ${PID_LIST}
+	echo "python ${Python_Tools_DIR}/genelist_associated_expression.py -m ${OUT_FOLDER}/knownResults -i ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h"
+	#python ${Python_Tools_DIR}/genelist_associated_expression.py -m ${OUT_FOLDER}/knownResults -i "~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h"
+
 	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_Motif_Homer Completed!--------"
 }
 
@@ -2328,6 +2347,9 @@ RUN_HiC_Iterative_Mapping(){
 	echo "Finished!..."
 	
 	}
+	## HIC from xxx to xxx.hic
+	##nohup java -Xmx2000m -jar /opt/tools/juicer_tools.1.7.6_jcuda.0.8.jar pre -q 30 stim_WT_CD8_Juicebox_input.txt.gz stim_WT_CD8_Juicebox_q30.hic mm9 > q30.log &
+	###
 ## END OF MODULES
 
 ######################################

@@ -32,26 +32,17 @@ echo "Import functions.sh Completed!"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Raw_Data/TEST_Raw_Data
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/SICER_Results/ctrl_CD8_K27Ac
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Raw_Data/TEST_Data_all_in_one
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/profile_on_DNase_sites
 #__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 ########################################################################
 ##	MAIN BODY
 ########################################################################
 __INPUT_SAMPLE_List=(
-K1_
-K2
-K3
-K4
-K5
-K6
-K7
-K8
-K9
-K10
-K11
+ctrl_CD8_K27Ac
+#dKO_CD8_K27Ac
 )
 
 main() {
@@ -67,20 +58,25 @@ echo "-----------------------------------------------------------------"
 echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 
 ###
-SPECIES='mm10'
-Data_Provider='XiangLi'
+SPECIES='mm9'
+Data_Provider='Haihui'
 ####
 
-FUNC_Download "http://shang.phys.gwu.edu/Test_Data" "test_Pipeline"
+#FUNC_Download "http://shang.phys.gwu.edu/Test_Data" "test_Pipeline"
 ### Loop Operation
 # https://stackoverflow.com/questions/10909685/run-parallel-multiple-commands-at-once-in-the-same-terminal
 #Num_Loop=$(expr $(expr ${#__INPUT_SAMPLE_List[*]} - 1) / 4)
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_List[*]} - 1); i++ ))
 do
-	PRE_READS_DIR ${__INPUT_SAMPLE_List[i]} 'fastq.gz' 'Pairs'
+	#PRE_READS_DIR ${__INPUT_SAMPLE_List[i]} 'fastq.gz' 'Pairs'
 	#RUN_FAST_QC &
-	RUN_TOPHAT ${__INPUT_SAMPLE_List[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
-	PID_LIST+=" $pid";
+	#RUN_TOPHAT ${__INPUT_SAMPLE_List[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
+	#RUN_Venn_Diagram ${__RAW_DATA_PATH_DIR} 'bed'
+	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_List[0]}
+	RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_List[i]} ${SPECIES}
+	#RUN_SICER ${__INPUT_SAMPLE_List[1]} ${__INPUT_SAMPLE_List[0]} 400 "CD8-K27Ac" ${SPECIES} ${Data_Provider} & pid=$!
+	#PID_LIST+=" $pid";
+	break
 	#break
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
@@ -92,7 +88,6 @@ echo "Parallel processes have started";
 echo "wait ${PID_LIST}}....................................."
 wait ${PID_LIST}
 
-RUN_CUFFDIFF ${__INPUT_SAMPLE_List[*]}
 ### Loop Operation
 
 ### Single Operation
