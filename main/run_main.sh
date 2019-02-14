@@ -32,17 +32,17 @@ echo "Import functions.sh Completed!"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/SICER_Results/ctrl_CD8_K27Ac
+__RAW_DATA_PATH_DIR=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe/Union_all
 #### Execution or Output directory
-__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/profile_on_DNase_sites
+__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe/Union_all/version.beta
 #__EXE_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ########################################################################
 ########################################################################
 ##	MAIN BODY
 ########################################################################
 __INPUT_SAMPLE_List=(
-ctrl_CD8_K27Ac
-#dKO_CD8_K27Ac
+12532_TCF1+_TCF1_MOTIF_-_Union_peak_For_HTseq
+1297_Tcf1_Motif_+_Union_peak_For_HTseq
 )
 
 main() {
@@ -73,10 +73,11 @@ do
 	#RUN_TOPHAT ${__INPUT_SAMPLE_List[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__RAW_DATA_PATH_DIR} 'bed'
 	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_List[0]}
-	RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_List[i]} ${SPECIES}
+	RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_List[i]} ${SPECIES} & pid=$!
+	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_List[i]} ${SPECIES}
 	#RUN_SICER ${__INPUT_SAMPLE_List[1]} ${__INPUT_SAMPLE_List[0]} 400 "CD8-K27Ac" ${SPECIES} ${Data_Provider} & pid=$!
-	#PID_LIST+=" $pid";
-	break
+	PID_LIST+=" $pid";
+	#break
 	#break
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."

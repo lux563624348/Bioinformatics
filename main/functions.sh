@@ -1458,7 +1458,7 @@ esac
 		echo "picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
 		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true REMOVE_SEQUENCING_DUPLICATES=true ASSUME_SORT_ORDER=queryname"
 		picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
-		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true  #Possible values: {unsorted, queryname, coordinate, duplicate, unknown}
 		
 		echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
 		rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
@@ -1832,6 +1832,12 @@ esac
 	echo "One Bowtie2 is Completed!"
 	}
 
+RUN_fit_hic_display(){
+	xx=$(find -name "*.significances.txt")
+	for path in ${xx[*]}; do zcat ${path} | awk '{if(NR>1)print $1"\t"$2"\t"$2+1"\t"$3":"$4"-"$4+1","$5"\t"(NR-1)"\t""."}' | bgzip > ${path:2}.interact.gz & done
+	bgzip interaction.txt
+	tabix -p bed interaction.txt.gz
+	}
 
 ## Peaks Calling.
 RUN_SICER(){
@@ -2169,28 +2175,55 @@ RUN_Quant_IRI(){
 
 RUN_Peaks_Distribution_Analysis(){
 	####RUN_Peaks_Distribution_Analysis $1
-	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_DIR_List[i]}
 	CHECK_arguments $# 2
-	
 	local INPUT_NAME=${1}
-	local INPUT_FILE_TYPE=${2}
-	
+	local Species=${2}
 	local EXEDIR=${Tools_DIR}/Python_tools
 
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/mm10_genes.gtf
+echo "[$(date "+%Y-%m-%d %H:%M")]  RUN_Peaks_Distribution_Analysis......"
+
+case ${Species} in
+	"mm9")
+	echo "Reference SPECIES is ${Species}"
+	local GTFFILE=~/cloud_research/PengGroup/ZZeng/Annotation/gtf_files/mm9_IR_annotation.gtf
+	;;
+	"mm10")
+	echo "Reference SPECIES is ${Species}"
+	#local #GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
+	;;
+	"hg19")
+	echo "Not ready yet!"
+	echo "Reference SPECIES is ${Species}"
+	#local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
+	;;
+	"hg38")
+	echo "Reference SPECIES is ${Species}"
+	#local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/hg38_2015.gtf
+	;;
+	"dm6") 
+	echo "Reference SPECIES is ${Species}"
+	echo "Not ready yet!"
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+
 
 ### This parameter means that Promoter [-1k TSS, +1k TSS] Gene_body[+1k TSS. TES]
 	local PROMOTER_UPSTREAM_EXTENSION=1001   # Upstream extension, the distance from TSS.
-	local TSS_REGION_LENGTH=2000
+	local PROMOTER_REGION_LENGTH=2000
 
 
-	local INPUTFILE=${INPUT_NAME}.${INPUT_FILE_TYPE}
+	local INPUTFILE=${INPUT_NAME}.bed
 	local OUTPUTFILE=${INPUT_NAME}_distribution.txt
 
-	echo "python ${EXEDIR}/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g ${GTFFILE} -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE"
-	python ${EXEDIR}/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g ${GTFFILE} -u $PROMOTER_UPSTREAM_EXTENSION -t $TSS_REGION_LENGTH -o ${__EXE_PATH}/$OUTPUTFILE
+	echo "python ${EXEDIR}/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g ${GTFFILE} -u ${PROMOTER_UPSTREAM_EXTENSION} -t ${PROMOTER_REGION_LENGTH} -o ${__EXE_PATH}/${OUTPUTFILE}"
+	python ${EXEDIR}/peaks_count_on_genic_region.py -i ${__RAW_DATA_PATH_DIR}/$INPUTFILE -g ${GTFFILE} -u ${PROMOTER_UPSTREAM_EXTENSION} -t ${PROMOTER_REGION_LENGTH} -o ${__EXE_PATH}/${OUTPUTFILE}
 	echo ""
-	echo ""
+
+echo "[$(date "+%Y-%m-%d %H:%M")]  RUN_Peaks_Distribution_Analysis....Completed.."
 
 	}
 
