@@ -2247,6 +2247,7 @@ RUN_Motif_Homer(){
 	case ${SPECIES} in
 		"mm9")
 		local genome_shortcut='mm9'
+		local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
 		;;
 		"mm10")
 		local genome_shortcut='mm10'
@@ -2284,10 +2285,10 @@ RUN_Motif_Homer(){
 	########################################################################
 	echo "Motif Analysis Start......"
 	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 10"
-	#findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 10
+	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 10
 	;;
 	"no")
-	echo "Normal Peaks Region!" 
+	echo "Using Normal Peaks Region!" 
 	### Find Input File
 	local IN_FOLDER=${__RAW_DATA_PATH_DIR}
 	cd ${IN_FOLDER}
@@ -2300,45 +2301,53 @@ RUN_Motif_Homer(){
 	echo "Motif Analysis Start......"
 	cd ${OUT_FOLDER}
 	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10"
-	#findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10
+	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
 	exit;;
 	esac
 	
+	
 	cd ${OUT_FOLDER}/homerResults/
-	for (( i = 1; i <= 10 ; i++ ))
-	do
-		echo "annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/homerResults/motif${i}.motif -mbed motif${i}.bed.txt"
-		#annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/homerResults/motif${i}.motif -mbed motif${i}.bed.txt  
-		annotatePeaks.pl motif${i}.bed.txt ${genome_shortcut} -gtf ~/cloud_research/PengGroup/XLi/Annotation/gtf_files/GFF3/mm9_2015.gff3 -gene ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h/gene_exp.diff  > expression_motif${i}.bed.txt
-		break
+	
+	### NExt time add one more variable for expression
+	local CuffDiff_Expression=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h/gene_exp.diff
+	
+	
+	for (( i = 1; i <= 5 ; i++ ))
+	do 		### find motif hits coordinates
+		echo "annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -gtf ${GTFFILE} -size -100,100 -m ${OUT_FOLDER}/homerResults/motif${i}.motif -mbed motif${i}.bed"
+		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -gtf ${GTFFILE} -size -100,100 -m ${OUT_FOLDER}/homerResults/motif${i}.motif -mbed motif${i}.bed
+		
+		### Homer Gene Aossociation just does not working. I tried with -gtf xxx(This makes it worse), some gene_id will be ignored. 
+		echo "annotatePeaks.pl motif${i}.bed ${genome_shortcut} -gtf ${GTFFILE} -go motif${i}_go_analysis -genomeOntology motif${i}_genomeOntology | cut -f 2,3,4,5,10,16 > motif${i}.bed.gene_association.txt"
+		annotatePeaks.pl motif${i}.bed ${genome_shortcut} -gtf ${GTFFILE} -go motif${i}_go_analysis -genomeOntology motif${i}_genomeOntology | cut -f 2,3,4,5,10,16 > motif${i}.bed.gene_association.txt & pid=$!
+		
 		PID_LIST+=" $pid";
 	done
-	
-	echo "Parallel processes have started";
 	echo "wait ${PID_LIST}}....................................."
-	#wait ${PID_LIST}
-	echo "python ${Python_Tools_DIR}/genelist_associated_expression.py -m ${OUT_FOLDER}/homerResults -i "~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h""
-	#python ${Python_Tools_DIR}/genelist_associated_expression.py -m ${OUT_FOLDER}/homerResults -i "~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h"
+	wait ${PID_LIST}
 	
+	echo "python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/homerResults/ -e ${CuffDiff_Expression}"
+	python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/homerResults/ -e ${CuffDiff_Expression}
 		
 	cd ${OUT_FOLDER}/knownResults/
-	for (( i = 1; i <= 10; i++ ))
+	for (( i = 1; i <= 5; i++ ))
 	do
-		echo " "
-		#echo "annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/knownResults/known${i}.motif | cut -f 2,3,4,10,16 | awk 'BEGIN {FS="\t"; OFS="\t"} {print $1,$2,$3,$5,$4}' > known${i}.bed12.txt"
-		#annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${OUT_FOLDER}/knownResults/known${i}.motif | cut -f 2,3,4,10,16 | awk 'BEGIN {FS="\t"; OFS="\t"} {print $1,$2,$3,$5,$4}' > known${i}.bed12.txt & pid=$!
-		#PID_LIST+=" $pid";
+		### find motif hits coordinates
+		echo "annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -gtf ${GTFFILE} -size -100,100 -m ${OUT_FOLDER}/knownResults/known${i}.motif -mbed known${i}.bed"
+		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -gtf ${GTFFILE} -size -100,100 -m ${OUT_FOLDER}/knownResults/known${i}.motif -mbed known${i}.bed
+		
+		### Homer Gene Aossociation just does not working. I tried with -gtf xxx(This makes it worse), some gene_id will be ignored. 
+		echo "annotatePeaks.pl known${i}.bed ${genome_shortcut} -gtf ${GTFFILE} -go known${i}_go_analysis -genomeOntology known${i}_genomeOntology | cut -f 2,3,4,5,10,16 > known${i}.bed.gene_association.txt"
+		annotatePeaks.pl known${i}.bed ${genome_shortcut} -gtf ${GTFFILE} -go known${i}_go_analysis -genomeOntology known${i}_genomeOntology | cut -f 2,3,4,5,10,16 > known${i}.bed.gene_association.txt & pid=$!
+		PID_LIST+=" $pid";
 	done
-	
-	echo "Parallel processes have started";
-	#echo "wait ${PID_LIST}}....................................."
-#wait ${PID_LIST}
-	echo "python ${Python_Tools_DIR}/genelist_associated_expression.py -m ${OUT_FOLDER}/knownResults -i ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h"
-	#python ${Python_Tools_DIR}/genelist_associated_expression.py -m ${OUT_FOLDER}/knownResults -i "~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h"
-
+	echo "wait ${PID_LIST}}....................................."
+	wait ${PID_LIST}
+	echo "python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/knownResults/ -e ${CuffDiff_Expression}"
+	python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/knownResults/ -e ${CuffDiff_Expression}
 	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_Motif_Homer Completed!--------"
 }
 
