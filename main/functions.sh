@@ -2230,14 +2230,15 @@ echo "[$(date "+%Y-%m-%d %H:%M")]  RUN_Peaks_Distribution_Analysis....Completed.
 RUN_Motif_Homer(){
 # http://homer.ucsd.edu/homer/ngs/peakMotifs.html
 ###RUN_Motif_Homer ${__INPUT_SAMPLE_List[0]} ${__INPUT_SAMPLE_List[1]} ${SPECIES} 'yes'
-	CHECK_arguments $# 4
+	CHECK_arguments $# 5
 	local INPUT_NAME=${1}
 	local INPUT_CON=${2}
 	local SPECIES=${3}
-	local SUMMIT_YESNO=${4}
+	local CuffDiff_Expression=${4}
+	local SUMMIT_YESNO=${5}
 	echo "[$(date "+%Y-%m-%d %H:%M")] --------------RUN_Motif_Homer----"
 ########################################################################
-	local OUT_FOLDER=/home/data/www/Homer_Results/Motif_Results/${INPUT_NAME}_vs_${INPUT_CON}
+	local OUT_FOLDER=/home/data/www/Homer_Results/Motif_Results/${INPUT_NAME:0:8}_vs_${INPUT_CON:0:8}
 	DIR_CHECK_CREATE ${OUT_FOLDER}
 
 #### Default Input for homer motif is bed format.
@@ -2270,38 +2271,35 @@ RUN_Motif_Homer(){
 	echo "Homer Motif Picks Up Reference Genome as ${genome_shortcut}!"
 	echo " "
 	########################################################################
-
+	local IN_FOLDER=${__RAW_DATA_PATH_DIR}
 	case ${SUMMIT_YESNO} in
 	"yes")
 	echo "Using SUMMIT FILE FROM MACS2!"
 	### homer can automatically extend region with respect to its center.
 	echo " "
 	### Find Input File
-	local IN_FOLDER=${__RAW_DATA_PATH_DIR}
-	cd ${__RAW_DATA_PATH_DIR}
+
+	cd ${IN_FOLDER}
 	local IN_FILES="$( find -name "*${INPUT_NAME}*_summits.bed" | sort -n | xargs)"
 	### Find Contro Files
 	local CONTRO_FILE="$( find -name "*${INPUT_CON}*_summits.bed" | sort -n | xargs)"
 	########################################################################
 	echo "Motif Analysis Start......"
-	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 10"
-	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE: 2} -size -100,100 -p ${THREADS} -S 10
+	echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE} -size -100,100 -p ${THREADS} -S 10"
+	#findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE} -size -100,100 -p ${THREADS} -S 10 
 	;;
+	
 	"no")
 	echo "Using Normal Peaks Region!" 
 	### Find Input File
-	local IN_FOLDER=${__RAW_DATA_PATH_DIR}
 	cd ${IN_FOLDER}
 	local IN_FILES="$( find -name "*${INPUT_NAME}*.bed" | sort -n | xargs)"
 	### Find Contro Files
-	local CONTRO_FOLDER=${__RAW_DATA_PATH_DIR}
-	cd ${CONTRO_FOLDER}
 	local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bed" | sort -n | xargs)"
-	
+	########################################################################
 	echo "Motif Analysis Start......"
-	cd ${OUT_FOLDER}
-	echo "findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10"
-	findMotifsGenome.pl ${IN_FILES: 2} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10
+	echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10 "
+	#findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -2309,43 +2307,42 @@ RUN_Motif_Homer(){
 	esac
 	
 	
+
 	cd ${OUT_FOLDER}/homerResults/
-	
-	### NExt time add one more variable for expression
-	local CuffDiff_Expression=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/WT_72h_vs_WT_0h/gene_exp.diff
-	
-	
-	for (( i = 1; i <= 5 ; i++ ))
+	for (( i = 1; i <= 10 ; i++ ))
 	do 		### find motif hits coordinates
-		echo "annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -gtf ${GTFFILE} -size -100,100 -m ${OUT_FOLDER}/homerResults/motif${i}.motif -mbed motif${i}.bed"
-		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -gtf ${GTFFILE} -size -100,100 -m ${OUT_FOLDER}/homerResults/motif${i}.motif -mbed motif${i}.bed
-		
+		break
+		local Motif_Path=${OUT_FOLDER}/homerResults/motif${i}.motif
+		local Motif_Out=${OUT_FOLDER}/homerResults/motif${i}
+		DIR_CHECK_CREATE ${Motif_Out}
+		echo "Default peak region for motif discovery is 200 bps."
+		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -m ${Motif_Path} -mbed ${Motif_Out}/motif${i}.bed -noann -nogene -annStats ${Motif_Out}/motif${i}_Stats.txt > ${Motif_Out}/motif${i}_annotation.txt
 		### Homer Gene Aossociation just does not working. I tried with -gtf xxx(This makes it worse), some gene_id will be ignored. 
-		echo "annotatePeaks.pl motif${i}.bed ${genome_shortcut} -gtf ${GTFFILE} -go motif${i}_go_analysis -genomeOntology motif${i}_genomeOntology | cut -f 2,3,4,5,10,16 > motif${i}.bed.gene_association.txt"
-		annotatePeaks.pl motif${i}.bed ${genome_shortcut} -gtf ${GTFFILE} -go motif${i}_go_analysis -genomeOntology motif${i}_genomeOntology | cut -f 2,3,4,5,10,16 > motif${i}.bed.gene_association.txt & pid=$!
+		annotatePeaks.pl ${Motif_Out}/motif${i}.bed ${genome_shortcut} -go ${Motif_Out}/GO -genomeOntology ${Motif_Out}/genomeOntology | cut -f 2,3,4,5,10,16 > motif${i}.bed.gene_association.txt & pid=$!
 		
 		PID_LIST+=" $pid";
 	done
-	echo "wait ${PID_LIST}}....................................."
-	wait ${PID_LIST}
-	
+	#echo "wait ${PID_LIST}}....................................."
+	#wait ${PID_LIST}
 	echo "python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/homerResults/ -e ${CuffDiff_Expression}"
 	python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/homerResults/ -e ${CuffDiff_Expression}
 		
 	cd ${OUT_FOLDER}/knownResults/
-	for (( i = 1; i <= 5; i++ ))
+	for (( i = 1; i <= 10; i++ ))
 	do
-		### find motif hits coordinates
-		echo "annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -gtf ${GTFFILE} -size -100,100 -m ${OUT_FOLDER}/knownResults/known${i}.motif -mbed known${i}.bed"
-		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -gtf ${GTFFILE} -size -100,100 -m ${OUT_FOLDER}/knownResults/known${i}.motif -mbed known${i}.bed
-		
+		break
+		local Motif_Path=${OUT_FOLDER}/knownResults/known${i}.motif
+		local Motif_Out=${OUT_FOLDER}/knownResults/known${i}
+		DIR_CHECK_CREATE ${Motif_Out}
+		echo "Default peak region for motif discovery is 200 bps."
+		### find motif hits coordinates####   -size -100,100
+		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -m ${Motif_Path} -mbed ${Motif_Out}/known${i}.bed -noann -nogene -annStats ${Motif_Out}/known${i}_Stats.txt > ${Motif_Out}/known${i}_annotation.txt
 		### Homer Gene Aossociation just does not working. I tried with -gtf xxx(This makes it worse), some gene_id will be ignored. 
-		echo "annotatePeaks.pl known${i}.bed ${genome_shortcut} -gtf ${GTFFILE} -go known${i}_go_analysis -genomeOntology known${i}_genomeOntology | cut -f 2,3,4,5,10,16 > known${i}.bed.gene_association.txt"
-		annotatePeaks.pl known${i}.bed ${genome_shortcut} -gtf ${GTFFILE} -go known${i}_go_analysis -genomeOntology known${i}_genomeOntology | cut -f 2,3,4,5,10,16 > known${i}.bed.gene_association.txt & pid=$!
+		annotatePeaks.pl ${Motif_Out}/known${i}.bed ${genome_shortcut} -go ${Motif_Out}/GO -genomeOntology ${Motif_Out}/genomeOntology | cut -f 2,3,4,5,10,16 > known${i}.bed.gene_association.txt & pid=$!
 		PID_LIST+=" $pid";
 	done
-	echo "wait ${PID_LIST}}....................................."
-	wait ${PID_LIST}
+	#echo "wait ${PID_LIST}}....................................."
+	#wait ${PID_LIST}
 	echo "python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/knownResults/ -e ${CuffDiff_Expression}"
 	python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/knownResults/ -e ${CuffDiff_Expression}
 	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_Motif_Homer Completed!--------"
