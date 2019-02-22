@@ -1604,6 +1604,9 @@ esac
 	}
 
 RUN_CELLRANGER(){
+	## Downstrem Analysis after Cell Ranger
+	# https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/python
+	# http://cf.10xgenomics.com/supp/cell-exp/notebook_tutorial-3.0.0.html
 #### Usage: RUN_TOPHAT $1 $2 $3
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[i]} "Hdac" "mm10"
 echo "RUN_CELLRANGER_ANALYSIS"
@@ -2398,8 +2401,16 @@ RUN_HiC_Iterative_Mapping(){
 ######################################
 
 ##BASIC FUNCTIONS
+
+
 ########################################################################
 ########################################################################
+RUN_AWK(){
+	### Using this to generate (n)x(n+3) matrix
+	xx=$(find -name "*.matrix")
+	for x in ${xx[*]}; do echo ${x: 9:-7}; awk -v var="${x: 9:-7}" '{print var"\t"(NR-1)*10000"\t"(NR*10000)"\t"$0}' $x > ${x: :-7}.TopDom & done
+	}
+
 REMOVE_REDUNDANCY_PICARD(){
 	## Remove Redundancy by Picard
 	### for xx in $(find -name *Marked_dup_metrics.txt); do echo $xx; sed -n '7,8p' $xx | cut -f 9; done
@@ -2572,6 +2583,25 @@ FUN_GZIP(){
 	echo "gzip ${__RAW_DATA_PATH_DIR}/${FILE_DIR: 2}"
 	gzip ${__RAW_DATA_PATH_DIR}/${FILE_DIR: 2}
 	done
+	
+	
+	#To create a tar.gz archive from a given folder you can use the following command
+	tar -zcvf tar-archive-name.tar.gz source-folder-name
+
+	#This will compress the contents of source-folder-name to a tar.gz archive named tar-archive-name.tar.gz
+
+	#To extract a tar.gz compressed archive you can use the following command
+	tar -zxvf tar-archive-name.tar.gz
+
+	#This will extract the archive to the folder tar-archive-name.
+
+	#To Preserve permissions
+	tar -pcvzf tar-archive-name.tar.gz source-folder-name
+
+	#Switch the ‘c’ flag to an ‘x’ to extract (uncompress).
+	tar -pxvzf tar-archive-name.tar.gz
+	
+	
 	}
 
 FUNC_CLEAN(){
