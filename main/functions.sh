@@ -2321,8 +2321,9 @@ RUN_Motif_Homer(){
 		echo "Default peak region for motif discovery is 200 bps."
 		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -m ${Motif_Path} -mbed ${Motif_Out}/motif${i}.bed -noann -nogene -annStats ${Motif_Out}/motif${i}_Stats.txt > ${Motif_Out}/motif${i}_annotation.txt
 		### Homer Gene Aossociation just does not working. I tried with -gtf xxx(This makes it worse), some gene_id will be ignored. 
-		annotatePeaks.pl ${Motif_Out}/motif${i}.bed ${genome_shortcut} -go ${Motif_Out}/GO -genomeOntology ${Motif_Out}/genomeOntology | cut -f 2,3,4,5,10,16 > motif${i}.bed.gene_association.txt & pid=$!
-		
+		annotatePeaks.pl ${Motif_Out}/motif${i}.bed ${genome_shortcut} -go ${Motif_Out}/GO -genomeOntology ${Motif_Out}/genomeOntology | cut -f 1,2,3,4,5,10,16 > motif${i}.bed.gene_association.txt & pid=$!
+		### PeakID (cmd=annotatePeaks.pl known1.bed mm9)	Chr	Start	End	Strand	Peak Score	Focus Ratio/Region Size	Annotation	Detailed Annotation	Distance to TSS	Nearest PromoterID	Entrez ID	Nearest Unigene	Nearest Refseq	Nearest Ensembl	Gene Name	Gene Alias	Gene Description	Gene Type
+
 		PID_LIST+=" $pid";
 	done
 	#echo "wait ${PID_LIST}}....................................."
@@ -2341,7 +2342,7 @@ RUN_Motif_Homer(){
 		### find motif hits coordinates####   -size -100,100
 		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -m ${Motif_Path} -mbed ${Motif_Out}/known${i}.bed -noann -nogene -annStats ${Motif_Out}/known${i}_Stats.txt > ${Motif_Out}/known${i}_annotation.txt
 		### Homer Gene Aossociation just does not working. I tried with -gtf xxx(This makes it worse), some gene_id will be ignored. 
-		annotatePeaks.pl ${Motif_Out}/known${i}.bed ${genome_shortcut} -go ${Motif_Out}/GO -genomeOntology ${Motif_Out}/genomeOntology | cut -f 2,3,4,5,10,16 > known${i}.bed.gene_association.txt & pid=$!
+		annotatePeaks.pl ${Motif_Out}/known${i}.bed ${genome_shortcut} -go ${Motif_Out}/GO -genomeOntology ${Motif_Out}/genomeOntology | cut -f 1,2,3,4,5,10,16 > known${i}.bed.gene_association.txt & pid=$!
 		PID_LIST+=" $pid";
 	done
 	#echo "wait ${PID_LIST}}....................................."
@@ -2543,7 +2544,7 @@ DIR_CHECK_CREATE(){
 #### Usage: DIR_CHECK_CREATE $@
 	echo "DIR_CHECK_CREATE!"
 	local Dirs=$@
-	for solo_dir in $Dirs
+	for solo_dir in ${Dirs[*]}
 	do
 		if [ ! -d $solo_dir ];then
 			echo "Dir check and create is $solo_dir"
@@ -2649,9 +2650,12 @@ FUNC_Max(){
 ##Skip out of Sample_ (7), and forward with 4 more digits.
 ########################################################################
 #AWK
+#  cat *.bed | sort -k1,1 -k2,2n | awk '{if($4=="domain") print $0}' > DKO_CD8_TAD_Domain.bed
 #https://www.gnu.org/software/gawk/manual/gawk.html#Quoting
 #In general, you can stop the shell from interpreting a metacharacter by escaping it with a backslash (\)
 ######################################
 # echo "[$(date "+%Y-%m-%d %H:%M")]  <YOUR CONTENT>"
-##### Following Line is very IMPORTANT 
-#main "$@"
+
+#[1] https://stackoverflow.com/questions/10909685/run-parallel-multiple-commands-at-once-in-the-same-terminal
+#[2]
+#[3] 
