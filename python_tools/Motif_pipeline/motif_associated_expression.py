@@ -51,13 +51,13 @@ def associate_motif_expression_excel(motif_gene_association_folder, expression_i
     from scipy import stats
 
     os.chdir(motif_gene_association_folder)
-    
+
     INPUT_LIST = glob.glob('*.bed.gene_association.txt')
     writer = pd.ExcelWriter(motif_gene_association_folder+'/Motif_Associated_Genes_Summary_'+str(datetime.date.today())+ '.xlsx', engine='xlsxwriter')
     df_gene_exp = pd.read_csv(expression_input, sep='\t').rename(columns={'test_id':'Gene Name'}).drop(['gene_id','gene','test_stat'],axis=1)
 
     
-    summary_df = pd.DataFrame(columns=['Motif_Name','wilcoxon_rank_test_pvalue','#_Up','#_Down','(Up-Down)/All']) ### wilcoxon signed rank test 
+    summary_df = pd.DataFrame(columns=['Motif_Name','wilcoxon_rank_test_pvalue','#_Up','#_Down','#_All','(Up-Down)/All']) ### wilcoxon signed rank test 
     i=0
     for name in INPUT_LIST[:]:
         df_motif_gene = pd.read_csv(name, sep='\t')
@@ -74,19 +74,20 @@ def associate_motif_expression_excel(motif_gene_association_folder, expression_i
         ### https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.stats.ks_2samp.html
         ### KS 2 sample test
         ### https://docs.scipy.org/doc/scipy-0.15.1/reference/generated/scipy.stats.chi2_contingency.html
-        df_merge = df_merge[df_merge['status']=='OK']
         #print "pvalue:",stats.ks_2samp(df_merge['value_1'], df_merge['value_2'])[1] ## wilcoxon signed rank test 
         num_up = len(generate_Upregulated_Genes(df_merge)['Gene Name'].unique())
         num_down = len(generate_Downregulated_Genes(df_merge)['Gene Name'].unique())
-        up_ratio = 1.0*(num_up -num_down  )/len(df_merge['Gene Name'].unique())
-        summary_df.loc[i,['Motif_Name','wilcoxon_rank_test_pvalue','#_Up','#_Down','(Up-Down)/All']] =\
-                       [name[0:7], stats.wilcoxon(df_merge['value_1'], df_merge['value_2'])[1],num_up, num_down, up_ratio]
+        num_all = len(df_merge['Gene Name'].unique())
+        up_ratio = 1.0*(num_up -num_down  )/num_all
+        summary_df.loc[i,['Motif_Name','wilcoxon_rank_test_pvalue','#_Up','#_Down','#_All','(Up-Down)/All']] =\
+                       [name[0:7], stats.wilcoxon(df_merge['value_1'], df_merge['value_2'])[1],num_up, num_down, num_all, up_ratio]
         i+=1
-    num_up = len(generate_Upregulated_Genes(df_gene_exp)['Gene Name'])
-    num_down = len(generate_Downregulated_Genes(df_gene_exp)['Gene Name'])
-    up_ratio =  1.0*(num_up-num_down)  /len(df_gene_exp['Gene Name'])
-    summary_df.loc[i,['Motif_Name','wilcoxon_rank_test_pvalue','#_Up','#_Down','(Up-Down)/All']] =\
-    ['Overall', stats.wilcoxon(df_gene_exp['value_1'], df_gene_exp['value_2'])[1],num_up, num_down, up_ratio]
+    #num_up = len(generate_Upregulated_Genes(df_gene_exp)['Gene Name'])
+    #num_down = len(generate_Downregulated_Genes(df_gene_exp)['Gene Name'])
+    #num_all = len(df_gene_exp[df_gene_exp['status']=='OK']['Gene Name'].unique())  ##Choose Gene Expression satisfied statistical significance
+    #up_ratio =  1.0*(num_up-num_down)  / num_all
+    #summary_df.loc[i,['Motif_Name','wilcoxon_rank_test_pvalue','#_Up','#_Down','#_All','(Up-Down)/All']] =\
+    #['Overall', stats.wilcoxon(df_gene_exp['value_1'], df_gene_exp['value_2'])[1],num_up, num_down, num_all, up_ratio]
     summary_df.sort_values(by=['(Up-Down)/All'],ascending=False).to_excel(writer, sheet_name='Motif Ranking Test', index=None)
     writer.save()
     

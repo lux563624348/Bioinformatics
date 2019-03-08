@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e	#### Terminating the script if any command exited with a nonzero exit status
+#set -e	#### Terminating the script if any command exited with a nonzero exit status
 set -u	#### prevents the error by aborting the script if a variable’s value is unset
 set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 
@@ -34,13 +34,12 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### Output DIRECTORY
-__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe/Union_all/version.beta
+__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/TopDom_Analysis/CTCF_ChIPseq
 ### INPUT DIRECTORY
-__INPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe/Union_all
+__INPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/TopDom_Analysis/CTCF_ChIPseq
 #### Unique Keyword of the library you want to put into pipeline.
 __INPUT_SAMPLE_SET=(
-12532_TCF1+_TCF1_MOTIF_-_Union_peak_For_HTseq
-1297_Tcf1_Motif_+_Union_peak_For_HTseq
+SRR5585942  ### CTCF ChIPseq
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -56,7 +55,7 @@ echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 ##....................................................................##
 ### Key Parameters
 SPECIES='mm9'
-Data_Provider='Haihui'
+Data_Provider='SRR5585942'
 ##....................................................................##
 ### Download Raw Data
 #FUNC_Download "http://shang.phys.gwu.edu/Test_Data" "test_Pipeline"
@@ -66,12 +65,14 @@ Data_Provider='Haihui'
 echo "Parallel Operation have started";
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
-	#PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pairs'
+	PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'R1'
 	#RUN_FAST_QC &
+	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} "CTCF_T_cell" ${Data_Provider} 'no'
+	RUN_MACS2 ${__INPUT_SAMPLE_SET[i]} "Null" WT_CFCT ${SPECIES} ${Data_Provider} 'bam' & pid=$!
 	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
 	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_Set[0]}
-	RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
+	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_Set[i]} ${SPECIES}
 	#RUN_SICER ${__INPUT_SAMPLE_List[1]} ${__INPUT_SAMPLE_Set[0]} 400 "CD8-K27Ac" ${SPECIES} ${Data_Provider} & pid=$!
 	PID_LIST+=" $pid";
@@ -87,7 +88,7 @@ echo "Parallel Operation have finished";
 ##....................................................................##
 ### Single Operation
 	#RUN_CELLRANGER ${__INPUT_SAMPLE_DIR_List[15]} "Hdac" "mm10"
-echo "Single Operation have finished";
+#echo "Single Operation have finished";
 
 ##....................................................................##
 	echo "End Date: `date`"
