@@ -131,7 +131,7 @@ PRE_READS_DIR(){
 ########################################################################
 
 	case ${Pair_Type} in
-	"Pairs")
+	"Pair")
 	echo "Found Pair End, Both"
 	local DIRLIST_R1_gz="$( find -name "*${1}*R1*.${2}" | sort -n | xargs)"
 	local DIRLIST_R2_gz="$( find -name "*${1}*R2*.${2}" | sort -n | xargs)"
@@ -185,19 +185,17 @@ esac
 RUN_SRA2FASTQ(){
 	## Usage : RUN_SRA2FASTQ ${__INPUT_SAMPLE_List[i]} 
 	#https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/
+	#https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc
+	
 	CHECK_arguments $# 1
-	## Given a path contains SraAccList.txt
-	## Download all SRA files.
-	local exe_path=/opt/tools/sratoolkit.2.9.2-ubuntu64/bin
+	local exe_path=/opt/tools/sratoolkit.2.9.4-2-ubuntu64/bin
 	cd ${__INPUT_PATH}
-	#${exe_path}/prefetch --option-file SraAccList.txt
-	##
-	local INPUT_SRA_LIST=${1} #(cat SraAccList.txt)
+	local INPUT_SRA_LIST=${1} 
 	echo "SRA to FASTQ"
 	for SRA in ${INPUT_SRA_LIST[*]}
 	do
-		echo "fastq-dump –X 5 –Z -split-files --gzip ${SRA}"
-		${exe_path}/fastq-dump –X 5 –split-files --gzip ${SRA}
+		echo "fastq-dump --split-files --gzip ${SRA}"
+		${exe_path}/fastq-dump --split-files --gzip ${SRA}
 	done
 	}
 
@@ -568,18 +566,14 @@ RUN_read_filtering_Bamtohdf5(){
 		java -Xmx16g -jar /opt/tools/juicer_tools.1.8.9_jcuda.0.8.jar eigenvector NONE WT_CD8_Juicebox_res_100k.hic ${chr} BP ${Resolution} -p \
 		| awk -v num=${chr} -v res=${Resolution} '{print "chr"num"\t"(NR-1)*res"\t"NR*res"\t"$1}' > WT_CD8_chr${chr}_eigenvector.bed &
 		done
-		##Output All but Skip last line 
-		head --lines=-1 WT_CD8_chrY_eigenvector.bed
-		
-		awk '{print $1"\t"$2"\t"$3"\t"$4*(-1)}' DKO_CD8_eigenvector.bdg
+	done
+	##Output All but Skip last line 
+	head --lines=-1 WT_CD8_chrY_eigenvector.bed
 	
-	
-	
-	
-	
+	awk '{print $1"\t"$2"\t"$3"\t"$4*(-1)}' DKO_CD8_eigenvector.bdg
 	
 	echo "RUN_Bamtohdf5 is completed!"
-	}
+}
 
 RUN_CHECK_SEQ(){
 #### Check a specific seq in fastq.gz
@@ -2185,6 +2179,28 @@ RUN_Quant_IRI(){
 	IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e hg19 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}
 	echo "Quant for Library: ${INPUT_NAME} is finished."
 	}
+	
+RUN_TopDom(){
+	#### Usage: RUN_Quant_IRI 1.INPUT_FOLDER 2.${INPUT_SAMPLE_DIR_List[*]}
+	local INPUT_FOLDER=${1}
+	local INPUT_NAME=${2}
+	local OUTPUT_FOLDER=${3}
+	local WINDOW_SIZE=${4}
+	#OUTPUT_FOLDER=/home/xli/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/TopDom_Analysis/DKO_CD8
+	echo "RUN_TopDom"
+	DIR_CHECK_CREATE ${OUTPUT_FOLDER}
+	
+	CHECK_arguments $# 4
+	cd ${INPUT_FOLDER}
+	local IN_FILES="$( find -name "*${INPUT_NAME}*.TopDom*" | sort -n | xargs)"
+
+	for in_file in ${IN_FILES[*]}
+	do
+	echo "Rscript run_topdom.R -i ${in_file} -w ${WINDOW_SIZE} -o ${OUTPUT_FOLDER}/window_size_${WINDOW_SIZE}/${in_file: 2:-3}"
+	Rscript run_topdom.R -i ${in_file} -w ${WINDOW_SIZE} -o ${OUTPUT_FOLDER}/window_size_${WINDOW_SIZE}/${in_file: 2:-3} &
+	done
+
+	}
 
 RUN_Peaks_Distribution_Analysis(){
 	####RUN_Peaks_Distribution_Analysis $1
@@ -2419,8 +2435,15 @@ RUN_HiC_Iterative_Mapping(){
 ########################################################################
 RUN_AWK(){
 	### Using this to generate (n)x(n+3) matrix
+	head -n -1   #skip last line
 	xx=$(find -name "*.matrix")
-	for x in ${xx[*]}; do echo ${x: 9:-7}; awk -v var="${x: 9:-7}" '{print var"\t"(NR-1)*10000"\t"(NR*10000)"\t"$0}' $x > ${x: :-7}.TopDom & done
+	Resolution=10000
+	
+	for x in ${xx[*]}; do echo ${x: 9:-7}; done
+	
+	for x in ${xx[*]}; do chr=${x: 9:-7} ; echo ${chr}; cat ${x} | awk -v chr="${chr}" \
+	-v res=${Resolution} '{print chr"\t"(NR-1)*res"\t"(NR*res)"\t"$0}' | gzip > ${x: :-7}.TopDom.gz & done
+	
 	}
 
 REMOVE_REDUNDANCY_PICARD(){
@@ -2636,7 +2659,7 @@ FUNC_CUT_Rows (){
 	local File_Path=${__INPUT_PATH}/${1}.${File_type}
 	local start=${2}
 	local end=${3}
-	sed '${start},${end}d' ${File_Path} > ${__INPUT_PATH}/${1}_Row_${start}_${end}.${File_type}
+	sed -n '${start},${end}d' ${File_Path} > ${__INPUT_PATH}/${1}_Row_${start}_${end}.${File_type}
 	echo ""
 }
 

@@ -34,12 +34,13 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### Output DIRECTORY
-__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/TopDom_Analysis/CTCF_ChIPseq
+__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Intron_Retention/TianYi/Data_Larp4
 ### INPUT DIRECTORY
-__INPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/TopDom_Analysis/CTCF_ChIPseq
+__INPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Intron_Retention/TianYi/Raw_data_Larp4
 #### Unique Keyword of the library you want to put into pipeline.
 __INPUT_SAMPLE_SET=(
-SRR5585942  ### CTCF ChIPseq
+SRR5112236  ### Larp4 RIP-Seq
+SRR5112237
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -54,21 +55,22 @@ echo "-----------------------------------------------------------------"
 echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 ##....................................................................##
 ### Key Parameters
-SPECIES='mm9'
-Data_Provider='SRR5585942'
+SPECIES='hg38'
+Data_Provider='ENCSR888YTT'
 ##....................................................................##
 ### Download Raw Data
 #FUNC_Download "http://shang.phys.gwu.edu/Test_Data" "test_Pipeline"
 
 ##....................................................................##
 ### PARALLEL OPERTATION
-echo "Parallel Operation have started";
+echo "Parallel Operation have started"
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
-	PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'R1'
-	#RUN_FAST_QC &
-	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} "CTCF_T_cell" ${Data_Provider} 'no'
-	RUN_MACS2 ${__INPUT_SAMPLE_SET[i]} "Null" WT_CFCT ${SPECIES} ${Data_Provider} 'bam' & pid=$!
+	RUN_SRA2FASTQ ${__INPUT_SAMPLE_SET[i]}
+	PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'SRA'
+	RUN_FAST_QC &
+	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} "Larp4" ${Data_Provider} 'no' & pid=$!
+	#RUN_MACS2 ${__INPUT_SAMPLE_SET[i]} "Null" WT_CFCT ${SPECIES} ${Data_Provider} 'bam' & pid=$!
 	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
 	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_Set[0]}
@@ -77,12 +79,11 @@ do
 	#RUN_SICER ${__INPUT_SAMPLE_List[1]} ${__INPUT_SAMPLE_Set[0]} 400 "CD8-K27Ac" ${SPECIES} ${Data_Provider} & pid=$!
 	PID_LIST+=" $pid";
 	#break
-	#break
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}
 done
-echo "wait ${PID_LIST}}....................................."
+echo "wait ${PID_LIST}....................................."
 wait ${PID_LIST}
 echo "Parallel Operation have finished";
 ##....................................................................##
