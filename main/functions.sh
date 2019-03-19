@@ -2313,7 +2313,12 @@ RUN_Motif_Homer(){
 	### Find Contro Files
 	local CONTRO_FILE="$( find -name "*${INPUT_CON}*_summits.bed" | sort -n | xargs)"
 	########################################################################
-	echo "Motif Analysis Start......"
+	if [ ! -n "${IN_FILES}" ]
+	then
+		break
+	else
+		echo "Motif Analysis Start......"
+	fi
 	echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE} -size -100,100 -p ${THREADS} -S 10"
 	findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE} -size -100,100 -p ${THREADS} -S 10 
 	echo "annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${INPUT_NAME}.bed.gene_association.txt"
@@ -2327,9 +2332,14 @@ RUN_Motif_Homer(){
 	### Find Contro Files
 	local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bed" | sort -n | xargs)"
 	########################################################################
-	echo "Motif Analysis Start......"
-	echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10 "
-	findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -p ${THREADS} -S 10
+	if [ ! -n "${IN_FILES}" ]
+	then
+		break
+	else
+		echo "Motif Analysis Start......"
+	fi
+	echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -size -1000,1000 -p ${THREADS} -S 10 "
+	findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -size -1000,1000 -p ${THREADS} -S 10
 	
 	echo "annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${INPUT_NAME}.bed.gene_association.txt"
 	annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${OUT_FOLDER}/Motif_GENE_Summary/${INPUT_NAME}.bed.gene_association.txt
@@ -2374,9 +2384,9 @@ RUN_Motif_Homer(){
 	done
 	#echo "wait ${PID_LIST}}....................................."
 	#wait ${PID_LIST}
-	echo "python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/Motif_GENE_Summary -e ${CuffDiff_Expression}"
-	python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/Motif_GENE_Summary -e ${CuffDiff_Expression}
-	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_Motif_Homer Completed!--------"
+	#echo "python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/Motif_GENE_Summary -e ${CuffDiff_Expression}"
+	#python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/Motif_GENE_Summary -e ${CuffDiff_Expression}
+	#echo "[$(date "+%Y-%m-%d %H:%M")] RUN_Motif_Homer Completed!--------"
 }
 
 RUN_HiC_Iterative_Mapping(){
@@ -2444,6 +2454,18 @@ RUN_AWK(){
 	for x in ${xx[*]}; do chr=${x: 9:-7} ; echo ${chr}; cat ${x} | awk -v chr="${chr}" \
 	-v res=${Resolution} '{print chr"\t"(NR-1)*res"\t"(NR*res)"\t"$0}' | gzip > ${x: :-7}.TopDom.gz & done
 	
+	
+	xx=$(find -name "*.domain")
+	Output_Name=DKO_CD8_TADs
+	for x in ${xx[*]}; do cat ${x} >> ${Output_Name}.bed ; done
+	cat ${Output_Name}.bed | sort -k1,1 -k2n,2 > ${Output_Name}_sort.bed
+	
+	python ~/cloud_research/PengGroup/XLi/Python_tools/Bed_Correction.py -i ${Output_Name}.bed -s ~/cloud_research/PengGroup/XLi/Annotation/UCSC/genome_sizes/mm9.chrom.sizes
+	
+	
+	cat WT_CD8_TADs_res_10k_w5.boundary.bed | awk -v ext=50000 '{print $1"\t"$2-ext"\t"$3+ext"\t"$4}' > WT_CD8_TADs_res_10k_w5.boundary_ex50k.bed
+	
+	sed -i 's/original/new/g' file.txt
 	}
 
 REMOVE_REDUNDANCY_PICARD(){

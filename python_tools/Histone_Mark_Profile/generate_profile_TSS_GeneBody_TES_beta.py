@@ -152,7 +152,57 @@ def Get_GeneBody_Profile(INPUT_read_file, INPUT_gtf_file, Feature_Type_Used, INP
         
     return  (profile*(10**9)/(num_reads*(len(site_iv_set)-Num_Skip)))
 
+def Get_Bed_Region_Profile(INPUT_read_file, INPUT_gene_list, genic_partition):
+    ## Read Reads_File, and distribute them into GenomicArray.
+    ## Region
+    import HTSeq
+    num_reads = 0
+    ga = HTSeq.GenomicArray("auto", stranded=False, typecode="d")
+    ### WT-na
+    bedfile = HTSeq.BED_Reader(INPUT_read_file)
+    ### WT-na
+    for alngt in bedfile:
+        ga[alngt.iv] += 1.0/alngt.iv.length
+        num_reads+=1
+    ### After above for loop, we have location information of all input reads summit. 
 
+    ##########################################################################################
+    ### To calculate the number of transcripts that for profile plot.
+    ### And also store position in a set.
+    region_bedfile = HTSeq.BED_Reader(INPUT_gene_list)
+    ga_region_from_bedfile=set()### Only ga has feature 
+    # These methods yield iterators of :class:GenomicPosition objects from start to end (or, for xrange_d from start_d to end_d).
+
+    profile = numpy.zeros(genic_partition)  ### | | | | | |   5 partitions but only four sites for profile.
+    Num_Skip = 0
+    for site in region_bedfile:
+        ga_region_from_bedfile.add(site.iv)
+    ##########################################################################################
+    ##########################################################################################
+    for site_iv in ga_region_from_bedfile:
+        partition_size =site_iv.length / (1.0*genic_partition) ## Prevent int division
+        if(partition_size < 1):
+            Num_Skip +=1 
+            continue
+##########################################################################################
+        index = 0
+        for site_pos in site_iv.xrange_d(partition_size):
+            count_in_window = 0
+            if site_pos.strand == "+":
+                site_pos_window_iv = HTSeq.GenomicInterval(site_pos.chrom, site_pos.pos, site_pos.pos + partition_size)
+            elif site_pos.strand == "-":
+                site_pos_window_iv = HTSeq.GenomicInterval(site_pos.chrom, site_pos.pos - partition_size + 1,
+                                                           site_pos.pos + 1)
+
+            for step_iv, step_count in ga[site_pos_window_iv].steps():
+                count_in_window += step_count * step_iv.length
+            profile[index] += count_in_window / (1.0*partition_size)
+            index += 1
+            if index >= genic_partition:
+                break
+
+    norm_profile = (profile*(10**9)/(num_reads*(len(ga_region_from_bedfile)-Num_Skip)))
+    return norm_profile
 
 
 def profile_plot_site(norm_profile, resolution, upstreamExtension, downstreamExtension, genes_set_name, con_name, site_name):
@@ -336,7 +386,9 @@ def main(argv):
 		Downprofile = Get_Site_Profile(opt.bed_file, opt.gtf_file, opt.feature_type_used, opt.known_gene_list, 'TES', opt.window_size,
 		opt.fragment_size, opt.resolution, opt.upstreamExtension, opt.downstreamExtension)
 		### GENEBODY
-		genebody_profile = Get_GeneBody_Profile(opt.bed_file, opt.gtf_file, opt.feature_type_used, opt.known_gene_list, opt.genic_partition, opt.fragment_size)
+		#genebody_profile = Get_GeneBody_Profile(opt.bed_file, opt.gtf_file, opt.feature_type_used, opt.known_gene_list, opt.genic_partition, opt.fragment_size)
+		genebody_profile = Get_Bed_Region_Profile(opt.bed_file, opt.gtf_file, opt.genic_partition)
+		
 		
 		profile_Up_genebody_Down_site(Upprofile, genebody_profile, Downprofile, opt.resolution, opt.genic_partition,
 		opt.upstreamExtension, opt.downstreamExtension, opt.list_name, opt.condition, 'TSS_Body_TES')
