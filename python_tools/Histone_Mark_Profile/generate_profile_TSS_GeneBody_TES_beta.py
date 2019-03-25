@@ -332,7 +332,7 @@ def main(argv):
 	parser.add_option("-g", "--genes_gtf_file", action="store", type="string",
 			dest="gtf_file", help="genes gtf file", metavar="<file>")
 	parser.add_option("-e", "--gtf_feature_type", action="store", type="string",
-			dest="feature_type_used", help="gft feature type for profile", metavar="<str>")
+			dest="feature_type_used", help="type The type of the feature, i.e., a string like "exon" or "gene". For GFF files, the 3rd column (feature) is taken as the type.", metavar="<str>")
 	parser.add_option("-k", "--known_gene_list", action="store", type="string",
 			dest="known_gene_list", help="known gene list", metavar="<file>")
 	parser.add_option("-l", "--list_name", action="store", type="string",
