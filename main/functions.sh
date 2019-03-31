@@ -46,78 +46,6 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 ######################################
 
 ##	FUNDEMENTAL FUNCTIONS FOR ANALYSIS MODULES
-RUN_BBDUK_Trimming (){
-####	RUN_BBDUK_Trimming
-####	Usage: RUN_BBDUK_Trimming $INPUT_DATA_DIR
-########################################################################
-### FASTQC Output DIR setting ...
-	local Output_Trimmed=${__INPUT_PATH}/Trimmed_Results
-	DIR_CHECK_CREATE ${Output_Trimmed}
-	cd ${__INPUT_PATH}
-	
-	#Force-Trimming:
-	#bbduk.sh in=reads.fq out=clean.fq ftl=10 ftr=139
-	#  This will trim the leftmost 10 bases (ftl=10) and also trim the right end after to position 139 (zero-based). The resulting read would be 130bp long. For example, a 150bp read would have the first 10 bases trimmed (bases 0-9, keeping 10+) and the last 10 bases trimmed (bases 140-149, keeping 139 and lower).
-
-	for file in ${__FASTQ_DIR_R1[*]}
-	do
-	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file}
-	done
-	
-	for fastq_file in ${__FASTQ_DIR_R2[*]}
-	do
-	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file}
-	done
-	
-	echo "Fastq Completed!"
-	}
-	
-RUN_COPY_AND_CHANGE_NAME(){
-	### RUN_COPY_AND_CHANGE_NAME $1 $2 $3 ($1 is INPUT_NAME $2> OUTPUT_NAME $3 "fastq.gz")
-	CHECK_arguments $# 3
-	local INPUT_DATA_PATH="${__INPUT_PATH}/${1}"
-	local OUTPUT_DATA_PATH="${__OUTPUT_PATH}/${2}"
-	
-	mkdir -p ${OUTPUT_DATA_PATH}
-	
-	cp ${INPUT_DATA_PATH}.${3} ${OUTPUT_DATA_PATH}/${2}.${3}
-	echo "Finished Copying File: ${2}"
-	}
-	
-RUN_FAST_QC(){
-####	RUN_FAST_QC
-####	Usage: RUN_FAST_QC $INPUT_DATA_DIR
-########################################################################
-### FASTQC Output DIR setting ...
-	echo "[$(date "+%Y-%m-%d %H:%M")]-----------------------RUN_FAST_QC"
-	local Output_fastqc=${__INPUT_PATH}/fastqc
-	DIR_CHECK_CREATE ${Output_fastqc}
-	cd ${__INPUT_PATH}
-	
-	for fastq_file in ${__FASTQ_DIR_R1[*]}
-	do
-	echo "fastqc -q -o ${Output_fastqc} $fastq_file"
-	fastqc -q -o ${Output_fastqc} ${fastq_file} &
-	done
-	
-	for fastq_file in ${__FASTQ_DIR_R2[*]}
-	do
-	echo "fastqc -q -o ${Output_fastqc} $fastq_file"
-	fastqc -q -o ${Output_fastqc} ${fastq_file} &
-	done
-	echo "[$(date "+%Y-%m-%d %H:%M")]---------RUN_FAST_QC-----COMPLETED!"
-	echo " "
-	
-	#echo "cd ${Output_fastqc}"
-	#cd ${Output_fastqc}
-	#if [ -f multiqc_report.html ];then
-	#echo "multiqc *fastqc.zip --ignore *.html"
-	#multiqc *fastqc.zip --ignore *.html
-	#fi
-	}
-	
 PRE_READS_DIR(){
 	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "Pairs SRA or anyother pattern"
 	CHECK_arguments $# 3 # No less than 3
@@ -155,8 +83,7 @@ esac
 	## for 34bc
 	#local DIRLIST_R1_gz="$( find -name "un_conc_aligned_R1.$2" | sort -n | xargs)"
 	#local DIRLIST_R2_gz="$( find -name "un_conc_aligned_R2.$2" | sort -n | xargs)"
-
-
+	
 #### R1 Saving		
 	local k=0
 	for FILE_DIR in ${DIRLIST_R1_gz[*]}
@@ -180,6 +107,77 @@ esac
 	echo "INPUT FILE PREPARING COMPLETED!------------------------------"
 	echo " "
 	unset k
+	}
+
+RUN_COPY_AND_CHANGE_NAME(){
+	### RUN_COPY_AND_CHANGE_NAME $1 $2 $3 ($1 is INPUT_NAME $2> OUTPUT_NAME $3 "fastq.gz")
+	CHECK_arguments $# 3
+	local INPUT_DATA_PATH="${__INPUT_PATH}/${1}"
+	local OUTPUT_DATA_PATH="${__OUTPUT_PATH}/${2}"
+	
+	mkdir -p ${OUTPUT_DATA_PATH}
+	
+	cp ${INPUT_DATA_PATH}.${3} ${OUTPUT_DATA_PATH}/${2}.${3}
+	echo "Finished Copying File: ${2}"
+	}
+	
+RUN_Trim_Galore_QC(){
+	##https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md
+####	RUN_Trim_Galore_QC
+####	Usage: RUN_Trim_Galore_QC $INPUT_DATA_DIR
+########################################################################
+### FASTQC Output DIR setting ...
+	echo "[$(date "+%Y-%m-%d %H:%M")]-----------------------RUN_Trim_Galore_QC"
+	local Output_Trim_QC=${__INPUT_PATH}/Trim_Galore_QC
+	DIR_CHECK_CREATE ${Output_Trim_QC}
+	cd ${__INPUT_PATH}
+	
+
+	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
+	then
+		echo "Pair End Mode"
+		echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[0]} ${__FASTQ_DIR_R2[0]} --suppress_warn"
+		trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[0]} ${__FASTQ_DIR_R2[0]} --suppress_warn 
+	else
+		echo "Single End Mode."
+		echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[0]} --suppress_warn"
+		trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[0]} --suppress_warn
+	fi
+	
+	echo "[$(date "+%Y-%m-%d %H:%M")]---------RUN_Trim_Galore_QC-----COMPLETED!"
+	echo " "
+	}
+
+RUN_FAST_QC(){
+####	RUN_FAST_QC
+####	Usage: RUN_FAST_QC $INPUT_DATA_DIR
+########################################################################
+### FASTQC Output DIR setting ...
+	echo "[$(date "+%Y-%m-%d %H:%M")]-----------------------RUN_FAST_QC"
+	local Output_fastqc=${__INPUT_PATH}/fastqc
+	DIR_CHECK_CREATE ${Output_fastqc}
+	cd ${__INPUT_PATH}
+	
+	for fastq_file in ${__FASTQ_DIR_R1[*]}
+	do
+	echo "fastqc -q -o ${Output_fastqc} $fastq_file"
+	fastqc -q -o ${Output_fastqc} ${fastq_file} &
+	done
+	
+	for fastq_file in ${__FASTQ_DIR_R2[*]}
+	do
+	echo "fastqc -q -o ${Output_fastqc} $fastq_file"
+	fastqc -q -o ${Output_fastqc} ${fastq_file} &
+	done
+	echo "[$(date "+%Y-%m-%d %H:%M")]---------RUN_FAST_QC-----COMPLETED!"
+	echo " "
+	
+	#echo "cd ${Output_fastqc}"
+	#cd ${Output_fastqc}
+	#if [ -f multiqc_report.html ];then
+	#echo "multiqc *fastqc.zip --ignore *.html"
+	#multiqc *fastqc.zip --ignore *.html
+	#fi
 	}
 
 RUN_SRA2FASTQ(){
@@ -1350,6 +1348,10 @@ RUN_BOWTIE2(){
 	CHECK_arguments $# 5
 	echo ""
 	echo "RUN_BOWTIE2"
+	
+	local Left_Trim=0
+	local Right_Trim=0
+	
 	#### OUTPUT FORMAT
 	local OUTPUT_BOWTIE2_FOLDER="${__OUTPUT_PATH}/Bowtie2_Results/${INPUT_NAME}"
 	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
@@ -1391,16 +1393,19 @@ esac
 ########################################################################
 	
 	echo "#5’ (left)  3’ (right) end of each read "
+    local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
+	cd ${OUTPUT_BOWTIE2_FOLDER}
+	local Mapping_File="$( find -name "${INPUT_NAME}*" | sort -n | xargs)"
     
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
 		echo "Pair End Mode"
-		local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
-		echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 --trim5 0 -S ${OUTPUT_BOWTIE2}" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
-		bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 0 --trim5 0 -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
-		echo ""
+		if [ ! -n "${Mapping_File}" ];then			
+			echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 ${Right_Trim} --trim5 ${Left_Trim} -S ${OUTPUT_BOWTIE2}" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+			bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 ${Right_Trim} --trim5 ${Left_Trim} -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+			echo "End of One Bowtie2 Mapping"		
+		fi
 		#### concordantly pair output
-		
 		#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
 		#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
 		# using un concordantly pair-ends do bowtie2 again.
@@ -1414,15 +1419,16 @@ esac
 		fi
 	else
 		echo "Single End Mode."
-		### cite ${Pair_Type} from Function PRE_READS_DIR
-		local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
-		echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 0 --trim5 0"
-		bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 0 --trim5 0
-		
+		if [ ! -n "${Mapping_File}" ];then
+			local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
+			echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 ${Right_Trim} --trim5 ${Left_Trim}"
+			bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 ${Right_Trim} --trim5 ${Left_Trim}
+		fi
+		echo "End of One Bowtie2 Mapping"
 		### SINGLE END SAM TO BAM
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
-		echo "samtools view -b ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
-		samtools view -b ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
+			echo "samtools view -b ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
+			samtools view -b ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
 		fi
 	fi
 	
@@ -1446,26 +1452,27 @@ esac
 	exit;;
 	esac
 ########################################################################	
-	
-	
+
 ## Remove Redundancy by Picard
 	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
 	
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ];then
-		echo "samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam "
-		samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
-		
-		echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
-		rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam
-		
+			echo "samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam "
+			samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
+			
+			echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
+			rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam
 		fi
+		
 		echo "picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
 		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true REMOVE_SEQUENCING_DUPLICATES=true ASSUME_SORT_ORDER=queryname"
-		picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
-		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true  #Possible values: {unsorted, queryname, coordinate, duplicate, unknown}
+		nohup picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true > ${OUTPUT_BOWTIE2_FOLDER}/STOUT_Remove_Dup.log  #Possible values: {unsorted, queryname, coordinate, duplicate, unknown}
 		
-		echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
-		rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
+		if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
+			echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
+			rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
+		fi
 	fi
 
 
@@ -1475,30 +1482,29 @@ esac
 	then
 		### In here, bedpe just represents the bed format of pair end reads.
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe ];then
-		echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
-		bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
+			echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
+			bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
+					
+			echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe"
+			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe
+			if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe ];then
+				echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
+				rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
+			fi
 		
-		#echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-		#RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
-		
-		echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe"
-		bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe
-		
-	fi
+		fi
 	else
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed ];then
-		echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
-		bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
-		
-		## either 50% of A is covered OR 50% of B is covered
-		echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed"
-		bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
-		
-		echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
-		rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
-		
-		#echo "RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}"
-		#RUN_Bed2BigBed ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME} ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+			echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
+			bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
+			
+			## either 50% of A is covered OR 50% of B is covered
+			echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed"
+			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
+			if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed ];then
+				echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
+				rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
+			fi
 		fi
 	fi
 
@@ -2563,7 +2569,7 @@ FUNC_Download (){
 	local USER=""
 	local PASSWORD="aardvark dryer rummage"
 	local PASSWORD=""
-	local DOWNLOAD_STORE_NAME=${1};
+	local DOWNLOAD_STORE_NAME=${2};
 	
 	local Down_dir=${__INPUT_PATH}/${DOWNLOAD_STORE_NAME}/;
 	DIR_CHECK_CREATE ${Down_dir}
@@ -2711,6 +2717,36 @@ FUNC_Max(){
 #In general, you can stop the shell from interpreting a metacharacter by escaping it with a backslash (\)
 ######################################
 # echo "[$(date "+%Y-%m-%d %H:%M")]  <YOUR CONTENT>"
+
+## Some Out Dated Functions
+RUN_BBDUK_Trimming (){
+####	RUN_BBDUK_Trimming
+####	Usage: RUN_BBDUK_Trimming $INPUT_DATA_DIR
+########################################################################
+### FASTQC Output DIR setting ...
+	local Output_Trimmed=${__INPUT_PATH}/Trimmed_Results
+	DIR_CHECK_CREATE ${Output_Trimmed}
+	cd ${__INPUT_PATH}
+	
+	#Force-Trimming:
+	#bbduk.sh in=reads.fq out=clean.fq ftl=10 ftr=139
+	#  This will trim the leftmost 10 bases (ftl=10) and also trim the right end after to position 139 (zero-based). The resulting read would be 130bp long. For example, a 150bp read would have the first 10 bases trimmed (bases 0-9, keeping 10+) and the last 10 bases trimmed (bases 140-149, keeping 139 and lower).
+
+	for file in ${__FASTQ_DIR_R1[*]}
+	do
+	echo "fastqc -o ${Output_fastqc} $fastq_file"
+	fastqc -o ${Output_fastqc} ${fastq_file}
+	done
+	
+	for fastq_file in ${__FASTQ_DIR_R2[*]}
+	do
+	echo "fastqc -o ${Output_fastqc} $fastq_file"
+	fastqc -o ${Output_fastqc} ${fastq_file}
+	done
+	
+	echo "Fastq Completed!"
+	}
+
 
 #[1] https://stackoverflow.com/questions/10909685/run-parallel-multiple-commands-at-once-in-the-same-terminal
 #[2]
