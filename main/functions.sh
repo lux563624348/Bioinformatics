@@ -50,28 +50,29 @@ PRE_READS_DIR(){
 	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "Pairs SRA or anyother pattern"
 	CHECK_arguments $# 3 # No less than 3
 	echo "[$(date "+%Y-%m-%d %H:%M")]--------------INPUT FILE PREPARING"
-	echo "Entering one Library of INPUT_PATH: $__INPUT_PATH"
-	echo "Searching file type as: $1 + $3 + $2"
+	echo "Entering Directory: ${__INPUT_PATH} ----------------- Searching File as: $1 + $3 + $2"
 	local Current_DATA_DIR=${__INPUT_PATH}
 	cd ${__INPUT_PATH}
-	Pair_Type=${3}
+	local INPUT_Key_Word=${1/Sample_/}
+	local INPUT_Ext=${2}
+	local Pair_Type=${3}
 	
 ########################################################################
 
 	case ${Pair_Type} in
 	"Pair")
-	echo "Found Pair End, Both"
-	local DIRLIST_R1_gz="$( find -name "*${1}*R1*.${2}" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*${1}*R2*.${2}" | sort -n | xargs)"
+	echo "Pair End Mode, R1 and R2 to be found........................."
+	local DIRLIST_R1_gz="$( find -name "*${INPUT_Key_Word}*R1*.${INPUT_Ext}" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*${INPUT_Key_Word}*R2*.${INPUT_Ext}" | sort -n | xargs)"
 	;;
 	"SRA")
-	echo "Found SRA Mode"
-	local DIRLIST_R1_gz="$( find -name "*${1}*_1*.${2}" | sort -n | xargs)"
-	local DIRLIST_R2_gz="$( find -name "*${1}*_2*.${2}" | sort -n | xargs)"
+	echo "SRA Mode, , _1 and _2 to be found.............................."
+	local DIRLIST_R1_gz="$( find -name "*${INPUT_Key_Word}*_1*.${INPUT_Ext}" | sort -n | xargs)"
+	local DIRLIST_R2_gz="$( find -name "*${INPUT_Key_Word}*_2*.${INPUT_Ext}" | sort -n | xargs)"
 	;;
 	"R1")
-	echo "Found Single End, Only ${Pair_Type} "
-	local DIRLIST_R1_gz="$( find -name "*${1}*R1*.${2}" | sort -n | xargs)"
+	echo "Single End, Only ${Pair_Type} to be found...................... "
+	local DIRLIST_R1_gz="$( find -name "*${INPUT_Key_Word}*R1*.${INPUT_Ext}" | sort -n | xargs)"
 	local DIRLIST_R2_gz=" "
 	;;
 	*)
@@ -79,10 +80,6 @@ PRE_READS_DIR(){
 	exit
 	;;
 esac
-	
-	## for 34bc
-	#local DIRLIST_R1_gz="$( find -name "un_conc_aligned_R1.$2" | sort -n | xargs)"
-	#local DIRLIST_R2_gz="$( find -name "un_conc_aligned_R2.$2" | sort -n | xargs)"
 	
 #### R1 Saving		
 	local k=0
@@ -104,7 +101,7 @@ esac
 	done
 	
 	echo "Finish Preparing READS of Library: $1"
-	echo "INPUT FILE PREPARING COMPLETED!------------------------------"
+	echo "------------------------------------------INPUT FILE PREPARING COMPLETED !"
 	echo " "
 	unset k
 	}
@@ -146,6 +143,14 @@ RUN_Trim_Galore_QC(){
 	
 	echo "[$(date "+%Y-%m-%d %H:%M")]---------RUN_Trim_Galore_QC-----COMPLETED!"
 	echo " "
+	
+	#xx=$(find -name "*R2*.gz_trimming_report.txt")
+	#for x in ${xx[*]}; do tail -n 7 $x | awk NF >> Summary_trimming_Report.log; echo "=====================================================================================================" >> Summary_trimming_Report.log ; echo " " >> Summary_trimming_Report.log ; done
+	
+	
+	#Picard
+	#xx=$(find -name "Marked_dup_metrics.txt")
+	#for x in ${xx[*]}; do echo $x >> Summary_Duplication.log ; cat $x | awk '{if(NR==8) print $0}' >> Summary_Duplication.log ; done
 	}
 
 RUN_FAST_QC(){
@@ -1163,20 +1168,20 @@ esac
 	cd $OUTPUTDIR_tracks_hub
 	local filename=hub.txt
 	if [ ! -f $filename ];then
-	echo "hub ${Data_label}" >>$filename
-	echo "shortLabel ${Data_label}" >>$filename
-	echo "longLabel ${Data_label}/${Data_provider}" >>$filename
-	echo "genomesFile genomes.txt" >>$filename
-	echo "email lux@gwu.edu" >>$filename
-	echo "descriptionUrl descriptionUrl" >>$filename
+		echo "hub ${Data_label}" >>$filename
+		echo "shortLabel ${Data_label}" >>$filename
+		echo "longLabel ${Data_label}/${Data_provider}" >>$filename
+		echo "genomesFile genomes.txt" >>$filename
+		echo "email lux@gwu.edu" >>$filename
+		echo "descriptionUrl descriptionUrl" >>$filename
 	fi
 ########################################################################
 
 ###	Creating genomes.txt	
 	local filename=genomes.txt
-	if [ ! -f $filename ];then
-	echo "genome $SPECIES" >>$filename
-	echo "trackDb $SPECIES/trackDb.txt" >>$filename
+	if [ ! -f ${filename} ];then
+		echo "genome $SPECIES" >>$filename
+		echo "trackDb $SPECIES/trackDb.txt" >>$filename
 	fi
 ########################################################################
 
@@ -1196,6 +1201,12 @@ esac
 	echo "alwaysZero on" >>$filename
 	echo "maxHeightPixels 100:24:8" >>$filename
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
+	
+	#color 255,0,0  for WT_0h   Red
+	#color 0,120,0	for DKO_0h  Green
+	#color 0,0,255	for WT_stim Blue
+	#color 0,0,120	for DKO_stim Navy
+	
 }
 
 RUN_Reads_Profile(){
@@ -1338,8 +1349,9 @@ RUN_HomerTools(){
 ########################################################################
 ## Alignor
 RUN_BOWTIE2(){
+	#http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml
 	### #RUN_BOWTIE2 ${__INPUT_SAMPLE_List[i]} ${SPECIES} "Pre_Tfh_Th1" ${Data_Provider} 'no' &
-	local INPUT_NAME=${1}
+	local INPUT_NAME=${1/Sample_/}
 	local SPECIES=${2}
 	local PROJECT_NAME=${3}
 	local Data_Provider=${4}
@@ -1347,10 +1359,11 @@ RUN_BOWTIE2(){
 	
 	CHECK_arguments $# 5
 	echo ""
-	echo "RUN_BOWTIE2"
-	
+	echo "[$(date "+%Y-%m-%d %H:%M")]------------------------RUN_BOWTIE2......."
+
 	local Left_Trim=0
 	local Right_Trim=0
+	local Map_Quality=10
 	
 	#### OUTPUT FORMAT
 	local OUTPUT_BOWTIE2_FOLDER="${__OUTPUT_PATH}/Bowtie2_Results/${INPUT_NAME}"
@@ -1358,29 +1371,29 @@ RUN_BOWTIE2(){
 	
 case ${SPECIES} in
 	"mm9")
-	echo "Reference SPECIES is ${SPECIES}"
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
 	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM9/RepeatMasker/1070327_mm9_simple_repeat_and_Satellite.bed
 	;;
 	"mm10") 
-	echo "Reference SPECIES is ${SPECIES}"
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Indexgenome
 	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/RepeatMasker/1052512_mm10_simple_repeat_Satellite.bed
 	;;
 	"hg19")
-	echo "Reference SPECIES is ${SPECIES}"
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Human_Genome/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
 	;;
 	"hg38")
-	echo "Reference SPECIES is ${SPECIES}"
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Human_Genome/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome
 	;;
 	"dm6") 
-	echo "Reference SPECIES is ${SPECIES}"
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/D.Melanogaster_Genome/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome
 	;;
 	"BOWTIEINDEXS_mm10_pMXs_combo")
-	echo "Reference SPECIES is ${SPECIES}"
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Raw_Data/Paul/34bc/Bowtie2_Indexes/MM10_pMXs_combo/mm10_pMXs_combo
 	;;
 	
@@ -1389,21 +1402,19 @@ case ${SPECIES} in
 	exit
 	;;
 esac
-
 ########################################################################
 	
-	echo "#5’ (left)  3’ (right) end of each read "
     local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
 	cd ${OUTPUT_BOWTIE2_FOLDER}
 	local Mapping_File="$( find -name "${INPUT_NAME}*" | sort -n | xargs)"
     
 	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
 	then
-		echo "Pair End Mode"
+		echo "--------------------------------------------Pair End Mode"
 		if [ ! -n "${Mapping_File}" ];then			
-			echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 ${Right_Trim} --trim5 ${Left_Trim} -S ${OUTPUT_BOWTIE2}" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
-			bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 ${Right_Trim} --trim5 ${Left_Trim} -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
-			echo "End of One Bowtie2 Mapping"		
+			echo "bowtie2 --mm -p ${THREADS} --no-unal --no-mixed --non-deterministic --no-discordant -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 ${Right_Trim} --trim5 ${Left_Trim} -S ${OUTPUT_BOWTIE2}" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+			bowtie2 --mm -p ${THREADS} --no-unal --no-mixed --non-deterministic --no-discordant -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 ${Right_Trim} --trim5 ${Left_Trim} -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+			#echo "End of One Bowtie2 Mapping"		
 		fi
 		#### concordantly pair output
 		#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
@@ -1413,36 +1424,36 @@ esac
 		#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}
 		
 		###sam2bam   ##For MACS2
-		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
-		echo "samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
-		samtools view -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam
+		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  ];then
+			echo "samtools view -h -q ${Map_Quality} -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam"
+			samtools view -h -q ${Map_Quality} -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam
 		fi
 	else
-		echo "Single End Mode."
+		echo "------------------------------Single End Mode."
 		if [ ! -n "${Mapping_File}" ];then
 			local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
-			echo "bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 ${Right_Trim} --trim5 ${Left_Trim}"
-			bowtie2 -p ${THREADS} -t --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 ${Right_Trim} --trim5 ${Left_Trim}
+			echo "bowtie2 -p ${THREADS} --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 ${Right_Trim} --trim5 ${Left_Trim}"
+			bowtie2 -mm -p ${THREADS} --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 ${Right_Trim} --trim5 ${Left_Trim}
 		fi
 		echo "End of One Bowtie2 Mapping"
 		### SINGLE END SAM TO BAM
-		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
-			echo "samtools view -b ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
-			samtools view -b ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
+		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam ];then
+			echo "samtools view -b -h -q ${Map_Quality} ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam"
+			samtools view -@ ${THREADS} -b -h -q ${Map_Quality} ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam 
 		fi
 	fi
 	
 ########################################################################
 ### Then clear sam file.
-	if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam ];then
-		echo "rm ${OUTPUT_BOWTIE2}"
+	if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  ];then
+		echo "------------------------------------------------------------rm ${OUTPUT_BOWTIE2}"
 		rm ${OUTPUT_BOWTIE2}
 	fi
 ########################################################################
 	local just_align_yesno=${5}
 	case ${just_align_yesno} in
 	"yes")
-	echo "Make Align Stop here, just need alignment!"
+	echo "------------------------------Make Align Stop here, just need alignment!"
 	echo ""
 	return 0 ;;
 	"no")
@@ -1457,17 +1468,17 @@ esac
 	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
 	
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ];then
-			echo "samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam "
-			samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam 
+			echo "samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  "
+			samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  
 			
-			echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam"
-			rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bam
+			echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam"
+			rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam 
 		fi
 		
 		echo "picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
 		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true REMOVE_SEQUENCING_DUPLICATES=true ASSUME_SORT_ORDER=queryname"
-		nohup picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
-		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true > ${OUTPUT_BOWTIE2_FOLDER}/STOUT_Remove_Dup.log  #Possible values: {unsorted, queryname, coordinate, duplicate, unknown}
+		picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true QUIET=true #Possible values: {unsorted, queryname, coordinate, duplicate, unknown}
 		
 		if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
 			echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
@@ -1901,8 +1912,8 @@ CHECK_arguments $# 6
 
 
 __INPUT_PATH=${__OUTPUT_PATH}
-local INPUT_NAME=${1}
-local INPUT_CON=${2}
+local INPUT_NAME=${1/Sample_/}
+local INPUT_CON=${2/Sample_/}
 local INPUT_LABEL=${3}
 local SPECIES=${4}
 local Data_Provider=${5}
@@ -2011,7 +2022,12 @@ python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 0.0 -p ${p_value} -q 1.0
 
 RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
-RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+
+if [ -n "${CONTRO_FILE[0]}" ]
+then
+	echo "Control Exist"
+	RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_control_lambda ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+fi
 }
 
 RUN_MACS2_Diff(){  ###Need Updated
@@ -2604,7 +2620,6 @@ CHECK_arguments(){
 DIR_CHECK_CREATE(){
 ### Saving DIR Check and Create
 #### Usage: DIR_CHECK_CREATE $@
-	echo "DIR_CHECK_CREATE!"
 	local Dirs=$@
 	for solo_dir in ${Dirs[*]}
 	do

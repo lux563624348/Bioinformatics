@@ -35,19 +35,19 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### Output DIRECTORY
-__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/1903_Haihui_link1
+__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
 ### INPUT DIRECTORY
-__INPUT_PATH=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/1903_Haihui_link1
+__INPUT_PATH=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq
 #### Unique Keyword of the library you want to put into pipeline.
 __INPUT_SAMPLE_SET=(
-Input_20190301000
-naive-WT-CD8-1_20190301000
-naive-WT-CD8-2_20190301000 
-naive-dKO-CD8-2_20190301000
-stim-WT-CD8-1_20190301000
-stim-WT-CD8-2_20190301000
-stim-dKO-CD8-2_20190301000
-ZC-less-stringent-wash_20190301000
+Sample_dKO-na1_20180709000
+Sample_dKO-na2_20180709000
+Sample_dKO-s1_20180709000
+Sample_dKO-s2_20180709000
+Sample_WT-na1_20180709000
+Sample_WT-na2_20180709000
+Sample_WT-s1_20180709000
+Sample_WT-s2_20180709000
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -78,10 +78,9 @@ do
 	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[1]} ${__INPUT_SAMPLE_SET[3]} ${SPECIES} "No Expression" 'no' & pid=$!
 	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_SET[i]}
 	PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
-	break
 	RUN_Trim_Galore_QC & pid=$!
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
-	#RUN_MACS2 ${__INPUT_SAMPLE_SET[i]} "Null" WT_CFCT ${SPECIES} ${Data_Provider} 'bam' & pid=$!
+	#RUN_MACS2 ${__INPUT_SAMPLE_SET[13]} 'Null' 'HIF1alpha' ${SPECIES} 'ZhaoChen' 'bampe' & pid=$!
 	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
 	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_Set[0]}
@@ -94,21 +93,33 @@ do
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}
 done
+
 echo "wait ${PID_LIST}....................................."
 wait ${PID_LIST}
 echo "Parallel Operation have finished";
 
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
-	PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
-	RUN_MACS2 ${__INPUT_SAMPLE_SET[i]} ${__INPUT_SAMPLE_SET[i]} "xx" ${SPECIES} ${Data_Provider} 'bam' & pid=$!
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
+	
+	PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair' & pid=$!
+	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
 	PID_LIST+=" $pid";
-	#break
 done
 echo "wait ${PID_LIST}....................................."
 wait ${PID_LIST}
 echo "Parallel Operation have finished";
+
+for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
+do
+	
+	RUN_MACS2 ${__INPUT_SAMPLE_SET[i]:7} 'Null' 'CD8-HP-DNaseseq' ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
+	PID_LIST+=" $pid";
+done
+echo "wait ${PID_LIST}....................................."
+wait ${PID_LIST}
+echo "Parallel Operation have finished";
+
+
 
 ##....................................................................##
 ### Single Operation
