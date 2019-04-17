@@ -35,19 +35,13 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### Output DIRECTORY
-__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq
+__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/1903/ZhaoChen
 ### INPUT DIRECTORY
-__INPUT_PATH=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/DNase_seq
+__INPUT_PATH=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/1903/ZhaoChen
 #### Unique Keyword of the library you want to put into pipeline.
 __INPUT_SAMPLE_SET=(
-Sample_dKO-na1_20180709000
-Sample_dKO-na2_20180709000
-Sample_dKO-s1_20180709000
-Sample_dKO-s2_20180709000
-Sample_WT-na1_20180709000
-Sample_WT-na2_20180709000
-Sample_WT-s1_20180709000
-Sample_WT-s2_20180709000
+Sample_ZC1_20190409000
+Sample_ZC2_20190409000
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -64,10 +58,10 @@ echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 ### Key Parameters
 SPECIES='mm9'
 Data_Provider='Haihui'
-Project_Name='CD8-HP'
+Project_Name='HSF1_ZC'
 ##....................................................................##
 ### Download Raw Data
-#FUNC_Download "http://dnacore454.healthcare.uiowa.edu/20190318-0351_Xue_QiangQS-C-PoolrkaxYXeCWDmgtBFhrIbqeRTPeHsZPJpbbHIKkDRO/results/" "1903_Haihui_link3"
+FUNC_Download "http://dnacore454.healthcare.uiowa.edu/20190409-0261_Xue3_QiangPooleonPnsMdZSrAjaxEpMyqXosgqMYODrCVtvyanTYO/results/" "1903_ZhaoChen"
 
 ##....................................................................##
 ### PARALLEL OPERTATION
@@ -80,7 +74,8 @@ do
 	PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
 	RUN_Trim_Galore_QC & pid=$!
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
-	#RUN_MACS2 ${__INPUT_SAMPLE_SET[13]} 'Null' 'HIF1alpha' ${SPECIES} 'ZhaoChen' 'bampe' & pid=$!
+	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bedpe 'customeized' & pid=$!
+	#RUN_MACS2 ${__INPUT_SAMPLE_SET[i]} 'Null' 'CD8-HP-DNase' ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
 	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
 	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_Set[0]}
@@ -100,26 +95,13 @@ echo "Parallel Operation have finished";
 
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
-	
-	PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair' & pid=$!
+	PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
 	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
 	PID_LIST+=" $pid";
 done
 echo "wait ${PID_LIST}....................................."
 wait ${PID_LIST}
 echo "Parallel Operation have finished";
-
-for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
-do
-	
-	RUN_MACS2 ${__INPUT_SAMPLE_SET[i]:7} 'Null' 'CD8-HP-DNaseseq' ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
-	PID_LIST+=" $pid";
-done
-echo "wait ${PID_LIST}....................................."
-wait ${PID_LIST}
-echo "Parallel Operation have finished";
-
-
 
 ##....................................................................##
 ### Single Operation

@@ -144,13 +144,18 @@ RUN_Trim_Galore_QC(){
 	echo "[$(date "+%Y-%m-%d %H:%M")]---------RUN_Trim_Galore_QC-----COMPLETED!"
 	echo " "
 	
-	#xx=$(find -name "*R2*.gz_trimming_report.txt")
-	#for x in ${xx[*]}; do tail -n 7 $x | awk NF >> Summary_trimming_Report.log; echo "=====================================================================================================" >> Summary_trimming_Report.log ; echo " " >> Summary_trimming_Report.log ; done
+	local xx=$(find -name "*R2*.gz_trimming_report.txt")
+	for x in ${xx[*]}
+	do 
+		tail -n 7 ${x} | awk NF >> Summary_Trim_Galore_Report.log
+		echo "=====================================================================================================" >> Summary_Trim_Galore_Report.log 
+		echo " " >> Summary_Trim_Galore_Report.log
+	done
 	
 	
 	#Picard
 	#xx=$(find -name "Marked_dup_metrics.txt")
-	#for x in ${xx[*]}; do echo $x >> Summary_Duplication.log ; cat $x | awk '{if(NR==8) print $0}' >> Summary_Duplication.log ; done
+	#for x in ${xx[*]}; do echo $x >> Summary_Duplication.log ; cat $x | awk '{if(NR==8) print $0}' >> Summary_Duplication.log ; cat $x | awk -v OFS="\t" '{if(NR==8) print "Input:",$4,"Output:",$4-$8}' >> Summary_Duplication.log ; done
 	}
 
 RUN_FAST_QC(){
@@ -429,6 +434,10 @@ RUN_RPKM(){
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/gene_iv/mm9
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/MACS2_Results/bampe_combined_repplicates
 	;;
+	"customeized")
+	echo "Customeized Region For RPKM"
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/Bowtie2_Results
+	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
 	exit
@@ -439,11 +448,10 @@ esac
 	#echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
+	
+	### The Input File for RPKM must be four columns: {0: "chr", 1: "TSS", 2: "TES", 3: "id",
 	local Input_A1_Lists=(
-	1249_1308_specific_D4_TCF1_filtered_peaks_4519.bed
-	3830_3844_Tcf1_specific.bed
-	675_intersection_peaks.bed
-	741_744_intersection_CD4_Lef1_Tcf1_peaks.bed
+	36818_Union_DNase_Peaks_14_Reps.bedpe
 	)
 	
 	
@@ -1426,7 +1434,7 @@ esac
 		###sam2bam   ##For MACS2
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  ];then
 			echo "samtools view -h -q ${Map_Quality} -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam"
-			samtools view -h -q ${Map_Quality} -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam
+			samtools view -@ ${THREADS} -h -q ${Map_Quality} -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam
 		fi
 	else
 		echo "------------------------------Single End Mode."
@@ -1468,8 +1476,8 @@ esac
 	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
 	
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ];then
-			echo "samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  "
-			samtools sort -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  
+			echo "samtools sort -@ ${THREADS} -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  "
+			samtools sort -@ ${THREADS} -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  
 			
 			echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam"
 			rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam 
@@ -1479,6 +1487,9 @@ esac
 		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true REMOVE_SEQUENCING_DUPLICATES=true ASSUME_SORT_ORDER=queryname"
 		picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
 		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true QUIET=true #Possible values: {unsorted, queryname, coordinate, duplicate, unknown}
+		
+		#echo "${OUTPUT_BOWTIE2_FOLDER}" >> Summary_Duplication.log 
+		#cat ${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt | awk -v OFS="\t" '{if(NR==8) print "Input:",$4,"Output:",$4-$8}' >> Summary_Duplication.log ; done
 		
 		if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
 			echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
@@ -1519,7 +1530,7 @@ esac
 		fi
 	fi
 
-	echo ""
+	echo " "
 	echo "One Bowtie2 is Completed!"
 	}
 
@@ -2004,8 +2015,8 @@ cd ${OUT_FOLDER}
 # for DNaseq To find enriched cutting sites such as some DNAse-Seq datasets. In this case, all 5' ends of sequenced reads should be extended in both direction to smooth the pileup signals. 
 # If the wanted smoothing window is 200bps, then use '--nomodel --shift -100 --extsize 200'.
 echo "Reference SPECIES is ${SPECIES}"
-echo "macs2 callpeak --format ${MODE} -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g ${genome_shortcut} -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} " # --nomodel --shift -100 --extsize 200" 
-macs2 callpeak --format ${MODE} -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g ${genome_shortcut} -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} # --nomodel --shift -100 --extsize 200
+echo "macs2 callpeak --format ${MODE} -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g ${genome_shortcut} -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} --nomodel --shift -100 --extsize 200" 
+macs2 callpeak --format ${MODE} -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g ${genome_shortcut} -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} --nomodel --shift -100 --extsize 200
 
 ### Not enough reads using --nomodel#
 #macs2 callpeak --format ${MODE} -t ${IN_FILES[*]} -c ${CONTRO_FILE[*]} --outdir ${OUT_FOLDER} -g ${genome_shortcut} -n ${INPUT_NAME}_vs_${INPUT_CON} -B --SPMR -p ${p_value} --nomodel # --shift -100 --extsize 200
@@ -2720,6 +2731,31 @@ FUNC_Max(){
 ########################################################################
 ########################################################################
 
+IDR_of_All (){
+	xx=$(find -name "RPKM*.rpkm")
+	for x in ${xx[*]}; do  paste 36818_Union_DNase_Peaks_14_Reps.bedpe $x | awk -v OFS="\t" '{print $1,$2,$3,$4,$5,".",0,0,0,int(($3-$2)/2)}' > ${x::-5}.bed; done
+	
+	
+	
+	xx=$(find -name "RPKM*.rpkm")
+	local k=0
+	for x in ${xx[*]}
+	do 
+	List_For_IDR[k]=${x}
+	k=$(expr $k + 1)
+	done
+	
+	for (( i = 0; i <= $(expr ${#List_For_IDR[*]} - 1); i++ ))
+	do 
+		for (( j = i; j <= $(expr ${#List_For_IDR[*]} - 1); j++ ))
+			do 
+				echo "$i and $j"
+				idr 
+			done
+	done
+	#for (( i = 0; i <= $(expr ${#List_For_IDR[*]} - 1); i++ )); do for (( j = i; j <= $(expr ${#List_For_IDR[*]} - 1); j++ )); do echo " " >> output.summary;echo "${List_For_IDR[i]} and ${List_For_IDR[j]}" >> output.summary; nohup idr --samples ${List_For_IDR[i]} ${List_For_IDR[j]} --rank score --input-file-type bed >> output.summary ; break;done;break; done
+	}
+
 # HELP INFORMATION
 ######################################
 #${INPUT_FILE::-4}
@@ -2732,6 +2768,10 @@ FUNC_Max(){
 #In general, you can stop the shell from interpreting a metacharacter by escaping it with a backslash (\)
 ######################################
 # echo "[$(date "+%Y-%m-%d %H:%M")]  <YOUR CONTENT>"
+
+
+#Sed
+### sed -i $'1i #chr\tstart\tend\tgene_id\tNum' 
 
 ## Some Out Dated Functions
 RUN_BBDUK_Trimming (){

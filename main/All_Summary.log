@@ -1,0 +1,1679 @@
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_10-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22963/36818 (62.4%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.71 1.21 0.78 0.58]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6374/36818 (17.3%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.81 1.20 0.78 0.61]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8236/36818 (22.4%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_12-navie-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.51 1.22 0.77 0.75]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 9076/36818 (24.7%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.21 1.01 0.61 0.63]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 798/36818 (2.2%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_1-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.39 0.98 0.65 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2928/36818 (8.0%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.43 0.99 0.72 0.75]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5974/36818 (16.2%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.52 1.02 0.75 0.75]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8461/36818 (23.0%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.55 1.25 0.82 0.80]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 12482/36818 (33.9%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.63 1.25 0.83 0.81]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 14732/36818 (40.0%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.41 1.02 0.72 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4351/36818 (11.8%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.29 1.04 0.73 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3173/36818 (8.6%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_WT-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.64 1.12 0.77 0.57]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5144/36818 (14.0%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190301000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.79 1.15 0.80 0.63]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8806/36818 (23.9%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_10-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [1.28 1.20 0.86 0.94]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 31162/36818 (84.6%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_10-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 23057/36818 (62.6%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.76 1.23 0.75 0.59]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6950/36818 (18.9%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.94 1.23 0.79 0.60]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 9376/36818 (25.5%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_12-navie-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.41 1.22 0.71 0.77]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7661/36818 (20.8%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_12-navie-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.58 1.24 0.77 0.77]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10873/36818 (29.5%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.19 1.01 0.56 0.66]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 599/36818 (1.6%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_1-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.43 0.99 0.64 0.71]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3802/36818 (10.3%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.43 0.98 0.69 0.78]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7042/36818 (19.1%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.61 1.05 0.76 0.75]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10090/36818 (27.4%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.56 1.30 0.79 0.82]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 13198/36818 (35.8%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.73 1.32 0.84 0.82]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 16168/36818 (43.9%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_dKO-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.46 1.03 0.74 0.78]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8758/36818 (23.8%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.39 1.00 0.67 0.74]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4535/36818 (12.3%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_dKO-s1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.20 0.96 0.66 0.79]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2919/36818 (7.9%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.24 1.05 0.69 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2326/36818 (6.3%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_WT-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.67 1.12 0.76 0.58]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5501/36818 (14.9%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.89 1.18 0.82 0.63]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10000/36818 (27.2%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_WT-s1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.28 0.93 0.63 0.78]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2669/36818 (7.2%)
+
+
+==> RPKM_read_count_10-stim-dKO-CD8_20190318000_vs_RPKM_read_count_WT-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.50 1.01 0.72 0.75]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7608/36818 (20.7%)
+
+
+==> RPKM_read_count_11-naive-WT-CD8_20190301000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22379/36818 (60.8%)
+
+
+==> RPKM_read_count_11-naive-WT-CD8_20190301000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.80 1.25 0.86 0.94]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 26975/36818 (73.3%)
+
+
+==> RPKM_read_count_11-naive-WT-CD8_20190301000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.88 1.27 0.82 0.56]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7844/36818 (21.3%)
+
+
+==> RPKM_read_count_11-naive-WT-CD8_20190301000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.57 1.00 0.82 0.94]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 26262/36818 (71.3%)
+
+
+==> RPKM_read_count_11-naive-WT-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22537/36818 (61.2%)
+
+
+==> RPKM_read_count_11-naive-WT-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.95 1.30 0.80 0.58]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8831/36818 (24.0%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_10-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.43 1.20 0.74 0.74]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7155/36818 (19.4%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.62 1.22 0.81 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8936/36818 (24.3%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.61 1.20 0.79 0.71]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 9085/36818 (24.7%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_12-navie-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22638/36818 (61.5%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_12-navie-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [1.12 1.18 0.87 0.97]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 30359/36818 (82.5%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.48 0.43 0.42 0.95]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 32824/36818 (89.2%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_1-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.30 0.91 0.57 0.74]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1334/36818 (3.6%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.35 0.98 0.66 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2558/36818 (6.9%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.38 1.00 0.65 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3244/36818 (8.8%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.56 1.39 0.80 0.77]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 11243/36818 (30.5%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.54 1.36 0.78 0.79]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 11607/36818 (31.5%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.49 0.89 0.76 0.83]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 14428/36818 (39.2%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_dKO-s1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.82 0.57 0.59 0.91]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 33447/36818 (90.8%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.36 0.94 0.74 0.83]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 9638/36818 (26.2%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_WT-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.59 1.07 0.81 0.67]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7422/36818 (20.2%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.63 1.11 0.78 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8210/36818 (22.3%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_WT-s1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.27 0.93 0.64 0.71]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1224/36818 (3.3%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190301000_vs_RPKM_read_count_WT-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.40 0.99 0.69 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3681/36818 (10.0%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.68 1.22 0.82 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10017/36818 (27.2%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.76 1.23 0.84 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10716/36818 (29.1%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_12-navie-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22579/36818 (61.3%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.47 0.39 0.40 0.96]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 33613/36818 (91.3%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.40 0.95 0.65 0.73]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3880/36818 (10.5%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.50 1.01 0.68 0.71]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5691/36818 (15.5%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.56 1.38 0.82 0.78]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 11519/36818 (31.3%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.64 1.40 0.82 0.79]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 13340/36818 (36.2%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.45 0.85 0.74 0.85]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 17235/36818 (46.8%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.30 0.90 0.70 0.86]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10902/36818 (29.6%)
+
+
+==> RPKM_read_count_12-navie-dKO-CD8_20190318000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.76 1.14 0.83 0.67]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10203/36818 (27.7%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190301000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.17 0.98 0.59 0.87]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5973/36818 (16.2%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190301000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.11 0.97 0.56 0.88]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4339/36818 (11.8%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190301000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22944/36818 (62.3%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190301000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 1.16 0.70 0.76]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2786/36818 (7.6%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190301000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.04 1.18 0.66 0.76]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2419/36818 (6.6%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190301000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.32 0.96 0.64 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1810/36818 (4.9%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190301000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.29 0.96 0.60 0.72]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1488/36818 (4.0%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190301000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.20 1.19 0.64 0.60]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1570/36818 (4.3%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190301000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.17 1.13 0.67 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2078/36818 (5.6%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190301000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.00 1.22 0.58 0.75]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1896/36818 (5.1%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.27 1.01 0.64 0.83]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6241/36818 (17.0%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.37 1.01 0.64 0.86]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 11062/36818 (30.0%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_12-navie-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.37 0.91 0.59 0.76]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2807/36818 (7.6%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.10 1.14 0.70 0.77]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3130/36818 (8.5%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_1-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.07 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 23519/36818 (63.9%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.13 1.11 0.70 0.80]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4126/36818 (11.2%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.21 1.15 0.70 0.82]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6405/36818 (17.4%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.48 0.99 0.66 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4377/36818 (11.9%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.51 0.99 0.66 0.73]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5881/36818 (16.0%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.22 1.15 0.62 0.63]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1645/36818 (4.5%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.20 1.15 0.65 0.68]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2284/36818 (6.2%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_WT-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.12 1.13 0.61 0.81]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3692/36818 (10.0%)
+
+
+==> RPKM_read_count_1-stim-WT-CD8_20190318000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.24 1.19 0.63 0.84]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7290/36818 (19.8%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190301000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.38 1.06 0.71 0.82]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 9128/36818 (24.8%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190301000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.40 1.06 0.69 0.85]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 11527/36818 (31.3%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190301000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22755/36818 (61.8%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190301000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.55 1.03 0.74 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6489/36818 (17.6%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190301000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.28 1.27 0.72 0.82]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8345/36818 (22.7%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.47 1.08 0.70 0.84]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 12246/36818 (33.3%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.62 1.11 0.73 0.84]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 15501/36818 (42.1%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190318000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.39 1.25 0.81 0.92]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 21985/36818 (59.7%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190318000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22820/36818 (62.0%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.61 1.07 0.74 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7646/36818 (20.8%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.70 1.08 0.77 0.71]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10134/36818 (27.5%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190318000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.28 1.19 0.65 0.66]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3024/36818 (8.2%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190318000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.25 1.21 0.68 0.65]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3004/36818 (8.2%)
+
+
+==> RPKM_read_count_5-stim-WT-CD8_20190318000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.47 1.30 0.75 0.83]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 12359/36818 (33.6%)
+
+
+==> RPKM_read_count_8-stim-dKO-CD8_20190301000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22600/36818 (61.4%)
+
+
+==> RPKM_read_count_8-stim-dKO-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.94 1.29 0.80 0.58]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8853/36818 (24.0%)
+
+
+==> RPKM_read_count_8-stim-dKO-CD8_20190318000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [1.04 1.29 0.83 0.59]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10243/36818 (27.8%)
+
+
+==> RPKM_read_count_8-stim-dKO-CD8_20190318000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.56 1.01 0.73 0.72]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7433/36818 (20.2%)
+
+
+==> RPKM_read_count_8-stim-dKO-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.25 1.76 0.90 0.90]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 16758/36818 (45.5%)
+
+
+==> RPKM_read_count_8-stim-dKO-CD8_20190318000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22442/36818 (61.0%)
+
+
+==> RPKM_read_count_8-stim-dKO-CD8_20190318000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.43 1.01 0.75 0.72]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5618/36818 (15.3%)
+
+
+==> RPKM_read_count_8-stim-dKO-CD8_20190318000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.23 0.98 0.73 0.87]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10002/36818 (27.2%)
+
+
+==> RPKM_read_count_8-stim-dKO-CD8_20190318000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [1.04 1.25 0.85 0.55]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 9199/36818 (25.0%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_10-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.47 1.04 0.76 0.76]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8035/36818 (21.8%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.66 1.19 0.83 0.76]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 12584/36818 (34.2%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.69 1.20 0.81 0.79]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 13743/36818 (37.3%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_12-navie-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [1.41 0.64 0.76 0.77]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 28375/36818 (77.1%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_12-navie-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [1.42 0.64 0.76 0.77]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 28505/36818 (77.4%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.20 1.16 0.62 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2364/36818 (6.4%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_1-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.28 1.16 0.62 0.73]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3876/36818 (10.5%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.34 1.19 0.71 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4786/36818 (13.0%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.40 1.23 0.70 0.72]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6015/36818 (16.3%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.55 1.14 0.82 0.77]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 11017/36818 (29.9%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.54 1.13 0.80 0.79]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 11919/36818 (32.4%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_dKO-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22595/36818 (61.4%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.53 1.16 0.82 0.85]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 16151/36818 (43.9%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_dKO-s1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.29 1.29 0.73 0.79]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7472/36818 (20.3%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.36 1.31 0.78 0.76]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7912/36818 (21.5%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_WT-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.65 1.30 0.85 0.77]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 12559/36818 (34.1%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.78 1.45 0.84 0.79]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 14899/36818 (40.5%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_WT-s1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.22 1.18 0.69 0.71]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3357/36818 (9.1%)
+
+
+==> RPKM_read_count_dKO-na1_20180709000_vs_RPKM_read_count_WT-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.39 1.24 0.75 0.73]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6771/36818 (18.4%)
+
+
+==> RPKM_read_count_dKO-na2_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.58 1.14 0.76 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7785/36818 (21.1%)
+
+
+==> RPKM_read_count_dKO-na2_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.56 1.12 0.73 0.72]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7948/36818 (21.6%)
+
+
+==> RPKM_read_count_dKO-na2_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.27 1.19 0.69 0.63]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2612/36818 (7.1%)
+
+
+==> RPKM_read_count_dKO-na2_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.45 1.04 0.77 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5487/36818 (14.9%)
+
+
+==> RPKM_read_count_dKO-na2_20180709000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 23012/36818 (62.5%)
+
+
+==> RPKM_read_count_dKO-na2_20180709000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.55 1.27 0.75 0.73]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8947/36818 (24.3%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_10-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.28 0.99 0.70 0.77]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4284/36818 (11.6%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.50 1.15 0.73 0.66]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5298/36818 (14.4%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.49 1.14 0.68 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5714/36818 (15.5%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_12-navie-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.74 0.48 0.58 0.95]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 34476/36818 (93.6%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.17 1.15 0.71 0.64]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1959/36818 (5.3%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_1-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.24 1.16 0.67 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3006/36818 (8.2%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.25 1.19 0.74 0.68]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3665/36818 (10.0%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.27 1.19 0.70 0.72]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4289/36818 (11.6%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.25 0.93 0.73 0.87]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 11200/36818 (30.4%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.21 0.86 0.69 0.91]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 19446/36818 (52.8%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.26 1.18 0.74 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3887/36818 (10.6%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_dKO-s1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22712/36818 (61.7%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.22 1.25 0.78 0.80]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7023/36818 (19.1%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_WT-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.39 1.25 0.71 0.63]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4077/36818 (11.1%)
+
+
+==> RPKM_read_count_dKO-s1_20180709000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.51 1.38 0.66 0.66]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6317/36818 (17.2%)
+
+
+==> RPKM_read_count_dKO-s2_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.54 1.17 0.76 0.63]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5545/36818 (15.1%)
+
+
+==> RPKM_read_count_dKO-s2_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.53 1.18 0.71 0.64]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5395/36818 (14.7%)
+
+
+==> RPKM_read_count_dKO-s2_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.28 1.19 0.72 0.66]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3321/36818 (9.0%)
+
+
+==> RPKM_read_count_dKO-s2_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.29 1.01 0.77 0.84]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 9789/36818 (26.6%)
+
+
+==> RPKM_read_count_dKO-s2_20180709000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.37 1.23 0.76 0.70]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5656/36818 (15.4%)
+
+
+==> RPKM_read_count_dKO-s2_20180709000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22677/36818 (61.6%)
+
+
+==> RPKM_read_count_dKO-s2_20180709000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.54 1.38 0.71 0.56]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4739/36818 (12.9%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.54 1.06 0.82 0.90]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 24015/36818 (65.2%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.60 1.05 0.82 0.92]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 25687/36818 (69.8%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_12-navie-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.65 1.08 0.82 0.67]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8462/36818 (23.0%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.00 1.15 0.59 0.78]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1753/36818 (4.8%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.18 1.20 0.69 0.78]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4813/36818 (13.1%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.29 1.22 0.70 0.79]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6994/36818 (19.0%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.79 1.15 0.81 0.54]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6190/36818 (16.8%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.83 1.15 0.81 0.56]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7018/36818 (19.1%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.53 1.23 0.78 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7595/36818 (20.6%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.48 1.28 0.75 0.58]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4410/36818 (12.0%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_WT-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.07 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 23085/36818 (62.7%)
+
+
+==> RPKM_read_count_WT-na1_20180709000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.69 1.50 0.86 0.92]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 24246/36818 (65.9%)
+
+
+==> RPKM_read_count_WT-na2_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.76 1.11 0.86 0.91]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 27050/36818 (73.5%)
+
+
+==> RPKM_read_count_WT-na2_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.96 1.25 0.82 0.53]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7708/36818 (20.9%)
+
+
+==> RPKM_read_count_WT-na2_20180709000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22444/36818 (61.0%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_10-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.31 0.96 0.66 0.74]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2842/36818 (7.7%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.22 1.00 0.67 0.82]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4801/36818 (13.0%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.15 0.94 0.64 0.87]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5738/36818 (15.6%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_12-navie-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.25 0.87 0.59 0.79]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1415/36818 (3.8%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.08 1.17 0.72 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1973/36818 (5.4%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_1-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.07 1.14 0.70 0.72]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 1994/36818 (5.4%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.05 1.14 0.74 0.78]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3210/36818 (8.7%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.00 1.12 0.72 0.80]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2767/36818 (7.5%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.39 0.97 0.72 0.67]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2884/36818 (7.8%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.37 0.94 0.69 0.72]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3131/36818 (8.5%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.27 1.21 0.71 0.61]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2617/36818 (7.1%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_dKO-s1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.20 1.18 0.73 0.71]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3535/36818 (9.6%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.20 1.18 0.71 0.68]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2977/36818 (8.1%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_WT-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.08 1.16 0.68 0.76]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 2761/36818 (7.5%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.05 1.18 0.68 0.81]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3802/36818 (10.3%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_WT-s1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22502/36818 (61.1%)
+
+
+==> RPKM_read_count_WT-s1_20180709000_vs_RPKM_read_count_WT-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.11 1.19 0.76 0.81]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5716/36818 (15.5%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_10-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.48 1.01 0.74 0.74]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6873/36818 (18.7%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.40 1.08 0.73 0.83]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10305/36818 (28.0%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_11-naive-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.44 1.05 0.73 0.85]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 13801/36818 (37.5%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_12-navie-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.43 0.97 0.69 0.74]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5157/36818 (14.0%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_1-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.08 1.19 0.70 0.75]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3080/36818 (8.4%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_1-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.18 1.16 0.72 0.78]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 4641/36818 (12.6%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.19 1.18 0.77 0.82]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 7126/36818 (19.4%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_5-stim-WT-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.21 1.17 0.76 0.85]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8856/36818 (24.1%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190301000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.54 1.05 0.78 0.69]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6865/36818 (18.6%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_8-stim-dKO-CD8_20190318000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.58 1.04 0.76 0.73]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 8680/36818 (23.6%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_dKO-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.30 1.20 0.74 0.63]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 3263/36818 (8.9%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_dKO-s1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.29 1.22 0.76 0.74]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5797/36818 (15.7%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_dKO-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.32 1.23 0.74 0.71]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 5132/36818 (13.9%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_WT-na1_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.25 1.25 0.74 0.78]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 6540/36818 (17.8%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_WT-na2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.35 1.35 0.76 0.82]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 10297/36818 (28.0%)
+
+
+==> RPKM_read_count_WT-s2_20180709000_vs_RPKM_read_count_WT-s2_20180709000.summary <==
+Initial parameter values: [0.10 1.00 0.20 0.50]
+Final parameter values: [0.06 0.20 0.99 0.99]
+Number of reported peaks - 36818/36818 (100.0%)
+
+Number of peaks passing IDR cutoff of 0.05 - 22548/36818 (61.2%)
+
