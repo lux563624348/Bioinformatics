@@ -407,22 +407,34 @@ RUN_Island_Filtered_Reads(){
 RUN_RPKM(){
 	#### usage: RUN_RPKM ${__INPUT_SAMPLE_List[1]} 'bed' ${SPECIES} 
 	CHECK_arguments $# 3
-	local File_Name=${1}
-	local File_Type=${2}
+	local INPUT_NAME=${1}
+	local INPUT_TYPE=${2}
 	local SPECIES=${3}
 	local PATH_python_tools=~/cloud_research/PengGroup/XLi/Python_tools/read_RPKM.py
 	
 	echo "Entering the Raw Input directory"
-
+	
+	local IN_FOLDER=${__INPUT_PATH}
 	cd ${__INPUT_PATH}
 
-	echo "$(find -name "${File_Name}*.${File_Type}" | sort -n | xargs)"
-	local Input_B1="$( find -name "*${File_Name}*.${File_Type}" | sort -n | xargs)"
-	local Input_B1="${__INPUT_PATH}/${Input_B1: 2}"
-	local Input_Size=$(wc -l ${Input_B1} | cut -d' ' -f1)
+	local IN_FILES="$( find -name "*${INPUT_NAME}*Simple_Repeats_Removed.${INPUT_TYPE}" | sort -n | xargs)"
+	
+	#### Search and save all input files PATH
+	local k=0
+	for in_files in ${IN_FILES}
+	do
+		IN_FILES[k]="${IN_FOLDER}/${in_files: 2}"
+		k=`expr $k + 1`
+	done
+	echo "Saving RPKM INPUT File as ${IN_FILES[*]}"
+	### Find Input File
+	
+	local Input_Size=$(cat ${IN_FILES[*]} | wc -l )
 	#local Input_Size=$(samtools view ${Input_B1} | wc -l | cut -d' ' -f1)
 	
-	cd ${__OUTPUT_PATH}
+	DIR_CHECK_CREATE ${__OUTPUT_PATH}/RPKM
+	cd ${__OUTPUT_PATH}/RPKM
+	
 	echo "From Reads bed file to calculate reads count and its RPKM."
 	case ${SPECIES} in
 	"mm10")
@@ -451,7 +463,8 @@ esac
 	
 	### The Input File for RPKM must be four columns: {0: "chr", 1: "TSS", 2: "TES", 3: "id",
 	local Input_A1_Lists=(
-	36818_Union_DNase_Peaks_14_Reps.bedpe
+	36380_Union_DNase_Peaks_10_Reps.bedpe
+	39889_Union_peaks_of_4_conds.bed
 	)
 	
 	
@@ -459,8 +472,8 @@ esac
 	do
 		local OUTPUT_NAME="read_count_${1}_${Input_A1:: -4}"
 		local Input_A1="${Gene_list_folder}/${Input_A1}"
-		echo "cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b ${Input_B1} > ${__OUTPUT_PATH}/${OUTPUT_NAME}.bed"
-		cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b ${Input_B1} > ${__OUTPUT_PATH}/${OUTPUT_NAME}.bed
+		echo "cat ${IN_FILES[*]} | cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b $(echo ${IN_FILES[*]} | tr " " ", ") > ${__OUTPUT_PATH}/${OUTPUT_NAME}.bed"
+		cat ${IN_FILES[*]} | cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b ${IN_FILES[*]} > ${__OUTPUT_PATH}/${OUTPUT_NAME}.bed
 		
 		### A high memory efficient " -sorted " model requires both input files to be sorted. 
 		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed -sorted
@@ -2301,6 +2314,8 @@ RUN_Motif_Homer(){
 	echo "[$(date "+%Y-%m-%d %H:%M")] --------------RUN_Motif_Homer----"
 ########################################################################
 	local OUT_FOLDER=/home/data/www/Homer_Results/Motif_Results/${INPUT_NAME:0:8}_vs_${INPUT_CON:0:8}
+	local OUT_FOLDER=${__OUTPUT_PATH}/Output/${INPUT_NAME:0:8}_vs_${INPUT_CON:0:8}
+	
 	DIR_CHECK_CREATE ${OUT_FOLDER} 
 	DIR_CHECK_CREATE ${OUT_FOLDER}/Motif_GENE_Summary
 #### Default Input for homer motif is bed format.
@@ -2348,7 +2363,9 @@ RUN_Motif_Homer(){
 	########################################################################
 	if [ ! -n "${IN_FILES}" ]
 	then
+		echo "ERROR: Nothing Found, Motif Analysis STOP......"
 		break
+		
 	else
 		echo "Motif Analysis Start......"
 	fi
@@ -2367,12 +2384,13 @@ RUN_Motif_Homer(){
 	########################################################################
 	if [ ! -n "${IN_FILES}" ]
 	then
+		echo "Nothing Found, Motif Analysis End......"
 		break
 	else
 		echo "Motif Analysis Start......"
 	fi
-	echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -size -1000,1000 -p ${THREADS} -S 10 "
-	findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -size -1000,1000 -p ${THREADS} -S 10
+	echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -size -100,100 -p ${THREADS} -S 10 "
+	findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -size -100,100 -p ${THREADS} -S 10
 	
 	echo "annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${INPUT_NAME}.bed.gene_association.txt"
 	annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${OUT_FOLDER}/Motif_GENE_Summary/${INPUT_NAME}.bed.gene_association.txt
@@ -2491,7 +2509,7 @@ RUN_AWK(){
 	xx=$(find -name "*.domain")
 	Output_Name=DKO_CD8_TADs
 	for x in ${xx[*]}; do cat ${x} >> ${Output_Name}.bed ; done
-	cat ${Output_Name}.bed | sort -k1,1 -k2n,2 > ${Output_Name}_sort.bed
+	cat ${Output_Name}.bed | sort -k1,1 -k2,2n > ${Output_Name}_sort.bed
 	
 	python ~/cloud_research/PengGroup/XLi/Python_tools/Bed_Correction.py -i ${Output_Name}.bed -s ~/cloud_research/PengGroup/XLi/Annotation/UCSC/genome_sizes/mm9.chrom.sizes
 	
@@ -2499,6 +2517,13 @@ RUN_AWK(){
 	cat WT_CD8_TADs_res_10k_w5.boundary.bed | awk -v ext=50000 '{print $1"\t"$2-ext"\t"$3+ext"\t"$4}' > WT_CD8_TADs_res_10k_w5.boundary_ex50k.bed
 	
 	sed -i 's/original/new/g' file.txt
+	
+	
+	## TopDom
+	## calculate row sum
+	for x in ${xx[*]}; do zcat ${x} | awk -v OFS="\t" '{if (NR>0) { sum=0; for (i=4; i<=NF; i++) {sum+=$i} print $1,$2,$3,sum}}' > ./chr_wide_interaction/${x:2:-3}_chr_wide.bed ; break; done
+	## calculate column sum
+	for x in ${xx[*]}; do cat ${x} | awk '{sum+=$4} END {print sum}'; done
 	}
 
 REMOVE_REDUNDANCY_PICARD(){
