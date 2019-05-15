@@ -1,5 +1,4 @@
 ## Library: Vlad
-## This file contains the basic function of PCA.
 ## Author: Xiang Li
 
 ###Sample
@@ -8,11 +7,11 @@ import pandas as pd
 import numpy as np
 import sys
 
-INPUT_FILE_NAME = sys.argv[1]
-__EXE_PATH_DIR = sys.argv[2]
-__Input_Size = sys.argv[3]
-
 def main():
+	INPUT_FILE_NAME = sys.argv[1]
+	__EXE_PATH_DIR = sys.argv[2]
+	__Input_Size = sys.argv[3]
+	
 	DATA_PATH = __EXE_PATH_DIR + '/' + INPUT_FILE_NAME + '.bed'
 	
 	print ("")
@@ -23,9 +22,14 @@ def main():
 	### 0   1   2    3          4
 	###chr TSS TES gene_id   Read_count
 	df_tem = pd.read_csv(DATA_PATH, sep='\t', header=-1)
-	df_tem = df_tem.rename(index=str, columns={0: "chr", 1: "TSS", 2: "TES", 3: "gene_id", 4: "#_reads"})
+	df_tem = df_tem.rename(columns={0: "chr", 1: "TSS", 2: "TES", 3: "gene_id", 4: "#_reads"})
 	df_tem['len'] = np.abs(df_tem.loc[:,'TSS'] - df_tem.loc[:,'TES'])
-	number_of_total_reads = float(__Input_Size)
+	__Input_Size=float(__Input_Size)
+	if(__Input_Size==0):
+		print "Input_Size = 0, using islandreads to normalize"
+		number_of_total_reads = float(df_tem[['#_reads']].sum(axis=0))
+	else:
+		number_of_total_reads = __Input_Size
 	RPKM=df_tem.loc[:,'#_reads']*(10.0**9)/((df_tem.loc[:,'len'])*number_of_total_reads)
 
 	df = pd.DataFrame(columns=['gene_id','RPKM'])

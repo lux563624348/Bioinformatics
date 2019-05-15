@@ -1518,10 +1518,10 @@ esac
 		### In here, bedpe just represents the bed format of pair end reads.
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe ];then
 			echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
-			bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
+			bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n | gzip > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe.gz
 					
 			echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe"
-			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe
+			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} | gzip > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe.gz
 			if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe ];then
 				echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
 				rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
@@ -1531,11 +1531,11 @@ esac
 	else
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed ];then
 			echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
-			bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
+			bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n | gzip > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed.gz
 			
 			## either 50% of A is covered OR 50% of B is covered
 			echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed"
-			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
+			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} | gzip > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed.gz
 			if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed ];then
 				echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
 				rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
@@ -1907,10 +1907,10 @@ local EFFECTIVEGENOME=0.85
 local FDR=0.05
 
 local IN_SICER_FOLDER=${__INPUT_PATH}/${INPUT_NAME}
-local IN_SICER_FILES=${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
+local IN_SICER_FILES=${INPUT_NAME}.bed
 
 local CONTRO_SICER_DIR=${__INPUT_PATH}/${INPUI_CON}
-local CONTRO_SICER_FILE=${INPUI_CON}_Dup_Simple_Repeats_Removed.bed
+local CONTRO_SICER_FILE=${INPUI_CON}.bed
 
 local OUT_SICER_FOLDER=${__OUTPUT_PATH}/SICER_Results/${INPUT_NAME}
 DIR_CHECK_CREATE ${OUT_SICER_FOLDER}
@@ -1918,11 +1918,11 @@ DIR_CHECK_CREATE ${OUT_SICER_FOLDER}
 cd ${OUT_SICER_FOLDER}
 
 echo "bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} ${SPECIES} ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
-#bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} ${SPECIES} ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
+bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} ${SPECIES} ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
 
 
-RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME}_Dup_Simple_Repeats_Removed-W${WINDOW_SIZE}-normalized ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
-RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}_Dup_Simple_Repeats_Removed-W${WINDOW_SIZE}-normalized ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-normalized ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W${WINDOW_SIZE}-normalized ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
 
 echo "[$(date "+%Y-%m-%d %H:%M")]  SICER IS FINISHED................"
 	}
@@ -2435,9 +2435,10 @@ RUN_Motif_Homer(){
 	done
 	#echo "wait ${PID_LIST}}....................................."
 	#wait ${PID_LIST}
-	#echo "python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/Motif_GENE_Summary -e ${CuffDiff_Expression}"
-	#python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/Motif_GENE_Summary -e ${CuffDiff_Expression}
-	#echo "[$(date "+%Y-%m-%d %H:%M")] RUN_Motif_Homer Completed!--------"
+	echo "python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/Motif_GENE_Summary -e ${CuffDiff_Expression}"
+	## This part associates all motif hits with genelist with closest site, then from genelist to get its expression and ranking of impact on expression .
+	python ${Python_Tools_DIR}/motif_associated_expression.py -m ${OUT_FOLDER}/Motif_GENE_Summary -e ${CuffDiff_Expression}
+	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_Motif_Homer Completed!--------"
 }
 
 RUN_HiC_Iterative_Mapping(){
