@@ -34,14 +34,15 @@ echo "-----------------------------------------------------------------"
 ########################################################################
 ## GLOBAL VARIABLES
 ########################################################################
-### Output DIRECTORY
-__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Diff_Binding_Events_Dnaseq/Diff_By_edgeR/Motif/Output
 ### INPUT DIRECTORY
-__INPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq/Diff_Binding_Events_Dnaseq/Diff_By_edgeR/Motif
-#### Unique Keyword of the library you want to put into pipeline.
+__INPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/1905
+### Output DIRECTORY
+__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/1905/1905_Dup_Removed
 __INPUT_SAMPLE_SET=(
-532_DNase_Lost_sites_Tcf1_downregulated_genes
-432_DNase_Gain_sites_Tcf1_upregulated_genes
+Tcf1_KO_na_CD8_R1
+Tcf1_KO_na_CD8_R2
+WT_na_CD8_R1
+WT_na_CD8_R2
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -58,7 +59,7 @@ echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 ### Key Parameters
 SPECIES='mm9'
 Data_Provider='Haihui'
-Project_Name='CD8-HP-H3K27Ac_1903'
+Project_Name='CD8-HP-DNase_islandfiltered'
 ##....................................................................##
 ### Download Raw Data
 #FUNC_Download "http://dnacore454.healthcare.uiowa.edu/20190409-0261_Xue3_QiangPooleonPnsMdZSrAjaxEpMyqXosgqMYODrCVtvyanTYO/results/" "1903_ZhaoChen"
@@ -68,20 +69,22 @@ Project_Name='CD8-HP-H3K27Ac_1903'
 echo "Parallel Operation have started"
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
-	RUN_Motif_Homer ${__INPUT_SAMPLE_SET[0]} ${__INPUT_SAMPLE_SET[1]} ${SPECIES} ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/DKO_0h_vs_WT_0h 'no' & pid=$!
-	RUN_Motif_Homer ${__INPUT_SAMPLE_SET[1]} ${__INPUT_SAMPLE_SET[0]} ${SPECIES} ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/DKO_0h_vs_WT_0h 'no' & pid=$!
+	#RUN_SICER ${__INPUT_SAMPLE_SET[2]} ${__INPUT_SAMPLE_SET[0]} 200 ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
+	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[0]} ${__INPUT_SAMPLE_SET[1]} ${SPECIES} ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/DKO_0h_vs_WT_0h/gene_exp.diff 'no' & pid=$!
+	REMOVE_REDUNDANCY_PICARD ${__INPUT_SAMPLE_SET[i]} & pid=$!
 	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_SET[i]}
 	#PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
 	#RUN_Trim_Galore_QC & pid=$!
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
-	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bedpe 'customeized' & pid=$!
-	#RUN_MACS2 ${__INPUT_SAMPLE_SET[6]} ${__INPUT_SAMPLE_SET[0]} ${Project_Name} ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
+	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bed 'customeized' & pid=$!
+	#RUN_MACS2 ${__INPUT_SAMPLE_SET[1]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bed' & pid=$!
 	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
-	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_Set[0]}
+	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
+	
 	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_Set[i]} ${SPECIES}
-	#RUN_SICER ${__INPUT_SAMPLE_SET[1]} ${__INPUT_SAMPLE_SET[0]} 400 ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
+
 	PID_LIST+=" $pid";
 	break
 #### FOR a full cycle, it must be clear its READS_DIR in the end.

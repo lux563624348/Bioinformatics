@@ -6,6 +6,9 @@
 import pandas as pd
 import numpy as np
 import sys
+## If Input size = 0, using islandfiltered reads to normalize.
+
+
 
 def main():
 	INPUT_FILE_NAME = sys.argv[1]
