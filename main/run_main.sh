@@ -35,14 +35,14 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### INPUT DIRECTORY
-__INPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/1905
+__INPUT_PATH=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/HiC/2019
 ### Output DIRECTORY
-__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/1905/1905_Dup_Removed
+__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/2019
 __INPUT_SAMPLE_SET=(
-Tcf1_KO_na_CD8_R1
-Tcf1_KO_na_CD8_R2
-WT_na_CD8_R1
-WT_na_CD8_R2
+19092FL-03
+19092FL-04
+Tcf1_KO_na
+WT_na_CD8
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -59,7 +59,7 @@ echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 ### Key Parameters
 SPECIES='mm9'
 Data_Provider='Haihui'
-Project_Name='CD8-HP-DNase_islandfiltered'
+Project_Name='CD8-HP-HiC'
 ##....................................................................##
 ### Download Raw Data
 #FUNC_Download "http://dnacore454.healthcare.uiowa.edu/20190409-0261_Xue3_QiangPooleonPnsMdZSrAjaxEpMyqXosgqMYODrCVtvyanTYO/results/" "1903_ZhaoChen"
@@ -71,12 +71,12 @@ for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Opera
 do
 	#RUN_SICER ${__INPUT_SAMPLE_SET[2]} ${__INPUT_SAMPLE_SET[0]} 200 ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[0]} ${__INPUT_SAMPLE_SET[1]} ${SPECIES} ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/DKO_0h_vs_WT_0h/gene_exp.diff 'no' & pid=$!
-	REMOVE_REDUNDANCY_PICARD ${__INPUT_SAMPLE_SET[i]} & pid=$!
+	#REMOVE_REDUNDANCY_PICARD ${__INPUT_SAMPLE_SET[i]} & pid=$!
 	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_SET[i]}
 	#PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
 	#RUN_Trim_Galore_QC & pid=$!
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
-	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bed 'customeized' & pid=$!
+	RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bed 'customeized' & pid=$!
 	#RUN_MACS2 ${__INPUT_SAMPLE_SET[1]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bed' & pid=$!
 	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'

@@ -66,7 +66,7 @@ PRE_READS_DIR(){
 	local DIRLIST_R2_gz="$( find -name "*${INPUT_Key_Word}*R2*.${INPUT_Ext}" | sort -n | xargs)"
 	;;
 	"SRA")
-	echo "SRA Mode, , _1 and _2 to be found.............................."
+	echo "SRA Mode, _1 and _2 to be found.............................."
 	local DIRLIST_R1_gz="$( find -name "*${INPUT_Key_Word}*_1*.${INPUT_Ext}" | sort -n | xargs)"
 	local DIRLIST_R2_gz="$( find -name "*${INPUT_Key_Word}*_2*.${INPUT_Ext}" | sort -n | xargs)"
 	;;
@@ -124,17 +124,19 @@ RUN_Trim_Galore_QC(){
 	DIR_CHECK_CREATE ${Output_Trim_QC}
 	cd ${__INPUT_PATH}
 	
-
-	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
-	then
-		echo "Pair End Mode"
-		echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[0]} ${__FASTQ_DIR_R2[0]} --suppress_warn"
-		trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[0]} ${__FASTQ_DIR_R2[0]} --suppress_warn 
-	else
-		echo "Single End Mode."
-		echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[0]} --suppress_warn"
-		trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[0]} --suppress_warn
-	fi
+	for (( i = 0; i <= $(expr ${#__FASTQ_DIR_R1[*]} - 1); i++ ))
+	do
+		if [ -n "${__FASTQ_DIR_R1[i]}" -a -n "${__FASTQ_DIR_R2[i]}" ]
+		then
+			echo "Pair End Mode"
+			echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn"
+			trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn &
+		else
+			echo "Single End Mode."
+			echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[i]} --suppress_warn"
+			trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[i]} --suppress_warn &
+		fi
+	done
 	
 	echo "[$(date "+%Y-%m-%d %H:%M")]---------RUN_Trim_Galore_QC-----COMPLETED!"
 	echo " "
@@ -287,8 +289,8 @@ RUN_Venn_Diagram(){
 	
 	
 	echo "Merge All files into one file!"
-	echo "cat *.${FILE_TYPE} | cut -f 1,2,3 | sort -k1,1 -k2,2n | bedtools merge -i stdin -c 4 -o count > union_all_0.txt"
-	cat *.${FILE_TYPE} | cut -f 1,2,3 | sort -k1,1 -k2,2n | bedtools merge -i stdin > union_all_0.txt
+	echo "cat *.${FILE_TYPE} | cut -f 1,2,3 | sort -k1,1 -k2,2n -V -s | bedtools merge -i stdin -c 4 -o count > union_all_0.txt"
+	cat *.${FILE_TYPE} | cut -f 1,2,3 | sort -k1,1 -k2,2n -V -s | bedtools merge -i stdin > union_all_0.txt
 	
 	
 	if [ ${Venn_Input_NUM} == 2 ]
@@ -424,14 +426,21 @@ RUN_RPKM(){
 	done
 	echo "Saving RPKM INPUT File as ${IN_FILES[*]}"
 	### Find Input File
-	
-	if [ ${Islandfiltered_Normalizaed}=='yes' ]
-	then
-		local Input_Size=0
-	else 
-		echo "Normalization by Raw Library Size"
-		local Input_Size=$(cat ${IN_FILES[*]} | wc -l )
-	fi
+
+	case ${Islandfiltered_Normalizaed} in
+		"yes")
+			local Input_Size=0
+			echo "Normalization by Islandfiltered reads"
+		;;
+		"no")
+			echo "Normalization by Raw Library Size"
+			local Input_Size=$(cat ${IN_FILES[*]} | wc -l )
+		;;
+		*)
+		echo "ERR: Did Not Find Any Matched Reference...... Exit"
+		exit
+		;;
+	esac
 	
 	DIR_CHECK_CREATE ${__OUTPUT_PATH}/RPKM
 	cd ${__OUTPUT_PATH}/RPKM
@@ -449,7 +458,8 @@ RUN_RPKM(){
 	;;
 	"customeized")
 	echo "Customeized Region For RPKM"
-	local local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNase_seq/Bowtie2_Results
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/H3K27Ac/After1903/Output_of_SuperEnhancer
+	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq_ChIP_seq_HiC/Annotation
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -464,7 +474,8 @@ esac
 	
 	### The Input File for RPKM must be four columns: {0: "chr", 1: "TSS", 2: "TES", 3: "id",
 	local Input_A1_Lists=(
-	28827_union_na_DNase_peaks_5.bed
+	313_Up_regulated_gene_Promoter_regions_ex1kb.bed
+	259_Down_regulated_gene_Promoter_regions_ex1kb.bed
 	)
 	
 	
@@ -472,11 +483,12 @@ esac
 	do
 		local OUTPUT_NAME="read_count_${1}_${Input_A1:: -4}"
 		local Input_A1="${Gene_list_folder}/${Input_A1}"
-		echo "cat ${IN_FILES[*]} | cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b $(echo ${IN_FILES[*]} | tr " " ", ") > ${__OUTPUT_PATH}/${OUTPUT_NAME}.bed"
-		#cat ${IN_FILES[*]} | cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b ${IN_FILES[*]} > ${__OUTPUT_PATH}/${OUTPUT_NAME}.bed
+		echo "cat ${IN_FILES[*]} | cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b $(echo ${IN_FILES[*]} | tr " " ", ") > ${__OUTPUT_PATH}/RPKM/${OUTPUT_NAME}.bed"
+		#cat ${IN_FILES[*]} | cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b ${IN_FILES[*]} > ${__OUTPUT_PATH}/RPKM/${OUTPUT_NAME}.bed
 		
 		### A high memory efficient " -sorted " model requires both input files to be sorted. 
 		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed -sorted
+		cd ~
 		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${__OUTPUT_PATH}/RPKM ${Input_Size}"
 		python ${PATH_python_tools} ${OUTPUT_NAME} ${__OUTPUT_PATH}/RPKM ${Input_Size}
 	done
@@ -2449,7 +2461,7 @@ RUN_Motif_Homer(){
 		local Motif_Out=${OUT_FOLDER}/Motif_GENE_Summary/motif${i}
 		DIR_CHECK_CREATE ${Motif_Out}
 		echo "Default peak region for motif discovery is 200 bps."
-		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -m ${Motif_Path} -mbed ${Motif_Out}/motif${i}.bed -noann -nogene -annStats ${Motif_Out}/motif${i}_Stats.txt > ${Motif_Out}/motif${i}_annotation.txt
+		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${Motif_Path} -mbed ${Motif_Out}/motif${i}.bed -noann -nogene -annStats ${Motif_Out}/motif${i}_Stats.txt > ${Motif_Out}/motif${i}_annotation.txt
 		### Homer Gene Aossociation just does not working. I tried with -gtf xxx(This makes it worse), some gene_id will be ignored. 
 		annotatePeaks.pl ${Motif_Out}/motif${i}.bed ${genome_shortcut} -go ${Motif_Out}/GO -genomeOntology ${Motif_Out}/genomeOntology | cut -f 1,2,3,4,5,10,16 > ${OUT_FOLDER}/Motif_GENE_Summary/motif${i}.bed.gene_association.txt & pid=$!
 		### PeakID (cmd=annotatePeaks.pl known1.bed mm9)	Chr	Start	End	Strand	Peak Score	Focus Ratio/Region Size	Annotation	Detailed Annotation	Distance to TSS	Nearest PromoterID	Entrez ID	Nearest Unigene	Nearest Refseq	Nearest Ensembl	Gene Name	Gene Alias	Gene Description	Gene Type
@@ -2467,7 +2479,7 @@ RUN_Motif_Homer(){
 		DIR_CHECK_CREATE ${Motif_Out}
 		echo "Default peak region for motif discovery is 200 bps."
 		### find motif hits coordinates####   -size -100,100
-		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -m ${Motif_Path} -mbed ${Motif_Out}/known${i}.bed -noann -nogene -annStats ${Motif_Out}/known${i}_Stats.txt > ${Motif_Out}/known${i}_annotation.txt
+		annotatePeaks.pl ${IN_FOLDER}/${IN_FILES: 2} ${genome_shortcut} -size -100,100 -m ${Motif_Path} -mbed ${Motif_Out}/known${i}.bed -noann -nogene -annStats ${Motif_Out}/known${i}_Stats.txt > ${Motif_Out}/known${i}_annotation.txt
 		### Homer Gene Aossociation just does not working. I tried with -gtf xxx(This makes it worse), some gene_id will be ignored. 
 		annotatePeaks.pl ${Motif_Out}/known${i}.bed ${genome_shortcut} -go ${Motif_Out}/GO -genomeOntology ${Motif_Out}/genomeOntology | cut -f 1,2,3,4,5,10,16 > ${OUT_FOLDER}/Motif_GENE_Summary/known${i}.bed.gene_association.txt & pid=$!
 		PID_LIST+=" $pid";
@@ -2543,8 +2555,30 @@ esac
 	echo "Finished!..."
 	
 	}
+
+RUN_hdf5_to_cool(){
+	cooler cload hiclib --assembly mm9 /home/xli/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/1905/iterative_mapping/mm9_genome_size.txt:10000 WT_CD8_fragment_dataset.hdf5 WT_CD8_fragment_dataset_10k.cool
+	
+	}
+	
+RUN_juicer_hiccup(){
+	java -jar /opt/tools/juicer_tools_1.11.09_jcuda.0.8.jar hiccups --cpu -t 36 --ignore_sparsity Tcf1_KO_na_CD8_Juicebox.hic ./hiccup_results/TKO_na_CD8 > ./hiccup_results/TKO_na_CD8.log &
+	nohup java -Xmx100g -jar /opt/tools/juicer_tools_1.12.03.jar hiccups --cpu --ignore_sparsity \
+	-m 512 -r 10000,25000,50000 -k KR -f .1,.1,.1 -p 4,2,1 -i 7,5,3 -t 0.02,1.5,1.75,2 -d 20000,50000,100000 \
+	 ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/2016/Juicebox/WT_CD8_Juicebox_q30.hic > ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/2016/Juicebox/Resolution_10_25_50/hiccup_on_WT.log &
+	}
+
+RUN_juicer_hiccup_diff(){
+	java -Xmx16g -jar /opt/tools/juicer_tools_1.10.09_jcuda.0.8.jar hiccupsdiff --cpu -t 36 --ignore_sparsity 
+	WT_CD8.hic TKO_na_CD8.hic WT_CD8_1905_merged_loops.bedpe TKO_na_1905_merged_loops.bedpe ./diff_hic > ${curr_path}/diff_hic.log &
+}
+
+RUN_hiccup_to_Long_Range_Interaction_Track(){
+	cat differential_loops2.bedpe | awk '{if (NR > 2) print $0}' | sort -k1,1 -k2,2n -V -s | awk -v OFS="\t" '{print "chr"$1,$2,$3,"chr"$4":"$5"-"$6","5,10,"."}' | bgzip > diff_loops2_interact.gz
+	tabix -p bed diff_loops2_interact.gz
+	}
 	## HIC from xxx to xxx.hic
-	##nohup java -Xmx2000m -jar /opt/tools/juicer_tools.1.7.6_jcuda.0.8.jar pre -q 30 stim_WT_CD8_Juicebox_input.txt.gz stim_WT_CD8_Juicebox_q30.hic mm9 > q30.log &
+	#java -Xmx16g -jar $EXEDIR/juicer_tools_1.11.09_jcuda.0.8.jar pre -d -q 30 -r 10000 Tcf1_KO_na_CD8_Juicebox_input.txt Tcf1_KO_na_CD8_Juicebox.hic mm9 > q30.log &
 	###
 ## END OF MODULES
 
@@ -2908,6 +2942,15 @@ RUN_BBDUK_Trimming (){
 	
 	echo "Fastq Completed!"
 	}
+
+RUN_Pkill(){
+#How to get PID,PGID,sessionid etc?
+# ps -o pid,ppid,pgid,gid,sess,cmd -U user
+	#PID  PPID  PGID   GID  SESS CMD
+	#pkill -9 -P $PPID
+	}
+
+# Sort by Chromosome: sort -k1,1 -k2,2n -V -s example.txt  (http://azaleasays.com/2014/02/21/sort-chromosome-names-with-linux-sort/)
 
 
 #[1] https://stackoverflow.com/questions/10909685/run-parallel-multiple-commands-at-once-in-the-same-terminal

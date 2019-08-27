@@ -9,7 +9,7 @@ from hiclib import mapping, fragmentHiC
 import cooler
 from multiprocessing import Pool
 
-genome_db = genome.Genome('/home/zzeng/cloud_research/PengGroup/ZZeng/Data/Haihui/Tcf1/HiC-seq/Jun2016/exp/iterative_mapping/genome.fa')
+genome_db = genome.Genome('/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Tcf1/HiC-seq/Jun2016/exp/iterative_mapping/genome.fa')
 
 # this part has run already
 '''

@@ -5,7 +5,7 @@ import pandas as pd
 from mirnylib import h5dict, genome, plotting
 from hiclib import mapping, fragmentHiC, highResBinnedData
 
-genome_db = genome.Genome('/home/zzeng/cloud_research/PengGroup/ZZeng/Data/Haihui/Tcf1/HiC-seq/Jun2016/exp/iterative_mapping/genome.fa')
+genome_db = genome.Genome('/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Tcf1/HiC-seq/Jun2016/exp/iterative_mapping/genome.fa')
 
 fragments = fragmentHiC.HiCdataset('DKO_CD8_fragment_dataset.hdf5', genome_db, enzymeName='HindIII')
 
@@ -34,4 +34,4 @@ for i in range(1,k+1):
                       },
                       columns=['str1','chr1','pos1','frag1','str2','chr2','pos2','frag2'])
 
-    df.to_csv('Juicebox/DKO_CD8_Juicebox_input.txt', sep=' ', index=None, header=None, mode='a')
+    df.to_csv('Juicebox/DKO_CD8_Juicebox_input.txt', sep='\t', index=None, header=None, mode='a')
