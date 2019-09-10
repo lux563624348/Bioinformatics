@@ -35,14 +35,21 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### INPUT DIRECTORY
-__INPUT_PATH=~/cloud_research/PengGroup/XLi/Raw_Data/Haihui/CD8-HP/HiC/2019
+__INPUT_PATH=~/Data_Processing/Haihui/CD8-HP/histone_mark/Bowtie2_Results
 ### Output DIRECTORY
-__OUTPUT_PATH=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/2019
+__OUTPUT_PATH=~/Data_Processing/Haihui/CD8-HP/histone_mark
 __INPUT_SAMPLE_SET=(
-19092FL-03
-19092FL-04
-Tcf1_KO_na
-WT_na_CD8
+ctrl_CD8_K27Ac_201603 ## 0
+#ctrl_CD8_input_201603
+#dKO_CD8_K27Ac_201603
+#dKO_CD8_input_201603
+naive-WT-CD8-2_201903  #  4
+naive-WT-CD8-1_201903  
+#naive-dKO-CD8-2_201903  # 6
+19092FL-05-01-01	#WT #  7
+#19092FL-05-01-02    #WT_input 8
+#19092FL-05-01-03	#DKO  9
+#19092FL-05-01-04	#DKO Input  10 
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -62,31 +69,31 @@ Data_Provider='Haihui'
 Project_Name='CD8-HP-HiC'
 ##....................................................................##
 ### Download Raw Data
-#FUNC_Download "http://dnacore454.healthcare.uiowa.edu/20190409-0261_Xue3_QiangPooleonPnsMdZSrAjaxEpMyqXosgqMYODrCVtvyanTYO/results/" "1903_ZhaoChen"
+#FUNC_Download "ftp://ftp.admerahealth.com/19092-05" "19092FL-05"
 
 ##....................................................................##
 ### PARALLEL OPERTATION
 echo "Parallel Operation have started"
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
-	#RUN_SICER ${__INPUT_SAMPLE_SET[2]} ${__INPUT_SAMPLE_SET[0]} 200 ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
+	#RUN_SICER ${__INPUT_SAMPLE_SET[0]} ${__INPUT_SAMPLE_SET[1]} 200 ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[0]} ${__INPUT_SAMPLE_SET[1]} ${SPECIES} ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/DKO_0h_vs_WT_0h/gene_exp.diff 'no' & pid=$!
 	#REMOVE_REDUNDANCY_PICARD ${__INPUT_SAMPLE_SET[i]} & pid=$!
 	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_SET[i]}
-	#PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
+	#PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
+	#RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Trim_Galore_QC & pid=$!
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
-	RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bed 'customeized' & pid=$!
+	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bed 'customeized' 'yes' & pid=$!
 	#RUN_MACS2 ${__INPUT_SAMPLE_SET[1]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bed' & pid=$!
 	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
-	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
+	RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_SET[i]} ${SPECIES} 'customeized' & pid=$!
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
-	
 	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_Set[i]} ${SPECIES}
 
 	PID_LIST+=" $pid";
-	break
+	#break
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}

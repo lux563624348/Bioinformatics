@@ -46,6 +46,41 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 ######################################
 
 ##	FUNDEMENTAL FUNCTIONS FOR ANALYSIS MODULES
+FUNC_Download (){
+	CHECK_arguments $# 2
+	## wget -m --user=username --password=password ftp://ip.of.old.host
+### Download Login information and the download directory.
+#### -nH --cut-dirs=3   Skip 3 directory components.
+	local Web_Address=${1}
+	local Directory_Skip_Num=5
+	local USER='gec'
+	local USER='hui.hai.xue'
+	local PASSWORD='aardvark dryer rummage'
+	local PASSWORD='M!JmsXZBMs'
+	local DOWNLOAD_STORE_NAME=${2};
+	
+	local Down_dir=${__INPUT_PATH}/${DOWNLOAD_STORE_NAME}/;
+	DIR_CHECK_CREATE ${Down_dir}
+####If download file is a folder. IT MUST END WITH trailing slash  "/"
+########################################################################
+	cd ${Down_dir}
+	if [ -n "${USER}" -a -n "${PASSWORD}" ]
+	then
+	echo " [$(date "+%Y-%m-%d %H:%M")] Start Download................."
+	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}"
+	wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}
+	#echo "wget -r --user='${USER}' --password='${PASSWORD}' ftp://ftp.admerahealth.com/19092-05/"
+	#wget -r --user=${USER} --password=${PASSWORD} ftp://ftp.admerahealth.com/19092-05/
+	else
+#### NO PASSCODE
+	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --accept=gz --no-parent ${Web_Address}"
+	wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --accept=gz --no-parent ${Web_Address}
+	fi
+	echo "[$(date "+%Y-%m-%d %H:%M")] Downloaded Completed"
+	echo ""
+
+	}
+
 PRE_READS_DIR(){
 	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "Pairs SRA or anyother pattern"
 	CHECK_arguments $# 3 # No less than 3
@@ -78,8 +113,10 @@ esac
 	
 #### R1 Saving		
 	local k=0
+	__FASTQ_DIR_R1[k]=""
 	for FILE_DIR in ${DIRLIST_R1_gz[*]}
 	do
+		unset __FASTQ_DIR_R1
 		__FASTQ_DIR_R1[k]="${Current_DATA_DIR}/${FILE_DIR: 2}"
 		echo "Saving R1 reads DIR as ${__FASTQ_DIR_R1[k]}"
 		k=`expr $k + 1`
@@ -90,6 +127,7 @@ esac
 	__FASTQ_DIR_R2[k]=""
 	for FILE_DIR in ${DIRLIST_R2_gz[*]}
 	do
+		unset __FASTQ_DIR_R2
 		__FASTQ_DIR_R2[k]="${Current_DATA_DIR}/${FILE_DIR: 2}"
 		echo "Saving R2 reads DIR as ${__FASTQ_DIR_R2[k]}"
 		k=`expr $k + 1`
@@ -114,15 +152,18 @@ RUN_COPY_AND_CHANGE_NAME(){
 	}
 	
 RUN_Trim_Galore_QC(){
+# Not compatible with bowtie2
 	##https://github.com/FelixKrueger/TrimGalore/blob/master/Docs/Trim_Galore_User_Guide.md
 ####	RUN_Trim_Galore_QC
 ####	Usage: RUN_Trim_Galore_QC $INPUT_DATA_DIR
 ########################################################################
+
 ### FASTQC Output DIR setting ...
 	echo "[$(date "+%Y-%m-%d %H:%M")]-----------------------RUN_Trim_Galore_QC"
-	local Output_Trim_QC=${__INPUT_PATH}/Trim_Galore_QC
+	local Output_Trim_QC=${__OUTPUT_PATH}/Trim_Galore_QC
 	DIR_CHECK_CREATE ${Output_Trim_QC}
-	cd ${__INPUT_PATH}
+	
+	cd ~
 	
 	for (( i = 0; i <= $(expr ${#__FASTQ_DIR_R1[*]} - 1); i++ ))
 	do
@@ -130,7 +171,7 @@ RUN_Trim_Galore_QC(){
 		then
 			echo "Pair End Mode"
 			echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn"
-			trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn &
+			trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn & # --cores 4
 		else
 			echo "Single End Mode."
 			echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[i]} --suppress_warn"
@@ -141,12 +182,12 @@ RUN_Trim_Galore_QC(){
 	echo "[$(date "+%Y-%m-%d %H:%M")]---------RUN_Trim_Galore_QC-----COMPLETED!"
 	echo " "
 	
-	local xx=$(find -name "*R2*.gz_trimming_report.txt")
+	local xx=$(find -name "${__OUTPUT_PATH}/Trim_Galore_QC/*R2*.gz_trimming_report.txt")
 	for x in ${xx[*]}
 	do 
-		tail -n 7 ${x} | awk NF >> Summary_Trim_Galore_Report.log
-		echo "=====================================================================================================" >> Summary_Trim_Galore_Report.log 
-		echo " " >> Summary_Trim_Galore_Report.log
+		tail -n 7 ${x} | awk NF >> ${__OUTPUT_PATH}/Trim_Galore_QC/Summary_Trim_Galore_Report.log
+		echo "=====================================================================================================" >> ${__OUTPUT_PATH}/Trim_Galore_QC/Summary_Trim_Galore_Report.log 
+		echo " " >> ${__OUTPUT_PATH}/Trim_Galore_QC/Summary_Trim_Galore_Report.log
 	done
 	
 	
@@ -459,7 +500,7 @@ RUN_RPKM(){
 	"customeized")
 	echo "Customeized Region For RPKM"
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/H3K27Ac/After1903/Output_of_SuperEnhancer
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq_ChIP_seq_HiC/Annotation
+	local Gene_list_folder=/home/xli/Data_Processing/Haihui/CD8-HP/histone_mark/SICER_Results
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -474,8 +515,7 @@ esac
 	
 	### The Input File for RPKM must be four columns: {0: "chr", 1: "TSS", 2: "TES", 3: "id",
 	local Input_A1_Lists=(
-	313_Up_regulated_gene_Promoter_regions_ex1kb.bed
-	259_Down_regulated_gene_Promoter_regions_ex1kb.bed
+	66775_union_7reps.bed
 	)
 	
 	
@@ -483,8 +523,10 @@ esac
 	do
 		local OUTPUT_NAME="read_count_${1}_${Input_A1:: -4}"
 		local Input_A1="${Gene_list_folder}/${Input_A1}"
-		echo "cat ${IN_FILES[*]} | cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b $(echo ${IN_FILES[*]} | tr " " ", ") > ${__OUTPUT_PATH}/RPKM/${OUTPUT_NAME}.bed"
-		#cat ${IN_FILES[*]} | cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b ${IN_FILES[*]} > ${__OUTPUT_PATH}/RPKM/${OUTPUT_NAME}.bed
+		## Make Sure bed has a name
+		FUNC_Check_on_Bed ${Input_A1}
+		echo "cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b $(echo ${IN_FILES[*]} | tr " " ", ") > ${__OUTPUT_PATH}/RPKM/${OUTPUT_NAME}.bed"
+		cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b ${IN_FILES[*]} > ${__OUTPUT_PATH}/RPKM/${OUTPUT_NAME}.bed
 		
 		### A high memory efficient " -sorted " model requires both input files to be sorted. 
 		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed -sorted
@@ -499,38 +541,73 @@ RUN_ROSE_SUPER_Enhancer(){
 	#### usage RUN_RPKM $1 $2
 	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_List[i]} ${SPECIES}
 	echo "RUN_ROSE_SUPER_Enhancer!"
-	CHECK_arguments $# 2
+	CHECK_arguments $# 1
 	local File_Name=${1}
 	local SPECIES=${2}
+	local SE_Method=${3}
 	local PATH_ROSE_tools=/opt/tools/young_computation-rose/ROSE_main.py
-	
-	
 	
     echo "Entering the Raw Input directory: ${__INPUT_PATH}"
 	cd ${__INPUT_PATH}
 	echo "Searching $( find -name "*${File_Name}*.bam" | sort -n | xargs)"
 	local Input_B1_Set="$( find -name "*${File_Name}*.bam" | sort -n | xargs)"
 	
+	#### Search and save all input files PATH
 	local k=0
 	for Input_B1 in ${Input_B1_Set[*]}
 	do
-		samtools sort -@ ${THREADS} -o ${__INPUT_PATH}/${Input_B1: 2:-4}.sorted.bam ${__INPUT_PATH}/${Input_B1: 2}
-		samtools index -b ${__INPUT_PATH}/${Input_B1: 2:-4}.sorted.bam
-		local BAM_Set[k]="${Input_B1: 2:-4}.sorted.bam"
+		if [ ! -f ${Input_B1: 2:-4}.bam.sorted  ];then
+			samtools sort -@ ${THREADS} -o ${Input_B1: 2:-4}.bam.sorted ${Input_B1: 2}
+			samtools index -b ${Input_B1: 2:-4}.bam.sorted
+		fi
+		local BAM_Set[k]=${__INPUT_PATH}/"${Input_B1: 2:-4}.bam.sorted"
 		echo "Saving BAM file as ${BAM_Set[k]}"
-		
 		k=`expr $k + 1`
 	done
 	
-	
-	case ${SPECIES} in
-	"mm10")
+case ${SE_Method} in
+	"islands")
 	echo "Reference SPECIES is ${SPECIES}"
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/Tcf1_Treg/ChIP_seq/Response_To_Review/RPKM_Genelist/repeats_removed
+	local Gene_list_folder=/home/xli/Data_Processing/Haihui/CD8-HP/histone_mark/SICER_Results
+	cd ${Gene_list_folder}
+	local Path_File="$(find -name "${File_Name}*summary-FDR0.05" | sort -n | xargs)" ## for sicer output
+	local Input_A1=${Gene_list_folder}/${Path_File: 2}
 	;;
+	"customeized")
+	echo "Customeized Region For RPKM"
+	local Gene_list_folder=/home/xli/Data_Processing/Haihui/CD8-HP/histone_mark/SICER_Results
+	local Input_A1=${Gene_list_folder}/WT_na_CD8_union_reads-W200-G400-islands-summary-FDR0.05 #dKO_na_CD8_union_reads-W200-G400-islands-summary-FDR0.05 #
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+	## Input for enhancer ROSE has to be 6 columns bed format.
+	# https://genome.ucsc.edu/FAQ/FAQformat.html#format1
+	Out_DIR=${__OUTPUT_PATH}/SE_Output/${File_Name}
+	DIR_CHECK_CREATE ${Out_DIR}/annotation
+	
+	cat ${Input_A1} | awk -v OFS="\t" '{print $1,$2,$3,"id"NR,0,"."}' > ${Input_A1}.6.bed
+	
+	#cp /opt/tools/young_computation-rose/ROSE* ${Out_DIR}
+	#cp /opt/tools/young_computation-rose/bed_to_gff_converter.py ${Out_DIR}
+case ${SPECIES} in
 	"mm9")
-	echo "Reference SPECIES is ${SPECIES}"
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/H3K27Ac/SICER_Results
+	echo "${SPECIES}"
+	#cp /opt/tools/young_computation-rose/annotation/mm9_refseq.ucsc ${Out_DIR}/annotation
+	;;
+	"mm10") 
+	echo "${SPECIES}"
+	#cp /opt/tools/young_computation-rose/annotation/mm10_refseq.ucsc ${Out_DIR}/annotation
+	;;
+	"hg19")
+	echo "${SPECIES}"
+	#cp /opt/tools/young_computation-rose/annotation/hg19_refseq.ucsc ${Out_DIR}/annotation
+	;;
+	"hg38")
+	echo "${SPECIES}"
+	#cp /opt/tools/young_computation-rose/annotation/hg38_refseq.ucsc ${Out_DIR}/annotation
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -538,24 +615,13 @@ RUN_ROSE_SUPER_Enhancer(){
 	;;
 esac
 	
-	#echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
-	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
-	cd ${Gene_list_folder}
-	
-	## Input for enhancer ROSE has to be 6 columns bed format.
-	local Input_A1="$(find -name "${File_Name}*summary-FDR0.05" | sort -n | xargs)"
-	Out_DIR=${__OUTPUT_PATH}/Output/${Input_A1:2:-4}
-	local Full_Input_A1=${Gene_list_folder}/${Input_A1: 2}
-	cat ${Full_Input_A1} | awk -v OFS="\t" '{print $1,$2,$3,"id"NR,$7,"."}' > ${Full_Input_A1}.6.bed
-	DIR_CHECK_CREATE ${Out_DIR}
-	
 	
 	## -i Enter a .gff or .bed file of binding sites used to make enhancers
 	## -r bamfile to rank enhancer by
 	cd /opt/tools/young_computation-rose
 
-	echo "python ${PATH_ROSE_tools} -g ${SPECIES} -i ${Full_Input_A1}.6.bed -r $(echo ${BAM_Set[*]} | tr " " ",") -o ${Out_DIR}"
-	python ${PATH_ROSE_tools} -g ${SPECIES} -i ${Full_Input_A1}.6.bed -r $(echo ${BAM_Set[*]} | tr " " ",") -o ${Out_DIR}
+	echo "python ${PATH_ROSE_tools} -g ${SPECIES} -i ${Input_A1}.6.bed -r $(echo ${BAM_Set[*]} | tr " " ",") -o ${Out_DIR}"
+	python ${PATH_ROSE_tools} -g ${SPECIES} -i ${Input_A1}.6.bed -r $(echo ${BAM_Set[*]} | tr " " ",") -o ${Out_DIR}
 
 }
 
@@ -1065,13 +1131,14 @@ RUN_Wig2BigWig (){
 	#### ($1=INPUT_FOLDER $2=INPUT_NAME $3=Track_hub_label, $4 Species $5 Data Provider)
 #### convert .wig to .bigwig and create the track hubs profiles.
 #### Usage: RUN_Wig2BigWig $1 $2 $3
-	CHECK_arguments $# 5
+	CHECK_arguments $# 6
 	
 	local Wig_DIR=${1}
 	local Tracks_NAME=${2}
 	local Data_label=${3}
 	local Data_provider=${5}
 	local SPECIES=${4}
+	local WINDOW_SIZE=${6}
 	local Tracks_NAME_Lable=${Tracks_NAME: 7:12} ##Skip out of Sample_ (7) and forward 12
 
 	####INPUT
@@ -1096,7 +1163,7 @@ esac
 
 	
 	cd ${Wig_DIR}
-	local Wig_File=$(find -name ${Tracks_NAME}*.wig | xargs)
+	local Wig_File=$(find -name "*${Tracks_NAME}*-W${WINDOW_SIZE}-normalized.wig" | xargs)
 #### OUTPUT
 	local OUTPUTDIR_tracks_hub=${__OUTPUT_PATH}/tracks_hub/${Data_provider}/${Data_label}
 	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigWigs
@@ -1400,7 +1467,9 @@ RUN_BOWTIE2(){
 
 	local Left_Trim=0
 	local Right_Trim=0
-	local Map_Quality=10
+	local Map_Quality=10   #A mapping quality of 10 or less indicates that there is at least a 1 in 10 chance that the read truly originated elsewhere.
+	#Mapping quality: higher = more unique
+	
 	
 	#### OUTPUT FORMAT
 	local OUTPUT_BOWTIE2_FOLDER="${__OUTPUT_PATH}/Bowtie2_Results/${INPUT_NAME}"
@@ -1440,6 +1509,7 @@ case ${SPECIES} in
 	;;
 esac
 ########################################################################
+	cd ~
 	
     local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
 	cd ${OUTPUT_BOWTIE2_FOLDER}
@@ -1533,25 +1603,24 @@ esac
 	then
 		### In here, bedpe just represents the bed format of pair end reads.
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe ];then
-			echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
-			bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | cut -f 1,2,6,7 | sort -k1,1 -k2,2n | gzip > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe.gz
+			echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | awk -v OFS="\t" '{print $1,$2,$6,$7,$8,$9}' | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
+			bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | awk -v OFS="\t" '{print $1,$2,$6,$7,$8,$9}' | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
 					
 			echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe"
-			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} | gzip > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe.gz
+			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe
 			if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe ];then
 				echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
 				rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
 			fi
-		
 		fi
 	else
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed ];then
-			echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
-			bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
+			echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
+			bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
 			
 			## either 50% of A is covered OR 50% of B is covered
 			echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed"
-			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} | gzip > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed.gz
+			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
 			if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed ];then
 				echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
 				rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
@@ -1574,6 +1643,8 @@ local INPUT_NAME=${1}
 local PROJECT_NAME=${2}
 local SPECIES=${3}
 local Data_Provider=${4}
+local Duplication_Num=10  ## For RNAseq, at what level of duplication number should be allowed?
+
 
 #### OUTPUT FORMAT
 local OUTPUT_TOPHAT_FOLDER="${__OUTPUT_PATH}/Tophat_Results/${INPUT_NAME}"
@@ -1629,8 +1700,8 @@ esac
 		echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
 		mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
 		
-		echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
-		macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
+		echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --keep-dup ${Duplication_Num} --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
+		macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --keep-dup ${Duplication_Num} --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
 		
 		### a pipe to produce bedpe and then generate bdg.
 		#if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bedpe ];then
@@ -1908,7 +1979,7 @@ RUN_SICER(){
 #### Usage: RUN_SICER $1 $2 $3 ($1 is input for SICER. $2 is the CONTRO Library, $3 is the Gap set.)
 ### RUN_SICER ${__INPUT_SAMPLE_List[1]} ${__INPUT_SAMPLE_List[0]} 400 "CD8-K27Ac" ${SPECIES} ${Data_Provider} 
 echo "RUN_SICER"
-CHECK_arguments $# 6
+CHECK_arguments $# 7
 local EXEDIR="${Tools_DIR}/SICER1.1/SICER"
 local FRAGMENT_SIZE=1
 local REDUNDANCY=1
@@ -1919,7 +1990,7 @@ local GAP_SET=$(expr 2 \* ${WINDOW_SIZE})
 local INPUT_LABEL=${4}
 local SPECIES=${5}
 local Data_Provider=${6}
-local INPUT_TYPE=bed
+local INPUT_TYPE=bed #(For SICER1.1, this this fixed. DO NOT CHANGE IT)
 local EFFECTIVEGENOME=0.85
 local FDR=0.05
 
@@ -1964,13 +2035,14 @@ case ${INPUI_CON} in
 	echo "bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} ${SPECIES} ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log"
 	bash ${EXEDIR}/SICER.sh ${IN_SICER_FOLDER} ${IN_SICER_FILES} ${CONTRO_SICER_DIR} ${OUT_SICER_FOLDER} ${SPECIES} ${REDUNDANCY} ${WINDOW_SIZE} ${FRAGMENT_SIZE} ${EFFECTIVEGENOME} ${GAP_SET} ${FDR} ${CONTRO_SICER_FILE} > ${OUT_SICER_FOLDER}/${INPUT_NAME}_SICER.log
 	
-	RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON}-W${WINDOW_SIZE}-normalized ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
+	RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME} ${INPUT_LABEL} ${SPECIES} ${Data_Provider} ${WINDOW_SIZE}
+	RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON} ${INPUT_LABEL} ${SPECIES} ${Data_Provider} ${WINDOW_SIZE}
 	exit
 	;;
 esac
 
-RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME}-W${WINDOW_SIZE}-normalized ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
-
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUT_NAME} ${INPUT_LABEL} ${SPECIES} ${Data_Provider} ${WINDOW_SIZE}
+RUN_Wig2BigWig ${OUT_SICER_FOLDER} ${INPUI_CON} ${INPUT_LABEL} ${SPECIES} ${Data_Provider} ${WINDOW_SIZE}
 
 echo "[$(date "+%Y-%m-%d %H:%M")]  SICER IS FINISHED................"
 	}
@@ -2493,18 +2565,17 @@ RUN_Motif_Homer(){
 }
 
 RUN_HiC_Iterative_Mapping(){
-#### Usage: RUN_HiC_Iterative_Mapping #1 #2
-	CHECK_arguments $# 1
+#### Usage: RUN_HiC_Iterative_Mapping #1 #2 #3
+	CHECK_arguments $# 2
 	
 	local INPUT_NAME=${1/Sample_/}
 	local SPECIES=${2}
-	local PROJECT_NAME=${3}
 	echo "RUN HiC Iterative Mapping!"
 ########################################################################
-	local EXEDIR="~/cloud_research/PengGroup/XLi/Python_tools"
-	local OUTPUT_BAM_PATH="${__OUTPUT_PATH}/$1/iterative_mapping_bam"
+	local EXEDIR=/opt/tools/Python_tools
+	local OUTPUT_BAM_PATH="${__OUTPUT_PATH}/iterative_mapping_bam/$1"
 ########################################################################
-	local BOWTIE_PATH="/usr/local/bowtie2-2.2.6/bin/bowtie2"
+	local BOWTIE_PATH="/opt/miniconda2/bin/bowtie2"
 
 	DIR_CHECK_CREATE ${EXEDIR} ${OUTPUT_BAM_PATH}
 	
@@ -2535,20 +2606,21 @@ RUN_HiC_Iterative_Mapping(){
 	;;
 esac
 	
+	cd ~
 	
 	for fastq_path in ${__FASTQ_DIR_R1}
 	do
-	echo "python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIE_INDEX_PATH} -q ${fastq_path}\
-	-o ${OUTPUT_BAM_PATH}/${__INPUT_SAMPLE_DIR_List[i]}_R1.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}"
-	python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIE_INDEX_PATH} -q ${fastq_path}\
-	-o ${OUTPUT_BAM_PATH}/${__INPUT_SAMPLE_DIR_List[i]}_R1.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}
+	break
+	echo "python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIEINDEXS} -q ${fastq_path}\
+	-o ${OUTPUT_BAM_PATH}/${INPUT_NAME}_R1.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}"
+	python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIEINDEXS} -q ${fastq_path}\
+	-o ${OUTPUT_BAM_PATH}/${INPUT_NAME}_R1.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}
 	done
 	
 	for fastq_path in ${__FASTQ_DIR_R2}
 	do
-	echo ""
-	python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIE_INDEX_PATH} -q ${fastq_path}\
-	-o ${OUTPUT_BAM_PATH}/${__INPUT_SAMPLE_DIR_List[i]}_R2.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}
+	python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIEINDEXS} -q ${fastq_path}\
+	-o ${OUTPUT_BAM_PATH}/${INPUT_NAME}_R2.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}
 	done
 	
 	
@@ -2727,37 +2799,7 @@ EMAIL_ME(){
 	echo "Start at ${1} " | mail -s "Project: + ${2} Finished" lux@gwu.edu
 	}
 
-FUNC_Download (){
-	CHECK_arguments $# 2
-### Download Login information and the download directory.
-#### -nH --cut-dirs=3   Skip 3 directory components.
-	local Web_Address=${1}
-	local Directory_Skip_Num=5
-	local USER="gec"
-	local USER=""
-	local PASSWORD="aardvark dryer rummage"
-	local PASSWORD=""
-	local DOWNLOAD_STORE_NAME=${2};
-	
-	local Down_dir=${__INPUT_PATH}/${DOWNLOAD_STORE_NAME}/;
-	DIR_CHECK_CREATE ${Down_dir}
-####If download file is a folder. IT MUST END WITH trailing slash  "/"
-########################################################################
-	cd ${Down_dir}
-	if [ -n "${USER}" -a -n "${PASSWORD}" ]
-	then
-	echo " [$(date "+%Y-%m-%d %H:%M")] Start Download................."
-	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --user=${USER} --password=${PASSWORD} --accept=gz --no-parent ${Web_Address}"
-	wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --user='${USER}' --password='${PASSWORD}' --accept=gz --no-parent ${Web_Address}
-	else
-#### NO PASSCODE
-	echo "wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --accept=gz --no-parent ${Web_Address}"
-	wget --no-check-certificate -nv -r -c -nH --cut-dirs=${Directory_Skip_Num} --accept=gz --no-parent ${Web_Address}
-	fi
-	echo "[$(date "+%Y-%m-%d %H:%M")] Downloaded Completed"
-	echo ""
 
-	}
 
 CHECK_arguments(){
 #### Usage: CHECK_arguments $# <NUM_arguments>
@@ -2845,6 +2887,19 @@ FUNC_CLEAN(){
 	else echo "ERR: Empty. Exit"
 	fi
 	}
+
+FUNC_Check_on_Bed (){
+	####FUNC_Check_on_Bed $Filename 
+	#### Make Sure Bed format has 4 columns, if not, add one more columns with row number.
+	CHECK_arguments $# 1
+	local File_Path=${1}
+	local Num_Rows=$(head -n1 ${File_Path} | sed 's/\t/\n/g' | wc -l)
+	if [ ${Num_Rows} -lt 4 ]
+	then
+		echo "Input Bed File does not have a naming columns, automatically assign by row number"
+		awk -i inplace -v OFS="\t" '{print $1,$2,$3,"id_"NR}' ${File_Path}
+	fi
+}
 
 FUNC_CUT_Rows (){
 	####FUNC_CUT_Rows $Filename $start $end
@@ -2944,6 +2999,7 @@ RUN_BBDUK_Trimming (){
 	}
 
 RUN_Pkill(){
+	echo " "
 #How to get PID,PGID,sessionid etc?
 # ps -o pid,ppid,pgid,gid,sess,cmd -U user
 	#PID  PPID  PGID   GID  SESS CMD
