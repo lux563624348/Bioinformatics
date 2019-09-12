@@ -500,7 +500,7 @@ RUN_RPKM(){
 	"customeized")
 	echo "Customeized Region For RPKM"
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/H3K27Ac/After1903/Output_of_SuperEnhancer
-	local Gene_list_folder=/home/xli/Data_Processing/Haihui/CD8-HP/histone_mark/SICER_Results
+	local Gene_list_folder=/home/xli/Data_Processing/Haihui/CD8-HP/histone_mark/SE_Output
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -515,7 +515,7 @@ esac
 	
 	### The Input File for RPKM must be four columns: {0: "chr", 1: "TSS", 2: "TES", 3: "id",
 	local Input_A1_Lists=(
-	66775_union_7reps.bed
+	983_union_SE.bed
 	)
 	
 	
