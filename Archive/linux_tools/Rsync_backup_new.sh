@@ -16,7 +16,7 @@
  
 TODAY=$(date +"%Y%m%d")
 LASTBACKUP=`date -d "7 day ago" +"%Y%m%d"`
-LASTBACKUP="06062019"
+LASTBACKUP="11_26_2019"
 
 
 # Set the path to rsync on the remote server so it runs with sudo.
@@ -32,7 +32,7 @@ LASTBACKUP="06062019"
 
 #LOG file
 # Dont't forget to touch $LOG
-LOG="/home/crontab_log/Tang.daily.backup"
+LOG="/home/xli/crontab_log/Tang.weekly.backup"
  
 # Remember that you will not be generating
 # backups that are particularly large (other than the initial backup), but that
@@ -42,9 +42,11 @@ LOG="/home/crontab_log/Tang.daily.backup"
 
 Folder_Backup="/home"
 
-Destination_SSH="xli@128.164.54.240"
+USER_NAME="xli130"
 
-Destination_Path="/home/back_up/Weekly_Backup"
+Destination_SSH="${USER_NAME}@128.164.54.10"
+
+Destination_Path="/home/${USER_NAME}/back_up/Weekly_Backup"
 
 Destination="${Destination_SSH}:${Destination_Path}/${TODAY}"
 
@@ -88,19 +90,20 @@ Destination="${Destination_SSH}:${Destination_Path}/${TODAY}"
 # authentication use a password-less SSH key only allowed read permissions by
 # the backup server's root user.
 
-        
-ssh xli@128.164.54.240 "mkdir -p /home/back_up/Weekly_Backup/${TODAY}"
+
+
+ssh ${Destination_SSH} "mkdir -p /home/${USER_NAME}/back_up/Weekly_Backup/${TODAY}"
 
 rsync --compress --archive --verbose --exclude={"dev","proc","sys","tmp","run","mnt","media","lost+found","cloud_research"} \
 	--hard-links --human-readable --inplace --numeric-ids --delete \
-	--link-dest=${Destination_Path}/${LASTWEEK} \
+	--link-dest=${Destination_Path}/${LASTBACKUP} \
 	-e ssh ${Folder_Backup} ${Destination} \
 	> ${LOG}_$(date +%m%d%Y).log
 
 # Un-hash this if you want to remove old backups (older than 182 days)
 OLDBACKUP=`date -d "182 days ago" +"%Y%m%d"`   # old backup has to be multiple of backup inteval. (in here is 7 days.)
 
-ssh xli@128.164.54.240 "rm -R /home/back_up/Weekly_Backup/${OLDBACKUP}"
+ssh ${Destination_SSH} "rm -R /home/${USER_NAME}/back_up/Weekly_Backup/${OLDBACKUP}"
  
 
 # Writes a log of successful updates

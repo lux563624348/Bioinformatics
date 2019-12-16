@@ -53,9 +53,9 @@ FUNC_Download (){
 #### -nH --cut-dirs=3   Skip 3 directory components.
 	local Web_Address=${1}
 	local Directory_Skip_Num=5
-	local USER='gec'
+	#local USER='gec'
 	local USER='hui.hai.xue'
-	local PASSWORD='aardvark dryer rummage'
+	#local PASSWORD='aardvark dryer rummage'
 	local PASSWORD='M!JmsXZBMs'
 	local DOWNLOAD_STORE_NAME=${2};
 	
@@ -500,7 +500,7 @@ RUN_RPKM(){
 	"customeized")
 	echo "Customeized Region For RPKM"
 	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/H3K27Ac/After1903/Output_of_SuperEnhancer
-	local Gene_list_folder=/home/xli/Data_Processing/Haihui/CD8-HP/histone_mark/SE_Output
+	local Gene_list_folder=/home/xli/Data_Processing/Haihui/CD8-HP/histone_mark
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -515,7 +515,7 @@ esac
 	
 	### The Input File for RPKM must be four columns: {0: "chr", 1: "TSS", 2: "TES", 3: "id",
 	local Input_A1_Lists=(
-	983_union_SE.bed
+	64806_Feature_Union_Naive_K27Ac_Enhancer.bed
 	)
 	
 	
@@ -899,20 +899,20 @@ CHECK_arguments $# 2
 
 local INPUT_PATH=${__INPUT_PATH}
 local OUT_PATH=${__OUTPUT_PATH}/Associated_fastq
-local INPUT_NAME=${1}
+local INPUT_NAME=${1/.bed/}
 local SPECIES=${2}
 ########################################################################
 DIR_CHECK_CREATE ${OUT_PATH}
 
 ### Find Input File
-local IN_FOLDER=${__INPUT_PATH}
-cd ${IN_FOLDER}
+
+cd ${__INPUT_PATH}
 local IN_FILES="$( find -name "*${INPUT_NAME}*.bed" | sort -n | xargs)"
 
 local k=0
 for in_files in ${IN_FILES}
 do
-	IN_FILES[k]="${IN_FOLDER}/${in_files: 2}"
+	IN_FILES[k]="${__INPUT_PATH}/${in_files: 2}"
 	k=`expr $k + 1`
 done
 echo "Saving Bed INPUT File as ${IN_FILES[*]}"
@@ -948,11 +948,14 @@ esac
 local yesno='yes'
 #awk '$2-=100' OFS='\t' ${input_file} | awk '$3+=100' OFS='\t' > ${input_file}_ex
 #awk -F',' 'BEGIN {OFS='\t'} {$4 = "\tUnion_peaks_"(NR); print}' 28459_Union_peaks.bed >28459_Union_peaks_x.bed
-cd ${OUT_PATH}
+#cd ${OUT_PATH}
+
+cat ${IN_FILES} | awk -v OFS="\t" '{ if ($1!="chr") print $1,$2,$3,"id"NR}' > ${IN_FILES}.4
+
 for input_file in ${IN_FILES[*]}
 do
-	echo "bedtools getfasta -name -fi ${FA_SEQUENCE} -bed ${input_file} -fo ${input_file::-4}.fastq"
-	bedtools getfasta -fi ${FA_SEQUENCE} -bed ${input_file} -fo ${input_file::-4}.fastq -name
+	echo "bedtools getfasta -name -fi ${FA_SEQUENCE} -bed ${input_file}.4 -fo ${INPUT_NAME}.fastq"
+	bedtools getfasta -fi ${FA_SEQUENCE} -bed ${input_file}.4 -fo ${OUT_PATH}/${INPUT_NAME}.fastq -name
 done
 
 
@@ -1256,9 +1259,9 @@ esac
 	
 ########################################################################
 	
-	if [ ! -f ${Tracks_NAME}_sorted.bdg ];then
+	if [ ! -f ${__OUTPUT_PATH}/${Tracks_NAME}_sorted.bdg ];then
 	echo "sort -k1,1 -k2,2n ${Tracks_NAME}.bdg > ${Tracks_NAME}_sorted.bdg"
-	sort -k1,1 -k2,2n ${Tracks_NAME}.bdg > ${Tracks_NAME}_sorted.bdg
+	sort -k1,1 -k2,2n ${Tracks_NAME}.bdg > ${__OUTPUT_PATH}/${Tracks_NAME}_sorted.bdg
 	fi
 	
 	if [ -f ${Tracks_NAME}.bdg ];then
@@ -1266,7 +1269,7 @@ esac
 	fi
 	
 	echo "$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
-	$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+	$UCSC_DIR/bedGraphToBigWig ${__OUTPUT_PATH}/${Tracks_NAME}_sorted.bdg ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
 
 ###	Creating hub.txt
 	cd $OUTPUTDIR_tracks_hub
@@ -1479,6 +1482,7 @@ case ${SPECIES} in
 	"mm9")
 	echo "------------------------------Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	local BOWTIEINDEXS="/home/shared_data/Annotation/UCSC/Mouse_Genome/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
 	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM9/RepeatMasker/1070327_mm9_simple_repeat_and_Satellite.bed
 	;;
 	"mm10") 
@@ -2371,11 +2375,11 @@ RUN_TopDom(){
 RUN_Peaks_Distribution_Analysis(){
 	####RUN_Peaks_Distribution_Analysis $1
 	CHECK_arguments $# 2
-	local INPUT_NAME=${1}
+	local INPUT_NAME=${1/.bed/}
 	local Species=${2}
 	local EXEDIR=${Tools_DIR}/Python_tools
 
-cd ${__INPUT_PATH}
+
 
 echo "[$(date "+%Y-%m-%d %H:%M")]  RUN_Peaks_Distribution_Analysis......"
 
@@ -2406,19 +2410,20 @@ case ${Species} in
 	exit
 	;;
 esac
-
-
 ### This parameter means that Promoter [-1k+TSS, TSS +1k] Gene_body[TSS+1k, TES]
-
 	local PROMOTER_UPSTREAM_EXTENSION=1001   # Upstream extension, the distance from TSS.
 	local PROMOTER_REGION_LENGTH=2000
+fastq
 
-
-	local INPUTFILE=${INPUT_NAME}.bed
-	local OUTPUTFILE=${INPUT_NAME}_distribution.txt
-
-	echo "python ${EXEDIR}/peaks_count_on_genic_region.py -i ${__INPUT_PATH}/$INPUTFILE -g ${GTFFILE} -u ${PROMOTER_UPSTREAM_EXTENSION} -t ${PROMOTER_REGION_LENGTH} -o ${__OUTPUT_PATH}/${OUTPUTFILE}"
-	python ${EXEDIR}/peaks_count_on_genic_region.py -i ${__INPUT_PATH}/${INPUTFILE} -g ${GTFFILE} -u ${PROMOTER_UPSTREAM_EXTENSION} -t ${PROMOTER_REGION_LENGTH} -o ${__OUTPUT_PATH}/${OUTPUTFILE}
+	local OUTPUTFILE=${__OUTPUT_PATH}/${INPUT_NAME}_distribution.txt
+	local INPUTFILE=${__INPUT_PATH}/${INPUT_NAME}.bed
+	## Input for Distribution has to be less than 9 columns bed format.
+	# https://genome.ucsc.edu/FAQ/FAQformat.html#format1
+	
+	cat ${INPUTFILE} | awk -v OFS="\t" '{ if ($1!="chr") print $1,$2,$3,"id"NR}' > ${INPUTFILE}.4
+	
+	echo "python ${EXEDIR}/peaks_count_on_genic_region.py -i ${INPUTFILE}.4 -g ${GTFFILE} -u ${PROMOTER_UPSTREAM_EXTENSION} -t ${PROMOTER_REGION_LENGTH} -o ${OUTPUTFILE}"
+	python ${EXEDIR}/peaks_count_on_genic_region.py -i ${INPUTFILE}.4 -g ${GTFFILE} -u ${PROMOTER_UPSTREAM_EXTENSION} -t ${PROMOTER_REGION_LENGTH} -o ${OUTPUTFILE}
 	echo ""
 
 echo "[$(date "+%Y-%m-%d %H:%M")]  RUN_Peaks_Distribution_Analysis....Completed.."
@@ -2472,55 +2477,67 @@ RUN_Motif_Homer(){
 	echo " "
 	########################################################################
 	local IN_FOLDER=${__INPUT_PATH}
-	case ${SUMMIT_YESNO} in
-	"yes")
-	echo "Using SUMMIT FILE FROM MACS2!"
-	### homer can automatically extend region with respect to its center.
-	echo " "
-	### Find Input File
-
-	cd ${IN_FOLDER}
-	local IN_FILES="$( find -name "*${INPUT_NAME}*_summits.bed" | sort -n | xargs)"
-	### Find Contro Files
-	local CONTRO_FILE="$( find -name "*${INPUT_CON}*_summits.bed" | sort -n | xargs)"
-	########################################################################
-	if [ ! -n "${IN_FILES}" ]
-	then
-		echo "ERROR: Nothing Found, Motif Analysis STOP......"
-		break
-		
-	else
-		echo "Motif Analysis Start......"
-	fi
-	echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE} -size -100,100 -p ${THREADS} -S 10"
-	findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE} -size -100,100 -p ${THREADS} -S 10 
-	echo "annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${INPUT_NAME}.bed.gene_association.txt"
-	annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${OUT_FOLDER}/Motif_GENE_Summary/${INPUT_NAME}.bed.gene_association.txt
-	;;
-	"no")
-	echo "Using Normal Peaks Region!" 
-	### Find Input File
-	cd ${IN_FOLDER}
-	local IN_FILES="$( find -name "*${INPUT_NAME}*.bed" | sort -n | xargs)"
-	### Find Contro Files
-	local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bed" | sort -n | xargs)"
-	########################################################################
-	if [ ! -n "${IN_FILES}" ]
-	then
-		echo "Nothing Found, Motif Analysis End......"
-		break
-	else
-		echo "Motif Analysis Start......"
-	fi
-	echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -size -100,100 -p ${THREADS} -S 10 " #-len 12,16,18 "
-	findMotifsGenome.pl  ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE[*]} -size -100,100 -p ${THREADS} -S 10 #-len 12,16,18
 	
-	echo "annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${INPUT_NAME}.bed.gene_association.txt"
-	annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${OUT_FOLDER}/Motif_GENE_Summary/${INPUT_NAME}.bed.gene_association.txt
-	;;
-	*)
-	echo "ERR: Did Not Find Any Matched Reference...... Exit"
-	exit;;
+	case ${SUMMIT_YESNO} in
+		"yes")
+		echo "Using SUMMIT FILE FROM MACS2!"
+		### homer can automatically extend region with respect to its center.
+		echo " "
+		### Find Input File
+		cd ${IN_FOLDER}
+		local IN_FILES="$( find -name "*${INPUT_NAME}*_summits.bed" | sort -n | xargs)"
+		### Find Contro Files
+		local CONTRO_FILE="$( find -name "*${INPUT_CON}*_summits.bed" | sort -n | xargs)"
+		########################################################################
+		if [ ! -n "${IN_FILES}" ]
+		then
+			echo "ERROR: Nothing Found, Motif Analysis STOP......"
+			break
+		else
+			if [ ! -n "${CONTRO_FILE}" ]
+			then
+				echo "Motif Analysis Start......"
+				echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -size -100,100 -p ${THREADS} -S 10"
+				findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -size -100,100 -p ${THREADS} -S 10 
+			else
+				echo "Motif Analysis Start......"
+				echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE} -size -100,100 -p ${THREADS} -S 10"
+				findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE} -size -100,100 -p ${THREADS} -S 10
+			fi
+		fi
+		echo "annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${INPUT_NAME}.bed.gene_association.txt"
+		annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${OUT_FOLDER}/Motif_GENE_Summary/${INPUT_NAME}.bed.gene_association.txt
+		exit;;
+	"no")
+		echo "Using Normal Peaks Region!" 
+		### Find Input File
+		cd ${IN_FOLDER}
+		local IN_FILES="$( find -name "*${INPUT_NAME}*.bed" | sort -n | xargs)"
+		### Find Contro Files
+		local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bed" | sort -n | xargs)"
+		########################################################################
+		if [ ! -n "${IN_FILES}" ]
+		then
+			echo "ERROR: Nothing Found, Motif Analysis STOP......"
+			break
+		else
+			if [ ! -n "${CONTRO_FILE}" ]
+			then
+				echo "Motif Analysis Start......"
+				echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -size -100,100 -p ${THREADS} -S 10"
+				findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -size -100,100 -p ${THREADS} -S 10 
+			else
+				echo "Motif Analysis Start......"
+				echo "findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE} -size -100,100 -p ${THREADS} -S 10"
+				findMotifsGenome.pl ${IN_FILES} ${genome_shortcut} ${OUT_FOLDER} -bg ${CONTRO_FILE} -size -100,100 -p ${THREADS} -S 10
+			fi
+		fi
+		echo "annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${INPUT_NAME}.bed.gene_association.txt"
+		annotatePeaks.pl ${IN_FILES} ${genome_shortcut} -noann | cut -f 1,2,3,4,5,10,16 > ${OUT_FOLDER}/Motif_GENE_Summary/${INPUT_NAME}.bed.gene_association.txt
+		;;
+		*)
+		echo "ERR: Did Not Find Any Matched Reference...... Exit"
+		exit;;
 	esac
 	
 	
@@ -2608,19 +2625,18 @@ esac
 	
 	cd ~
 	
-	for fastq_path in ${__FASTQ_DIR_R1}
+	for fastq_path in ${__FASTQ_DIR_R1[*]}
 	do
-	break
 	echo "python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIEINDEXS} -q ${fastq_path}\
 	-o ${OUTPUT_BAM_PATH}/${INPUT_NAME}_R1.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}"
-	python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIEINDEXS} -q ${fastq_path}\
-	-o ${OUTPUT_BAM_PATH}/${INPUT_NAME}_R1.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}
+	nohup python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIEINDEXS} -q ${fastq_path}\
+	-o ${OUTPUT_BAM_PATH}/${INPUT_NAME}_R1.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]} > mapping_report_${INPUT_NAME}_R1.log
 	done
 	
-	for fastq_path in ${__FASTQ_DIR_R2}
+	for fastq_path in ${__FASTQ_DIR_R2[*]}
 	do
-	python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIEINDEXS} -q ${fastq_path}\
-	-o ${OUTPUT_BAM_PATH}/${INPUT_NAME}_R2.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]}
+	nohup python $EXEDIR/run_iterative_mapping.py -b ${BOWTIE_PATH} -i ${BOWTIEINDEXS} -q ${fastq_path}\
+	-o ${OUTPUT_BAM_PATH}/${INPUT_NAME}_R2.bam -m ${IM_PARAMETERS[0]} -t ${IM_PARAMETERS[1]} -s ${IM_PARAMETERS[2]} -e ${IM_PARAMETERS[3]} > mapping_report_${INPUT_NAME}_R2.log
 	done
 	
 	
@@ -3007,6 +3023,19 @@ RUN_Pkill(){
 	}
 
 # Sort by Chromosome: sort -k1,1 -k2,2n -V -s example.txt  (http://azaleasays.com/2014/02/21/sort-chromosome-names-with-linux-sort/)
+
+## BED FORMAT FOR MY FRAMEWORK
+
+## #chr is for bedtools.
+
+#chr	start	end	id	score	strand	pin	code1	code2
+#chr1	1000	2000	1	50	+	1500	0	0
+
+
+## Change all file name with space to underscore
+
+#for file in *; do mv "$file" `echo $file | tr ' ' '_'` ; done
+
 
 
 #[1] https://stackoverflow.com/questions/10909685/run-parallel-multiple-commands-at-once-in-the-same-terminal

@@ -20,10 +20,10 @@ def main(argv):
 	
 	if opt.seq_start and opt.seq_end:
 		#iterative_mapping(opt.bowtie_path, opt.bowtie_index_path, opt.fastq_path, opt.out_sam_path, opt.min_seq_len, opt.len_step, seq_start=opt.seq_start, seq_end=opt.seq_end)
-		iterative_mapping(opt.bowtie_path, opt.bowtie_index_path, opt.fastq_path, opt.out_sam_path, opt.min_seq_len, opt.len_step, seq_start=opt.seq_start, seq_end=opt.seq_end, bowtie_flags='--no-unal')
+		iterative_mapping(opt.bowtie_path, opt.bowtie_index_path, opt.fastq_path, opt.out_sam_path, opt.min_seq_len, opt.len_step, seq_start=opt.seq_start, seq_end=opt.seq_end, bowtie_flags='--no-unal --mm')
 	else:
 		#iterative_mapping(opt.bowtie_path, opt.bowtie_index_path, opt.fastq_path, opt.out_sam_path, opt.min_seq_len, opt.len_step)
-		iterative_mapping(opt.bowtie_path, opt.bowtie_index_path, opt.fastq_path, opt.out_sam_path, opt.min_seq_len, opt.len_step, bowtie_flags='--no-unal')
+		iterative_mapping(opt.bowtie_path, opt.bowtie_index_path, opt.fastq_path, opt.out_sam_path, opt.min_seq_len, opt.len_step, bowtie_flags='--no-unal --mm')
         
 if __name__ == "__main__":
 	main(sys.argv)

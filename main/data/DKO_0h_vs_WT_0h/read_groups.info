@@ -1,0 +1,7 @@
+file	condition	replicate_num	total_mass	norm_mass	internal_scale	external_scale
+./May2018/Project_20395_index9/Tophat_results/Project_20395_index9.bam	WT_0h	0	1.87421e+07	1.8693e+07	0.98612	1
+./May2018/Project_20396_index10/Tophat_results/Project_20396_index10.bam	WT_0h	1	1.98834e+07	1.8693e+07	1.03311	1
+./May2018/Project_20397_index11/Tophat_results/Project_20397_index11.bam	WT_0h	2	1.87166e+07	1.8693e+07	0.976094	1
+./May2018/Project_20398_index12/Tophat_results/Project_20398_index12.bam	DKO_0h	0	1.97627e+07	1.8693e+07	1.08387	1
+./May2018/Project_20399_index13/Tophat_results/Project_20399_index13.bam	DKO_0h	1	1.77443e+07	1.8693e+07	0.977217	1
+./May2018/Project_20400_index14/Tophat_results/Project_20400_index14.bam	DKO_0h	2	1.7686e+07	1.8693e+07	0.96381	1
