@@ -35,30 +35,11 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### INPUT DIRECTORY
-__INPUT_PATH=/home/szhu/stat5/macs2
+__INPUT_PATH=/home/xli/Raw_Data/Haihui/CD8-HP/HiC_2020
 ### Output DIRECTORY
-__OUTPUT_PATH=/home/xli/Data_Processing/Haihui/ChIP_Seq_STAT5
+__OUTPUT_PATH=/home/xli/Data/Haihui/CD8-HP/HiC_2020
 __INPUT_SAMPLE_SET=(
-dko_0h_1
-dko_0h_2
-dko_24h_1
-dko_24h_2
-dko_24h_3
-dko_24h_4
-dko_3h_1
-dko_3h_2
-dko_3h_3
-dko_3h_4
-wt_0h_1
-wt_0h_2
-wt_24h_1
-wt_24h_2
-wt_24h_3
-wt_24h_4
-wt_3h_1
-wt_3h_2
-wt_3h_3
-wt_3h_4
+19092FL-14-06-01
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -73,9 +54,9 @@ echo "-----------------------------------------------------------------"
 echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 ##....................................................................##
 ### Key Parameters
-SPECIES='mm10'
+SPECIES='mm9'
 Data_Provider='Haihui'
-Project_Name='CD8_STAT5'
+Project_Name='CD8_HP'
 ##....................................................................##
 ### Download Raw Data
 #FUNC_Download "ftp://ftp.admerahealth.com/19092-06" "19092-06"
@@ -83,28 +64,37 @@ Project_Name='CD8_STAT5'
 ##....................................................................##
 ### PARALLEL OPERTATION
 echo "Parallel Operation have started"
+#conda activate py3_lx
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
-	RUN_BedGraph2BigWig ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]}_treat_pileup ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
+	#RUN_BedGraph2BigWig ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]}_treat_pileup ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
 	
 	#RUN_SICER ${__INPUT_SAMPLE_SET[0]} ${__INPUT_SAMPLE_SET[1]} 200 ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
-	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[i]} 'null' ${SPECIES} ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/RNA_seq/CuffDiff_Jun2018/Cuffdiff_Results/DKO_0h_vs_WT_0h/gene_exp.diff 'no' & pid=$!
+	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[1]} ${__INPUT_SAMPLE_SET[0]} ${SPECIES} /home/xli/cloud_research/XLi/Data/Haihui/Vlad/RNA_seq/May2018/Cuffdiff_Results_old/C_vs_D/gene_exp.diff 'yes' & pid=$!
+	
+	#break
 	#REMOVE_REDUNDANCY_PICARD ${__INPUT_SAMPLE_SET[i]} & pid=$!
 	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_SET[i]}
-	#PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
+	#PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
+	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
+	RUN_FAST_QC & pid=$!
+	RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
+	#PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'SRA'
 	#RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Trim_Galore_QC & pid=$!
 	#RUN_FAST_QC & pid=$!
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
-	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bed 'customeized' 'yes' & pid=$!
+	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bam 'customeized' 'yes' & pid=$!
 	#RUN_MACS2 ${__INPUT_SAMPLE_SET[1]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bed' & pid=$!
-	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "TEST" ${SPECIES} ${Data_Provider} & pid=$!
+	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "mandible" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
 	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_SET[i]} ${SPECIES} 'customeized' & pid=$!
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_bed2fastq ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_Set[i]} ${SPECIES}
-
+	
+	
+	
 	PID_LIST+=" $pid";
 	#break
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
@@ -119,8 +109,10 @@ echo "Parallel Operation have finished";
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
 	break
-	PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
-	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
+	#RUN_Quant_IRI ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} & pid=$!
+	#PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
+	RUN_MACS2 ${__INPUT_SAMPLE_SET[i]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bed' & pid=$!
 	PID_LIST+=" $pid";
 done
 echo "wait ${PID_LIST}....................................."

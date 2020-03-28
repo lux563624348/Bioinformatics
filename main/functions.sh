@@ -36,6 +36,7 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 	#Shang
 	UCSC_DIR=/opt/tools/UCSC
 	Tools_DIR=/opt/tools
+	#Python_Tools_DIR=~/cloud_research/PengGroup/XLi/Python_tools
 	Python_Tools_DIR=~/cloud_research/PengGroup/XLi/Python_tools
 	Annotation_DIR=/home/Data/Annotation
 	THREADS=8
@@ -82,15 +83,16 @@ FUNC_Download (){
 	}
 
 PRE_READS_DIR(){
-	### PRE_READS_DIR ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "Pairs SRA or anyother pattern"
-	CHECK_arguments $# 3 # No less than 3
+	### PRE_READS_DIR ${PATH_FOLDER} ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "Pairs SRA or anyother pattern"
+	CHECK_arguments $# 4 # No less than 3
 	echo "[$(date "+%Y-%m-%d %H:%M")]--------------INPUT FILE PREPARING"
 	echo "Entering Directory: ${__INPUT_PATH} ----------------- Searching File as: $1 + $3 + $2"
-	local Current_DATA_DIR=${__INPUT_PATH}
-	cd ${__INPUT_PATH}
-	local INPUT_Key_Word=${1/Sample_/}
-	local INPUT_Ext=${2}
-	local Pair_Type=${3}
+
+	local Current_DATA_DIR=${1}
+	cd ${Current_DATA_DIR}
+	local INPUT_Key_Word=${2/Sample_/}
+	local INPUT_Ext=${3}
+	local Pair_Type=${4}
 	
 ########################################################################
 
@@ -113,21 +115,20 @@ esac
 	
 #### R1 Saving		
 	local k=0
-	__FASTQ_DIR_R1[k]=""
+	unset __FASTQ_DIR_R1
 	for FILE_DIR in ${DIRLIST_R1_gz[*]}
 	do
-		unset __FASTQ_DIR_R1
 		__FASTQ_DIR_R1[k]="${Current_DATA_DIR}/${FILE_DIR: 2}"
 		echo "Saving R1 reads DIR as ${__FASTQ_DIR_R1[k]}"
 		k=`expr $k + 1`
 	done
 	
+
 #### R2 Saving	
 	local k=0
-	__FASTQ_DIR_R2[k]=""
+	unset __FASTQ_DIR_R2
 	for FILE_DIR in ${DIRLIST_R2_gz[*]}
 	do
-		unset __FASTQ_DIR_R2
 		__FASTQ_DIR_R2[k]="${Current_DATA_DIR}/${FILE_DIR: 2}"
 		echo "Saving R2 reads DIR as ${__FASTQ_DIR_R2[k]}"
 		k=`expr $k + 1`
@@ -163,10 +164,9 @@ RUN_Trim_Galore_QC(){
 	local Output_Trim_QC=${__OUTPUT_PATH}/Trim_Galore_QC
 	DIR_CHECK_CREATE ${Output_Trim_QC}
 	
-	cd ~
-	
 	for (( i = 0; i <= $(expr ${#__FASTQ_DIR_R1[*]} - 1); i++ ))
 	do
+		#echo ${__FASTQ_DIR_R1[*]}
 		if [ -n "${__FASTQ_DIR_R1[i]}" -a -n "${__FASTQ_DIR_R2[i]}" ]
 		then
 			echo "Pair End Mode"
@@ -499,8 +499,7 @@ RUN_RPKM(){
 	;;
 	"customeized")
 	echo "Customeized Region For RPKM"
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/ChIP_seq/histone_mark/H3K27Ac/After1903/Output_of_SuperEnhancer
-	local Gene_list_folder=/home/xli/Data_Processing/Haihui/CD8-HP/histone_mark
+	local Gene_list_folder=/home/xli/Data/Junjun/Arid1a/ATAC_Seq/MACS2_Results/BAMPE
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -512,10 +511,11 @@ esac
 	#echo "$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	#local Input_A1_Lists="$( find -name "*.${FILE_TYPE}" | sort -n | xargs)"
 	
-	
+	#cat *.bed | sort -k1,1 -k2,2n -V -s | bedtools merge -i stdin | awk '{print $0"\t""id_"NR}'
 	### The Input File for RPKM must be four columns: {0: "chr", 1: "TSS", 2: "TES", 3: "id",
 	local Input_A1_Lists=(
-	64806_Feature_Union_Naive_K27Ac_Enhancer.bed
+	#14405_Union_ATAC_Seq_Peaks.bed
+	5090_common_peaks.bed
 	)
 	
 	
@@ -529,8 +529,8 @@ esac
 		cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -c -a stdin -b ${IN_FILES[*]} > ${__OUTPUT_PATH}/RPKM/${OUTPUT_NAME}.bed
 		
 		### A high memory efficient " -sorted " model requires both input files to be sorted. 
-		#bedtools intersect -c -a ${Input_A1} -b ${Input_B1} > ${Output_Path}/${OUTPUT_NAME}.bed -sorted
-		cd ~
+		#cut -f 1,2,3,4 ${Input_A1} | bedtools intersect -sorted -c -a stdin -b ${IN_FILES[*]} > ${__OUTPUT_PATH}/RPKM/${OUTPUT_NAME}.bed
+
 		echo "python ${PATH_python_tools} ${OUTPUT_NAME} ${__OUTPUT_PATH}/RPKM ${Input_Size}"
 		python ${PATH_python_tools} ${OUTPUT_NAME} ${__OUTPUT_PATH}/RPKM ${Input_Size}
 	done
@@ -1259,9 +1259,9 @@ esac
 	
 ########################################################################
 	
-	if [ ! -f ${__OUTPUT_PATH}/${Tracks_NAME}_sorted.bdg ];then
+	if [ ! -f ${Wig_DIR}/${Tracks_NAME}_sorted.bdg ];then
 	echo "sort -k1,1 -k2,2n ${Tracks_NAME}.bdg > ${Tracks_NAME}_sorted.bdg"
-	sort -k1,1 -k2,2n ${Tracks_NAME}.bdg > ${__OUTPUT_PATH}/${Tracks_NAME}_sorted.bdg
+	sort -k1,1 -k2,2n ${Tracks_NAME}.bdg > ${Wig_DIR}/${Tracks_NAME}_sorted.bdg
 	fi
 	
 	if [ -f ${Tracks_NAME}.bdg ];then
@@ -1269,7 +1269,7 @@ esac
 	fi
 	
 	echo "$UCSC_DIR/bedGraphToBigWig ${Tracks_NAME}_sorted.bdg ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw"
-	$UCSC_DIR/bedGraphToBigWig ${__OUTPUT_PATH}/${Tracks_NAME}_sorted.bdg ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
+	$UCSC_DIR/bedGraphToBigWig ${Wig_DIR}/${Tracks_NAME}_sorted.bdg ${chrom_sizes} ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw
 
 ###	Creating hub.txt
 	cd $OUTPUTDIR_tracks_hub
@@ -1487,7 +1487,7 @@ case ${SPECIES} in
 	;;
 	"mm10") 
 	echo "------------------------------Reference SPECIES is ${SPECIES}"
-	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Indexgenome
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
 	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/RepeatMasker/1052512_mm10_simple_repeat_Satellite.bed
 	;;
 	"hg19")
@@ -1591,8 +1591,14 @@ esac
 		picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
 		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true QUIET=true #Possible values: {unsorted, queryname, coordinate, duplicate, unknown}
 		
+		## Which version is actually older?
+		#picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true QUIET=true 
+		
+		echo ${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt; cat ${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt | awk '{if (NR==8) print $4-$8-$9}' ## Number of reads after duplication removal
 		#echo "${OUTPUT_BOWTIE2_FOLDER}" >> Summary_Duplication.log 
 		#cat ${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt | awk -v OFS="\t" '{if(NR==8) print "Input:",$4,"Output:",$4-$8}' >> Summary_Duplication.log ; done
+		
 		
 		if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
 			echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
@@ -1607,11 +1613,11 @@ esac
 	then
 		### In here, bedpe just represents the bed format of pair end reads.
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe ];then
-			echo "bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | awk -v OFS="\t" '{print $1,$2,$6,$7,$8,$9}' | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe"
+			echo " bamToBed -bedpe -i ${INPUT_NAME}_Dup_Removed.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe "
 			bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | awk -v OFS="\t" '{print $1,$2,$6,$7,$8,$9}' | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
 					
 			echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe"
-			bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe
+			#bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe
 			if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bedpe ];then
 				echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
 				rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe
@@ -1661,12 +1667,13 @@ case ${SPECIES} in
 	"mm9")
 	echo "Reference SPECIES is ${SPECIES}"
 	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
-	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	local genome_shortcut="mm"
 	;;
 	"mm10")
 	echo "Reference SPECIES is ${SPECIES}"
 	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
-	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
 	local Genome=~/cloud_research/PengGroup/XLi/Annotation/genome_sizes/mm10.chrom.sizes
 	local genome_shortcut="mm"
 	;;
@@ -2056,10 +2063,11 @@ RUN_MACS2(){
 	#RUN_MACS2 ${__INPUT_SAMPLE_List[0]} ${__INPUT_SAMPLE_DIR_List[1]} 'CD8_hm_ChIPseq' ${SPECIES} ${Data_Provider} 'bam'
 
 echo "RUN_MACS2"
-CHECK_arguments $# 6
+CHECK_arguments $# 7
 
 
 #__INPUT_PATH=${__OUTPUT_PATH}
+local INPUT_FOLDER=${7}
 local INPUT_NAME=${1/Sample_/}
 local INPUT_CON=${2/Sample_/}
 local INPUT_LABEL=${3}
@@ -2117,11 +2125,11 @@ echo "MACS2 Pick Up Reference Genome as ${genome_shortcut}!"
 
 ########################################################################
 ### Find Input File
-local IN_FOLDER=${__INPUT_PATH}
+local IN_FOLDER=${INPUT_FOLDER}
 cd ${IN_FOLDER}
 local IN_FILES="$( find -name "*${INPUT_NAME}*.${INPUT_TYPE}" | sort -n | xargs)"
 ### Find Contro Files
-local CONTRO_FOLDER=${__INPUT_PATH}
+local CONTRO_FOLDER=${INPUT_FOLDER}
 cd ${CONTRO_FOLDER}
 local CONTRO_FILE="$( find -name "*${INPUT_CON}*.${INPUT_TYPE}" | sort -n | xargs)"
 #### Search and save all input files PATH
@@ -2166,7 +2174,7 @@ python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05
 
 #### Convert valid peaks to bed format
-python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
+#python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 0.0 -p ${p_value} -q 1.0
 
 RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
@@ -2342,12 +2350,18 @@ RUN_Quant_IRI(){
 	INPUT_NAME=${2}
 	echo "RUN_Quant_IRI"
 	CHECK_arguments $# 2
-	local MAPDIR=/home/lxiang/cloud_research/PengGroup/ZZeng/Annotation/mappability
-	local MAPFILE=hg19_wgEncodeCrgMapabilityAlign50mer.bigWig
+	local MAPDIR=/home/xli/cloud_research/PengGroup/ZZeng/Annotation/mappability
+	local MAPFILE=mm9_wgEncodeCrgMapabilityAlign50mer.bigWig
 	
-	echo "IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e hg19 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}"
-	IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e hg19 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}
+	echo "IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e mm9 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}"
+	IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e mm9 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}
+	#IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e mm10 -n ${INPUT_NAME}
 	echo "Quant for Library: ${INPUT_NAME} is finished."
+	
+	
+	## IRI DIff
+	
+	#nohup IRTools diff -q IRI -s1 Control.bam -s2 Mutant.bam -p single -s fr-unstranded -e mm9 -u /home/xli/cloud_research/PengGroup/ZZeng/Annotation/mappability/mm9_wgEncodeCrgMapabilityAlign50mer.bigWig -n Mutant_Control > iri_diff.log &
 	}
 	
 RUN_TopDom(){
@@ -2457,8 +2471,7 @@ RUN_Motif_Homer(){
 		;;
 		"mm10")
 		local genome_shortcut='mm10'
-		echo "${SPECIES} is Not available now "
-		exit
+		local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
 		;;
 		"hg19")
 		local genome_shortcut='hg19'
@@ -2485,9 +2498,9 @@ RUN_Motif_Homer(){
 		echo " "
 		### Find Input File
 		cd ${IN_FOLDER}
-		local IN_FILES="$( find -name "*${INPUT_NAME}*_summits.bed" | sort -n | xargs)"
+		local IN_FILES="$( find -name "*${INPUT_NAME}*.bed" | sort -n | xargs)"
 		### Find Contro Files
-		local CONTRO_FILE="$( find -name "*${INPUT_CON}*_summits.bed" | sort -n | xargs)"
+		local CONTRO_FILE="$( find -name "*${INPUT_CON}*.bed" | sort -n | xargs)"
 		########################################################################
 		if [ ! -n "${IN_FILES}" ]
 		then
@@ -2651,12 +2664,20 @@ RUN_hdf5_to_cool(){
 	
 RUN_juicer_hiccup(){
 	java -jar /opt/tools/juicer_tools_1.11.09_jcuda.0.8.jar hiccups --cpu -t 36 --ignore_sparsity Tcf1_KO_na_CD8_Juicebox.hic ./hiccup_results/TKO_na_CD8 > ./hiccup_results/TKO_na_CD8.log &
-	nohup java -Xmx100g -jar /opt/tools/juicer_tools_1.12.03.jar hiccups --cpu --ignore_sparsity \
-	-m 512 -r 10000,25000,50000 -k KR -f .1,.1,.1 -p 4,2,1 -i 7,5,3 -t 0.02,1.5,1.75,2 -d 20000,50000,100000 \
-	 ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/2016/Juicebox/WT_CD8_Juicebox_q30.hic > ~/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/HiC/2016/Juicebox/Resolution_10_25_50/hiccup_on_WT.log &
+	
+	nohup java -Xmx64g -jar /opt/tools/juicer_tools_1.14.08.jar pre -q 30 -d WT_CD8_2016_Juicebox_input.txt.gz WT_CD8_2016_Juicebox.hic mm9 > WT_pre.log &
+	
+	
+	#juicer_tools hiccups [-m matrixSize] [-k normalization (NONE/VC/VC_SQRT/KR)] [-c chromosome(s)] [-r resolution(s)] [-f fdr] [-p peak width] [-i window] [-t thresholds] [-d centroid distances] [--ignore_sparsity]<hicFile> <outputDirectory> [specified_loop_list]
+	
+	nohup java -Xmx100g -jar /opt/tools/juicer_tools_1.14.08.jar hiccups --cpu -m 512 -r 10000,25000,50000 -k KR -f .1,.1,.1 -p 4,2,1 -i 7,5,3 -t 0.02,1.5,1.75,2 -d 20000,50000,100000 DKO_CD8_2016_Juicebox.hic ./DKO_CD8 > ./DKO_CD8/DKO_CD8_2016_hiccup.log &
+	 
+	java -Xmx100g -jar /opt/tools/juicer_tools_1.14.08.jar dump observed NONE DKO_CD8_1910_Juicebox.hic 10:21180000:21190000 10:21720000:21730000 BP 10000
+	
 	}
 
 RUN_juicer_hiccup_diff(){
+	## For hiccup diff use https://s3.amazonaws.com/hicfiles.tc4ga.com/public/juicer/juicer_tools_1.10.09_jcuda.0.8.jar
 	java -Xmx16g -jar /opt/tools/juicer_tools_1.10.09_jcuda.0.8.jar hiccupsdiff --cpu -t 36 --ignore_sparsity 
 	WT_CD8.hic TKO_na_CD8.hic WT_CD8_1905_merged_loops.bedpe TKO_na_1905_merged_loops.bedpe ./diff_hic > ${curr_path}/diff_hic.log &
 }
@@ -2715,7 +2736,7 @@ RUN_AWK(){
 
 REMOVE_REDUNDANCY_PICARD(){
 	## Remove Redundancy by Picard
-	### for xx in $(find -name *Marked_dup_metrics.txt); do echo $xx; sed -n '7,8p' $xx | cut -f 9; done
+	### for xx in $(find -name *Marked_dup_metrics.txt); do echo $xx; sed -n '7,8p' $xx | cut -f 3,9; done
 	
 	CHECK_arguments $# 1
 	echo "[$(date "+%Y-%m-%d %H:%M")]--------Remove Redundancy by Picard"
@@ -2986,33 +3007,7 @@ IDR_of_All (){
 ### sed -i $'1i #chr\tstart\tend\tgene_id\tNum' 
 
 ## Some Out Dated Functions
-RUN_BBDUK_Trimming (){
-####	RUN_BBDUK_Trimming
-####	Usage: RUN_BBDUK_Trimming $INPUT_DATA_DIR
-########################################################################
-### FASTQC Output DIR setting ...
-	local Output_Trimmed=${__INPUT_PATH}/Trimmed_Results
-	DIR_CHECK_CREATE ${Output_Trimmed}
-	cd ${__INPUT_PATH}
-	
-	#Force-Trimming:
-	#bbduk.sh in=reads.fq out=clean.fq ftl=10 ftr=139
-	#  This will trim the leftmost 10 bases (ftl=10) and also trim the right end after to position 139 (zero-based). The resulting read would be 130bp long. For example, a 150bp read would have the first 10 bases trimmed (bases 0-9, keeping 10+) and the last 10 bases trimmed (bases 140-149, keeping 139 and lower).
 
-	for file in ${__FASTQ_DIR_R1[*]}
-	do
-	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file}
-	done
-	
-	for fastq_file in ${__FASTQ_DIR_R2[*]}
-	do
-	echo "fastqc -o ${Output_fastqc} $fastq_file"
-	fastqc -o ${Output_fastqc} ${fastq_file}
-	done
-	
-	echo "Fastq Completed!"
-	}
 
 RUN_Pkill(){
 	echo " "
@@ -3022,6 +3017,11 @@ RUN_Pkill(){
 	#pkill -9 -P $PPID
 	}
 
+
+RUN_EpigenomeBrowser_Track(){
+	bgzip -c 983_Feature_Union_Naive_Super_Enhancer.bed > 983_Feature_Union_Naive_Super_Enhancer.bed.gz
+	
+	}
 # Sort by Chromosome: sort -k1,1 -k2,2n -V -s example.txt  (http://azaleasays.com/2014/02/21/sort-chromosome-names-with-linux-sort/)
 
 ## BED FORMAT FOR MY FRAMEWORK
