@@ -1,20 +1,17 @@
 #!/bin/bash
 
-GENOME_PATH=/home/lxiang/cloud_research/PengGroup/ZZeng/Data/Haihui/Tcf1/HiC-seq/Jun2016/exp/iterative_mapping/genome.fa
+GENOME_PATH=/home/xli/cloud_research/PengGroup/ZZeng/Data/Haihui/Tcf1/HiC-seq/Jun2016/exp/iterative_mapping/genome.fa
 
-OUTPUTDIR=/home/lxiang/Data_Processing/Haihui/CD8-HP/HiC_201910/Naive
+OUTPUTDIR=/home/xli/Data/Haihui/CD8-HP/HiC_2020
 
 __INPUT_SAMPLE_SET=(
-19092FL-06-01_S1_L001
-19092FL-06-01_S1_L002
-19092FL-06-02_S2_L003
-19092FL-06-02_S2_L004
+19092FL-14-06-01
 )
 
 for SAMPLE in ${__INPUT_SAMPLE_SET[*]}
 do
 
-	INPUTDIR=/home/lxiang/Data_Processing/Haihui/CD8-HP/HiC_201910/Naive/${SAMPLE}
+	INPUTDIR=/home/xli/Data/Haihui/CD8-HP/HiC_2020/iterative_mapping_bam/${SAMPLE}
 
 	INPUTFILE_R1=${SAMPLE}_R1.bam
 	INPUTFILE_R2=${SAMPLE}_R2.bam

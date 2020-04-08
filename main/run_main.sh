@@ -35,11 +35,11 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### INPUT DIRECTORY
-__INPUT_PATH=/home/xli/Raw_Data/Haihui/CD8-HP/HiC_2020
+__INPUT_PATH=/home/szhu/lsd1/fq_raw
 ### Output DIRECTORY
-__OUTPUT_PATH=/home/xli/Data/Haihui/CD8-HP/HiC_2020
+__OUTPUT_PATH=/home/xli/Data/Shaoqi
 __INPUT_SAMPLE_SET=(
-19092FL-14-06-01
+DP_ko1
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -54,9 +54,9 @@ echo "-----------------------------------------------------------------"
 echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 ##....................................................................##
 ### Key Parameters
-SPECIES='mm9'
+SPECIES='mm10'
 Data_Provider='Haihui'
-Project_Name='CD8_HP'
+Project_Name='lsd1'
 ##....................................................................##
 ### Download Raw Data
 #FUNC_Download "ftp://ftp.admerahealth.com/19092-06" "19092-06"
@@ -78,7 +78,7 @@ do
 	#PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
 	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
 	RUN_FAST_QC & pid=$!
-	RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
+	#RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'SRA'
 	#RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Trim_Galore_QC & pid=$!
@@ -86,7 +86,7 @@ do
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
 	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bam 'customeized' 'yes' & pid=$!
 	#RUN_MACS2 ${__INPUT_SAMPLE_SET[1]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bed' & pid=$!
-	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "mandible" ${SPECIES} ${Data_Provider} & pid=$!
+	RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "szhu" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
 	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_SET[i]} ${SPECIES} 'customeized' & pid=$!
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!

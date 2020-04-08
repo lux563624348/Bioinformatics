@@ -2174,7 +2174,7 @@ python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 4.0 -p ${p_value} -q 0.05
 
 #### Convert valid peaks to bed format
-#python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
+python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 0.0 -p ${p_value} -q 1.0
 
 RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
@@ -2673,6 +2673,12 @@ RUN_juicer_hiccup(){
 	nohup java -Xmx100g -jar /opt/tools/juicer_tools_1.14.08.jar hiccups --cpu -m 512 -r 10000,25000,50000 -k KR -f .1,.1,.1 -p 4,2,1 -i 7,5,3 -t 0.02,1.5,1.75,2 -d 20000,50000,100000 DKO_CD8_2016_Juicebox.hic ./DKO_CD8 > ./DKO_CD8/DKO_CD8_2016_hiccup.log &
 	 
 	java -Xmx100g -jar /opt/tools/juicer_tools_1.14.08.jar dump observed NONE DKO_CD8_1910_Juicebox.hic 10:21180000:21190000 10:21720000:21730000 BP 10000
+	
+	## for Juicerbox 
+	#0       chr1    3000424 0       0       chr1    3083951 1
+	#0       chr2    3000424 0       0       chr2    3083951 1
+	#0       chr10   3000424 0       0       chr10   3083951 1
+	#Using  sort -k2,2 -V -s
 	
 	}
 
