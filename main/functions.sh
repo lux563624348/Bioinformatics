@@ -111,7 +111,7 @@ PRE_READS_DIR(){
 	echo "Reads ERR: Did Not Find Any Matched Reference...... Exit"
 	exit
 	;;
-esac
+	esac
 	
 #### R1 Saving		
 	local k=0
@@ -772,7 +772,7 @@ local KERS=${2}
 echo ""
 local DIRLIST_gz="$( find -name "*.fastq.gz" | sort -n | xargs)"
 
-	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
+	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
 	then
 	echo "Pair End."
 	echo 
@@ -1519,7 +1519,7 @@ esac
 	cd ${OUTPUT_BOWTIE2_FOLDER}
 	local Mapping_File="$( find -name "${INPUT_NAME}*" | sort -n | xargs)"
     
-	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
+	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
 	then
 		echo "--------------------------------------------Pair End Mode"
 		if [ ! -n "${Mapping_File}" ];then			
@@ -1595,6 +1595,8 @@ esac
 		#picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
 		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true QUIET=true 
 		
+		
+		echo "## Number of reads after duplication removal: "
 		echo ${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt; cat ${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt | awk '{if (NR==8) print $4-$8-$9}' ## Number of reads after duplication removal
 		#echo "${OUTPUT_BOWTIE2_FOLDER}" >> Summary_Duplication.log 
 		#cat ${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt | awk -v OFS="\t" '{if(NR==8) print "Input:",$4,"Output:",$4-$8}' >> Summary_Duplication.log ; done
@@ -1609,7 +1611,7 @@ esac
 
 ###bam2bed
 	
-	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
+	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
 	then
 		### In here, bedpe just represents the bed format of pair end reads.
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bedpe ];then
@@ -1702,7 +1704,7 @@ esac
 
 #### Decide single end or pair ends mode
 #### NOW it is only compatible with single file. Not with pieces files.
-	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
+	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
 	then
 		echo "Pair End Mode"
 		echo "tophat -p ${THREADS} --no-discordant --no-mixed --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
@@ -1879,7 +1881,7 @@ esac
 	
 	echo "#5’ (left)  3’ (right) end of each read "
     
-	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
+	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
 	then
 		echo "Pair End Mode"
 		local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
@@ -1954,7 +1956,7 @@ esac
 
 ###bam2bed
 	
-	if [ -n "${__FASTQ_DIR_R1[0]}" -a -n "${__FASTQ_DIR_R2[0]}" ]
+	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
 	then
 	### In here, bedpe just represents the bed format of pair end reads.
 	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe ];then
@@ -2284,8 +2286,28 @@ local Num_Replicates_per_lib=23
 ###Number of Replicates per lib. Such as 23 means one rep for first lib, 3 replicates for second and 2 for third.
 ########################################################################
 ########################################################################
-local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
-#local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
+########################################################################
+case ${SPECIES} in
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
+	;;
+	"mm10")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
+	;;
+	"dm6") 
+	echo "Reference SPECIES is ${SPECIES}"
+	echo "Not ready yet!"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/Drosophila_Melanogaster/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+########################################################################
+
 local OUTPUT_Cuffdiff=${__OUTPUT_PATH}/Cuffdiff_Results
 echo "[$(date "+%Y-%m-%d %H:%M")]-----RUN_CUFFDIFF---------------------"
 DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}
@@ -3015,6 +3037,7 @@ IDR_of_All (){
 ## Some Out Dated Functions
 
 
+
 RUN_Pkill(){
 	echo " "
 #How to get PID,PGID,sessionid etc?
@@ -3025,7 +3048,18 @@ RUN_Pkill(){
 
 
 RUN_EpigenomeBrowser_Track(){
-	bgzip -c 983_Feature_Union_Naive_Super_Enhancer.bed > 983_Feature_Union_Naive_Super_Enhancer.bed.gz
+	#https://eg.readthedocs.io/en/latest/tracks.html#prepare-track-files
+	# Using Linux sort
+	sort -k1,1 -k2,2n track.bedgraph > track.bedgraph.sorted
+# Using bedSort
+	bedSort track.bedgraph track.bedgraph.sorted
+# Using sort-bed
+	sort-bed track.bedgraph > track.bedgraph.sorted
+	
+	
+	bgzip track.bedgraph.sorted
+	tabix -p bed track.bedgraph.sorted.gz
+	
 	
 	}
 # Sort by Chromosome: sort -k1,1 -k2,2n -V -s example.txt  (http://azaleasays.com/2014/02/21/sort-chromosome-names-with-linux-sort/)
