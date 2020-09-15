@@ -1,5 +1,0 @@
-param	value
-cmd_line	cuffdiff -q -o /home/lxiang/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/CuffDiff_Jun2018/Cuffdiff_Results/DKO_0h_vs_WT_0h -p 4 -L WT_0h,DKO_0h /home/data/Annotation/iGenomes/Mus_musculus_UCSC_mm9/Mus_musculus/UCSC/mm9/Annotation/Archives/archive-2014-05-23-16-05-24/Genes/genes.gtf ./May2018/Project_20395_index9/Tophat_results/Project_20395_index9.bam,./May2018/Project_20396_index10/Tophat_results/Project_20396_index10.bam,./May2018/Project_20397_index11/Tophat_results/Project_20397_index11.bam ./May2018/Project_20398_index12/Tophat_results/Project_20398_index12.bam,./May2018/Project_20399_index13/Tophat_results/Project_20399_index13.bam,./May2018/Project_20400_index14/Tophat_results/Project_20400_index14.bam 
-version	2.2.1
-SVN_revision	4237
-boost_version	104700

@@ -35,11 +35,16 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### INPUT DIRECTORY
-__INPUT_PATH=/home/szhu/lsd1/fq_raw
+__INPUT_PATH=/home/xli/Data/Haihui/mm10_Xin
 ### Output DIRECTORY
-__OUTPUT_PATH=/home/xli/Data/Shaoqi
+__OUTPUT_PATH=/home/xli/Data/Haihui/mm10_Xin
 __INPUT_SAMPLE_SET=(
-DP_ko1
+#naiveCD8_TCF1 ##
+SRR5217327 ##GSM2471915   >  Naïve CD8 CBF ChIP-Seq
+SRR5217328 #GSM2471916    >  CBFβ-deficient naive CD8 CBF ChIP-Seq
+SRR955620 #GSM1214544     >  Runx3_CD8+T_CHIP_Runx3_IP1 file 1
+SRR955621 #GSM1214545     >  Runx3_CD8+T_CHIP_Runx3_IP1 file 2
+SRR955622 #GSM1214546     >  Runx3_CD8+T_CHIP_Runx3_IP2
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -56,7 +61,7 @@ echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 ### Key Parameters
 SPECIES='mm10'
 Data_Provider='Haihui'
-Project_Name='lsd1'
+Project_Name='Xin_mm10'
 ##....................................................................##
 ### Download Raw Data
 #FUNC_Download "ftp://ftp.admerahealth.com/19092-06" "19092-06"
@@ -70,29 +75,29 @@ do
 	#RUN_BedGraph2BigWig ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]}_treat_pileup ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
 	
 	#RUN_SICER ${__INPUT_SAMPLE_SET[0]} ${__INPUT_SAMPLE_SET[1]} 200 ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
-	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[1]} ${__INPUT_SAMPLE_SET[0]} ${SPECIES} /home/xli/cloud_research/XLi/Data/Haihui/Vlad/RNA_seq/May2018/Cuffdiff_Results_old/C_vs_D/gene_exp.diff 'yes' & pid=$!
-	
+	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[i]} 'Null' ${SPECIES} 'No Expression' 'yes' & pid=$!
+	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_SET[i]} 'bed' & pid=$!
 	#break
 	#REMOVE_REDUNDANCY_PICARD ${__INPUT_SAMPLE_SET[i]} & pid=$!
-	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_SET[i]}
-	#PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
-	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
-	RUN_FAST_QC & pid=$!
+	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_SET[i]} & pid=$!
+	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
+	#PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
+	#RUN_FAST_QC & pid=$!
 	#RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'SRA'
 	#RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Trim_Galore_QC & pid=$!
 	#RUN_FAST_QC & pid=$!
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
+	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
 	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bam 'customeized' 'yes' & pid=$!
-	#RUN_MACS2 ${__INPUT_SAMPLE_SET[1]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bed' & pid=$!
-	RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "szhu" ${SPECIES} ${Data_Provider} & pid=$!
+	#RUN_MACS2 ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
+	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "szhu" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
 	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_SET[i]} ${SPECIES} 'customeized' & pid=$!
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_bed2fastq ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_Set[i]} ${SPECIES}
-	
+	#REMOVE_REDUNDANCY_PICARD ${__INPUT_SAMPLE_SET[i]} & pid=$!
 	
 	
 	PID_LIST+=" $pid";
@@ -109,10 +114,11 @@ echo "Parallel Operation have finished";
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
 	break
+	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
 	#RUN_Quant_IRI ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} & pid=$!
 	#PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
-	RUN_MACS2 ${__INPUT_SAMPLE_SET[i]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bed' & pid=$!
+	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
+	#RUN_MACS2 ${__INPUT_SAMPLE_SET[i]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
 	PID_LIST+=" $pid";
 done
 echo "wait ${PID_LIST}....................................."

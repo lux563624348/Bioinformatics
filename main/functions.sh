@@ -167,17 +167,19 @@ RUN_Trim_Galore_QC(){
 	for (( i = 0; i <= $(expr ${#__FASTQ_DIR_R1[*]} - 1); i++ ))
 	do
 		#echo ${__FASTQ_DIR_R1[*]}
-		if [ -n "${__FASTQ_DIR_R1[i]}" -a -n "${__FASTQ_DIR_R2[i]}" ]
+		if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
 		then
 			echo "Pair End Mode"
-			echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn"
-			trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn & # --cores 4
+			echo "trim_galore --gzip --length 20 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn"
+			trim_galore --gzip --length 20 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn & # --cores 4
 		else
 			echo "Single End Mode."
 			echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[i]} --suppress_warn"
-			trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[i]} --suppress_warn &
+			trim_galore --gzip --length 20 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[i]} --suppress_warn &
 		fi
 	done
+	
+	wait
 	
 	echo "[$(date "+%Y-%m-%d %H:%M")]---------RUN_Trim_Galore_QC-----COMPLETED!"
 	echo " "
@@ -234,7 +236,7 @@ RUN_SRA2FASTQ(){
 	#https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc
 	
 	CHECK_arguments $# 1
-	local exe_path=/opt/tools/sratoolkit.2.9.4-2-ubuntu64/bin
+	local exe_path=/opt/tools/sratoolkit.2.10.8-ubuntu64/bin
 	cd ${__INPUT_PATH}
 	local INPUT_SRA_LIST=${1} 
 	echo "SRA to FASTQ"
@@ -412,7 +414,7 @@ RUN_Island_Filtered_Reads(){
 	local File_Name=${1}
 	local FILE_TYPE=${2}
 	
-	local Output_Path="${__OUTPUT_PATH}/island_filtered_reads"
+	local Output_Path="${__OUTPUT_PATH}/islandfiltered_reads"
 	DIR_CHECK_CREATE ${Output_Path}
 	
 	echo "Entering the processing directory"
@@ -422,13 +424,13 @@ RUN_Island_Filtered_Reads(){
 	local Input_A1="$( find -name "*${File_Name}*.${FILE_TYPE}" | sort -n | xargs)"
 	local Input_A1="${__INPUT_PATH}/${Input_A1: 2}"
 	
-	local Gene_list_folder=~/cloud_research/PengGroup/XLi/Annotation/MM9
+	local Gene_list_folder=/home/xli/Data/Haihui/CD8-HP/histone_mark/SICER_Results/From_Shaoqi/sicer
 	echo "Find islands from ${Gene_list_folder}"
 	
 	cd ${Gene_list_folder}
 	echo "$( find -name "*.bed" | sort -n | xargs)"
 	#local Input_Gene_Lists="$( find -name "Union_WT-na_dKO-na.bed" | sort -n | xargs)"
-	local Input_Gene_Lists=( "./1070327_mm9_simple_repeat_and_Satellite.bed")
+	local Input_Gene_Lists=( "./95354_Union_na_H3K27ac_peaks.bed")
 	
 	
 	for Input_Gene in ${Input_Gene_Lists}
@@ -436,8 +438,8 @@ RUN_Island_Filtered_Reads(){
 		#local OUTPUT_NAME="island_filtered_reads_${1}_${Input_Gene: 2: -4}"
 		local OUTPUT_NAME="${1}_${Input_Gene: 2: -4}"
 		Input_Gene="${Gene_list_folder}/${Input_Gene: 2}"
-		echo "bedtools intersect -v -a ${Input_A1} -b ${Input_Gene} > ${Output_Path}/${OUTPUT_NAME}_repeat_removed.${FILE_TYPE}"
-		bedtools intersect -v -a ${Input_A1} -b ${Input_Gene} > ${Output_Path}/${OUTPUT_NAME}_repeat_removed.${FILE_TYPE}
+		echo "bedtools intersect -u -a ${Input_A1} -b ${Input_Gene} > ${Output_Path}/${OUTPUT_NAME}_islandfiltered.${FILE_TYPE}"
+		bedtools intersect -u -a ${Input_A1} -b ${Input_Gene} > ${Output_Path}/${OUTPUT_NAME}_islandfiltered.${FILE_TYPE}
 	done
 
 }
@@ -499,7 +501,7 @@ RUN_RPKM(){
 	;;
 	"customeized")
 	echo "Customeized Region For RPKM"
-	local Gene_list_folder=/home/xli/Data/Junjun/Arid1a/ATAC_Seq/MACS2_Results/BAMPE
+	local Gene_list_folder=/home/xli/cloud_research/PengGroup/XLi/Data/Haihui/CD8-HP/DNaseq_seq_RNA_Seq_ChIP_seq_HiC/Features/signature_OCR
 	;;
 	*)
 	echo "ERR: Did Not Find Any Matched Reference...... Exit"
@@ -514,8 +516,7 @@ esac
 	#cat *.bed | sort -k1,1 -k2,2n -V -s | bedtools merge -i stdin | awk '{print $0"\t""id_"NR}'
 	### The Input File for RPKM must be four columns: {0: "chr", 1: "TSS", 2: "TES", 3: "id",
 	local Input_A1_Lists=(
-	#14405_Union_ATAC_Seq_Peaks.bed
-	5090_common_peaks.bed
+	mm9_all_ORCs.bed
 	)
 	
 	
@@ -665,16 +666,20 @@ RUN_read_filtering_Bamtohdf5(){
 		java -Xmx16g -jar /opt/tools/juicer_tools.1.8.9_jcuda.0.8.jar pre -r 1000000 -d WT_CD8_Juicebox_input.txt.gz WT_CD8_Juicebox_res_1m.hic mm9 > res1m.log
 		## Eigenvector
 		##
-		mm9_chr_set=(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 X Y M)
+		mm9_chr_set=(X Y M 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19)
 		local Resolution=100000
 		for chr in ${mm9_chr_set[*]}
 		do 
+		## old version
 		java -Xmx16g -jar /opt/tools/juicer_tools.1.8.9_jcuda.0.8.jar eigenvector NONE WT_CD8_Juicebox_res_100k.hic ${chr} BP ${Resolution} -p \
-		| awk -v num=${chr} -v res=${Resolution} '{print "chr"num"\t"(NR-1)*res"\t"NR*res"\t"$1}' > WT_CD8_chr${chr}_eigenvector.bed &
+		| awk -v num=${chr} -v res=${Resolution} '{print "chr"num"\t"(NR-1)*res"\t"NR*res"\t"$1}' | head --lines=-1 > WT_CD8_chr${chr}_eigenvector.bed &
+		## New version
+		## With Warning, need to skip top two rows ##Output All but Skip last line 
+		java -Xmx16g -jar /opt/tools/juicer_tools_1.21.01.jar eigenvector KR WT_CD8_2016_Juicebox.hic ${chr} BP ${Resolution} -p | awk -v num=${chr} -v res=${Resolution} '{if(NR>2) print "chr"num"\t"(NR-3)*res"\t"(NR-2)*res"\t"$1}' | head --lines=-1 > WT_CD8_chr${chr}_eigenvector.bed ; break;
 		done
 	done
-	##Output All but Skip last line 
-	head --lines=-1 WT_CD8_chrY_eigenvector.bed
+	
+	cat *.txt | sort -k1,1 -k2,2n -V -s
 	
 	awk '{print $1"\t"$2"\t"$3"\t"$4*(-1)}' DKO_CD8_eigenvector.bdg
 	
@@ -1129,7 +1134,7 @@ esac
 ########################################################################	
 	}
 
-RUN_Wig2BigWig (){
+RUN_Wig2BigWig(){
 	###RUN_Wig2BigWig $1 $2 $3 $4 $5 
 	#### ($1=INPUT_FOLDER $2=INPUT_NAME $3=Track_hub_label, $4 Species $5 Data Provider)
 #### convert .wig to .bigwig and create the track hubs profiles.
@@ -1214,6 +1219,122 @@ esac
 	echo "maxHeightPixels 100:24:8" >>$filename
 	echo -e "windowingFunction mean+whiskers \n" >>$filename
 	}
+
+RUN_Bam2BigWig(){
+##RUN_Bam2BigWig   $INPUT_FOLDER $INPUT_NAME $Track_hub_label
+#### convert .wig to .bigwig and create the track hubs profiles.
+#### Usage: RUN_Bam2BigWig $Sample_Wig_NAME
+	CHECK_arguments $# 5
+	
+	local BAM_DIR=${1}
+	local Tracks_NAME=${2}
+	local Data_label=${3}
+	local SPECIES=${4}
+	local Data_provider=${5}
+	local Tracks_NAME_Lable=${Tracks_NAME/Sample_/} ##Skip out of Sample_ (7) and forward 12${1/Sample_/}
+	####INPUT
+	
+#dm3	162367812 dm6	142573017 GRCz10	1369631918 WBcel235	100286401 TAIR10	119481543
+case ${SPECIES} in 
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local genome_sizes=2620345972
+	;;
+	"mm10") 
+	echo "Reference SPECIES is ${SPECIES}"
+	local genome_sizes=2652783500
+	;;
+	"hg19")
+	echo "Reference SPECIES is ${SPECIES}"
+	local genome_sizes=2864785220
+	;;
+	"hg38")
+	echo "Reference SPECIES is ${SPECIES}"
+	local genome_sizes=2913022398
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+
+	cd ${BAM_DIR}
+
+#### OUTPUT
+	local OUTPUTDIR_tracks_hub=${__OUTPUT_PATH}/tracks_hub/${Data_provider}/${Data_label}
+	DIR_CHECK_CREATE ${OUTPUTDIR_tracks_hub}/BigWigs
+	local Bam_File=$(find -name "*${Tracks_NAME}*.bam" | xargs)
+########################################################################
+	
+	if [ ! -f ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw ];then
+		Label_of_Sort=$(samtools view -H ${Bam_File: 2} | head -n 1 | awk '{print $3}')
+		case ${Label_of_Sort} in
+			"SO:coordinate")
+			echo "------------------------------Input Bam is Coordiante Sorted"
+			mv ${Bam_File: 2} ${Bam_File: 2:-4}_coordiante_sorted.bam
+			echo ""
+			;;
+			*)
+			echo "------------------------------Input Bam NOT Coordiante Sorted"
+			samtools sort ${Bam_File: 2} -o ${Bam_File: 2:-4}_coordiante_sorted.bam
+			if [ -f ${Bam_File: 2:-4}_coordiante_sorted.bam ];then
+				rm ${Bam_File: 2}
+			fi
+			;;
+		esac
+		
+		echo "Index Bam file and prepare for bamCoverage......"
+		samtools index ${Bam_File: 2:-4}_coordiante_sorted.bam
+	
+		bamCoverage --bam ${Bam_File: 2:-4}_coordiante_sorted.bam -o ${OUTPUTDIR_tracks_hub}/BigWigs/${Tracks_NAME}.bw \
+		--binSize 25 --normalizeUsing RPKM --effectiveGenomeSize ${genome_sizes} --ignoreForNormalization chrX
+		     #Possible choices: RPKM, CPM, BPM, RPGC, None \
+
+
+		###	Creating hub.txt
+		cd $OUTPUTDIR_tracks_hub
+		local filename=hub.txt
+		if [ ! -f $filename ];then
+			echo "hub ${Data_label}" >>$filename
+			echo "shortLabel ${Data_label}" >>$filename
+			echo "longLabel ${Data_label}/${Data_provider}" >>$filename
+			echo "genomesFile genomes.txt" >>$filename
+			echo "email lux@gwu.edu" >>$filename
+			echo "descriptionUrl descriptionUrl" >>$filename
+		fi
+	########################################################################
+
+	###	Creating genomes.txt	
+		local filename=genomes.txt
+		if [ ! -f ${filename} ];then
+			echo "genome $SPECIES" >>$filename
+			echo "trackDb $SPECIES/trackDb.txt" >>$filename
+		fi
+	########################################################################
+
+		DIR_CHECK_CREATE $OUTPUTDIR_tracks_hub/${SPECIES}	
+		cd $OUTPUTDIR_tracks_hub/${SPECIES}
+		
+		local filename=trackDb.txt
+		local bw_Url=https://s3.amazonaws.com/xianglilab/tracks_hub/${Data_provider}/${Data_label}/BigWigs/${Tracks_NAME}.bw
+		echo "track ${Tracks_NAME}" >>$filename
+		echo "shortLabel ${Tracks_NAME: 0:18}" >>$filename
+		echo "longLabel ${Tracks_NAME}" >>$filename
+		echo "type bigWig" >>$filename
+		echo "bigDataUrl ${bw_Url}" >>$filename
+		echo "visibility full" >>$filename
+		echo "color 0,100,0" >>$filename
+		echo "autoScale on" >>$filename
+		echo "alwaysZero on" >>$filename
+		echo "maxHeightPixels 100:24:8" >>$filename
+		echo -e "windowingFunction mean+whiskers \n" >>$filename
+	fi
+	#color 255,0,0  for WT_0h   Red
+	#color 0,120,0	for DKO_0h  Green
+	#color 0,0,255	for WT_stim Blue
+	#color 0,0,120	for DKO_stim Navy
+	
+}
 
 RUN_BedGraph2BigWig (){
 	##RUN_BigGraph2BigWig   $INPUT_FOLDER $INPUT_NAME $Track_hub_label
@@ -1483,6 +1604,184 @@ case ${SPECIES} in
 	echo "------------------------------Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
 	local BOWTIEINDEXS="/home/shared_data/Annotation/UCSC/Mouse_Genome/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
+	;;
+	"mm10") 
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
+	;;
+	"hg19")
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Human_Genome/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+	;;
+	"hg38")
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Human_Genome/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome
+	;;
+	"dm6") 
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/D.Melanogaster_Genome/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome
+	;;
+	"BOWTIEINDEXS_mm10_pMXs_combo")
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Raw_Data/Paul/34bc/Bowtie2_Indexes/MM10_pMXs_combo/mm10_pMXs_combo
+	;;
+	
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+########################################################################
+	
+	local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
+	cd ${OUTPUT_BOWTIE2_FOLDER}
+
+
+	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
+	then
+		echo "--------------------------------------------Pair End Mode"
+		echo "bowtie2 --mm -p ${THREADS} --no-unal --no-mixed --non-deterministic --no-discordant -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 ${Right_Trim} --trim5 ${Left_Trim} -S ${OUTPUT_BOWTIE2}" #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+		bowtie2 --mm -p ${THREADS} --no-unal --no-mixed --non-deterministic --no-discordant -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") --trim3 ${Right_Trim} --trim5 ${Left_Trim} -S ${OUTPUT_BOWTIE2} #--un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz 
+		#echo "End of One Bowtie2 Mapping"
+		
+		#### concordantly pair output
+		#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz"
+		#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x $BOWTIEINDEXS -1 ${__FASTQ_DIR_R1[0]} -2 ${__FASTQ_DIR_R2[0]} -S ${OUTPUT_BOWTIE2} --un-conc-gz ${OUTPUT_BOWTIE2_FOLDER}/un_conc_aligned_R%.fastq.gz
+		# using un concordantly pair-ends do bowtie2 again.
+		#echo "bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}"
+		#bowtie2 -p $THREADS --end-to-end --very-sensitive -k 1 --no-mixed --no-discordant --no-unal -x ${BOWTIEINDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2}
+		
+		###sam2bam   ##For MACS2
+		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  ];then
+			echo "samtools view -h -q ${Map_Quality} -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam"
+			samtools view -@ ${THREADS} -h -q ${Map_Quality} -b -f 2 -F 4 -F 8 -F 256 -F 512 -F 2048 ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam
+		fi
+	else
+		echo "------------------------------Single End Mode."
+		local OUTPUT_BOWTIE2="${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.sam"
+		echo "bowtie2 --mm -p ${THREADS} --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 ${Right_Trim} --trim5 ${Left_Trim}"
+		bowtie2 --mm -p ${THREADS} --no-unal --non-deterministic -x ${BOWTIEINDEXS} -U $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -S ${OUTPUT_BOWTIE2} --trim3 ${Right_Trim} --trim5 ${Left_Trim}
+
+		echo "End of One Bowtie2 Mapping"
+		### SINGLE END SAM TO BAM
+		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam ];then
+			echo "samtools view -b -h -q ${Map_Quality} ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam"
+			samtools view -@ ${THREADS} -b -h -q ${Map_Quality} ${OUTPUT_BOWTIE2} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam 
+		fi
+	fi
+	
+########################################################################
+### Then clear sam file.
+	if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam ];then
+		echo "------------------------------------------------------------rm ${OUTPUT_BOWTIE2}"
+		rm ${OUTPUT_BOWTIE2}
+	fi
+########################################################################
+	local just_align_yesno=${5}
+	case ${just_align_yesno} in
+	"yes")
+	echo "------------------------------Make Align Stop here, just need alignment!"
+	echo ""
+	return 0 ;;
+	"no")
+	echo "Continue!" ;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit;;
+	esac
+########################################################################	
+
+## Remove Redundancy by Picard
+	if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
+	
+		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ];then
+			echo "samtools sort -@ ${THREADS} -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  "
+			samtools sort -@ ${THREADS} -n -l 1 -o ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam  
+			
+			echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam"
+			rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_mapq${Map_Quality}.bam 
+		fi
+		
+		echo "picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true REMOVE_SEQUENCING_DUPLICATES=true ASSUME_SORT_ORDER=queryname"
+		picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true QUIET=true #Possible values: {unsorted, queryname, coordinate, duplicate, unknown}
+		
+		## Which version is actually older?
+		#picard MarkDuplicates I=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam O=${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam \
+		M=${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true QUIET=true 
+		
+		echo "## Number of reads after duplication removal: "
+		echo ${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt; cat ${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt | awk '{if (NR==8) print $4-$8-$9}' ## Number of reads after duplication removal
+		
+		#echo "${OUTPUT_BOWTIE2_FOLDER}" >> Summary_Duplication.log 
+		#cat ${OUTPUT_BOWTIE2_FOLDER}/Marked_dup_metrics.txt | awk -v OFS="\t" '{if(NR==8) print "Input:",$4,"Output:",$4-$8}' >> Summary_Duplication.log ; done
+		
+		
+		if [ -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam ];then
+			echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam"
+			rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
+		fi
+	fi
+
+###bam2bigwig
+	RUN_Bam2BigWig ${OUTPUT_BOWTIE2_FOLDER} ${INPUT_NAME}_Dup_Removed ${PROJECT_NAME} ${SPECIES} ${Data_Provider}
+
+###bam2bed
+	
+	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
+	then
+		### In here, bedpe just represents the bed format of pair end reads.
+		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed ];then
+			echo " bamToBed -bedpe -i ${INPUT_NAME}_Dup_Removed.bam > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bedpe "
+			bamToBed -bedpe -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | awk -v OFS="\t" '{print $1,$2,$6,$7,$8,$9}' | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
+		fi
+	else
+		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed ];then
+			echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
+			bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
+			
+			## either 50% of A is covered OR 50% of B is covered
+			#echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed"
+			#bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed
+			#if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed ];then
+			#	echo "rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed"
+			#	rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
+			#fi
+		fi
+	fi
+	echo " "
+	echo "One Bowtie2 is Completed!"
+}
+
+RUN_BOWTIE2_bp(){
+	#http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml
+	### #RUN_BOWTIE2 ${__INPUT_SAMPLE_List[i]} ${SPECIES} "Pre_Tfh_Th1" ${Data_Provider} 'no' &
+	local INPUT_NAME=${1/Sample_/}
+	local SPECIES=${2}
+	local PROJECT_NAME=${3}
+	local Data_Provider=${4}
+	local just_align_yesno=${5}  ## This option is limit bowtie2 with only basic functions.
+	
+	CHECK_arguments $# 5
+	echo ""
+	echo "[$(date "+%Y-%m-%d %H:%M")]------------------------RUN_BOWTIE2......."
+
+	local Left_Trim=0
+	local Right_Trim=0
+	local Map_Quality=10   #A mapping quality of 10 or less indicates that there is at least a 1 in 10 chance that the read truly originated elsewhere.
+	#Mapping quality: higher = more unique
+	
+	
+	#### OUTPUT FORMAT
+	local OUTPUT_BOWTIE2_FOLDER="${__OUTPUT_PATH}/Bowtie2_Results/${INPUT_NAME}"
+	DIR_CHECK_CREATE ${OUTPUT_BOWTIE2_FOLDER}
+	
+case ${SPECIES} in
+	"mm9")
+	echo "------------------------------Reference SPECIES is ${SPECIES}"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	local BOWTIEINDEXS="/home/shared_data/Annotation/UCSC/Mouse_Genome/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome"
 	local Simple_Repeats=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM9/RepeatMasker/1070327_mm9_simple_repeat_and_Satellite.bed
 	;;
 	"mm10") 
@@ -1607,7 +1906,6 @@ esac
 			rm ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_sorted.bam
 		fi
 	fi
-
 
 ###bam2bed
 	
@@ -2069,13 +2367,13 @@ CHECK_arguments $# 7
 
 
 #__INPUT_PATH=${__OUTPUT_PATH}
-local INPUT_FOLDER=${7}
-local INPUT_NAME=${1/Sample_/}
-local INPUT_CON=${2/Sample_/}
-local INPUT_LABEL=${3}
-local SPECIES=${4}
-local Data_Provider=${5}
-local INPUT_TYPE=${6}
+local INPUT_FOLDER=${1}
+local INPUT_NAME=${2/Sample_/}
+local INPUT_CON=${3/Sample_/}
+local INPUT_LABEL=${4}
+local SPECIES=${5}
+local Data_Provider=${6}
+local INPUT_TYPE=${7}
 
 
 #local FDR=0.05
@@ -2449,14 +2747,13 @@ esac
 ### This parameter means that Promoter [-1k+TSS, TSS +1k] Gene_body[TSS+1k, TES]
 	local PROMOTER_UPSTREAM_EXTENSION=1001   # Upstream extension, the distance from TSS.
 	local PROMOTER_REGION_LENGTH=2000
-fastq
 
 	local OUTPUTFILE=${__OUTPUT_PATH}/${INPUT_NAME}_distribution.txt
 	local INPUTFILE=${__INPUT_PATH}/${INPUT_NAME}.bed
 	## Input for Distribution has to be less than 9 columns bed format.
 	# https://genome.ucsc.edu/FAQ/FAQformat.html#format1
 	
-	cat ${INPUTFILE} | awk -v OFS="\t" '{ if ($1!="chr") print $1,$2,$3,"id"NR}' > ${INPUTFILE}.4
+	cat ${INPUTFILE} | awk -v OFS="\t" '{ if ($1!="#chr") print $1,$2,$3,"id"NR}' > ${INPUTFILE}.4
 	
 	echo "python ${EXEDIR}/peaks_count_on_genic_region.py -i ${INPUTFILE}.4 -g ${GTFFILE} -u ${PROMOTER_UPSTREAM_EXTENSION} -t ${PROMOTER_REGION_LENGTH} -o ${OUTPUTFILE}"
 	python ${EXEDIR}/peaks_count_on_genic_region.py -i ${INPUTFILE}.4 -g ${GTFFILE} -u ${PROMOTER_UPSTREAM_EXTENSION} -t ${PROMOTER_REGION_LENGTH} -o ${OUTPUTFILE}
@@ -2478,7 +2775,7 @@ RUN_Motif_Homer(){
 	echo "[$(date "+%Y-%m-%d %H:%M")] --------------RUN_Motif_Homer----"
 ########################################################################
 	#local OUT_FOLDER=/home/data/www/Homer_Results/Motif_Results/${INPUT_NAME:0:8}_vs_${INPUT_CON:0:8}
-	local OUT_FOLDER=${__OUTPUT_PATH}/Output/${INPUT_NAME:0:8}_vs_${INPUT_CON:0:8}
+	local OUT_FOLDER=${__OUTPUT_PATH}/Motif_Output/${INPUT_NAME:0:8}_vs_${INPUT_CON:0:8}
 	
 	DIR_CHECK_CREATE ${OUT_FOLDER} 
 	DIR_CHECK_CREATE ${OUT_FOLDER}/Motif_GENE_Summary
@@ -2685,22 +2982,25 @@ RUN_hdf5_to_cool(){
 	}
 	
 RUN_juicer_hiccup(){
-	java -jar /opt/tools/juicer_tools_1.11.09_jcuda.0.8.jar hiccups --cpu -t 36 --ignore_sparsity Tcf1_KO_na_CD8_Juicebox.hic ./hiccup_results/TKO_na_CD8 > ./hiccup_results/TKO_na_CD8.log &
 	
-	nohup java -Xmx64g -jar /opt/tools/juicer_tools_1.14.08.jar pre -q 30 -d WT_CD8_2016_Juicebox_input.txt.gz WT_CD8_2016_Juicebox.hic mm9 > WT_pre.log &
+	java -jar /opt/tools/juicer_tools_1.21.01_jcuda.0.8.jar hiccups --cpu -t 36 --ignore_sparsity Tcf1_KO_na_CD8_Juicebox.hic ./hiccup_results/TKO_na_CD8 > ./hiccup_results/TKO_na_CD8.log &
+	
+	nohup java -Xmx64g -jar /opt/tools/juicer_tools_1.21.01.jar pre -q 30 -d WT_CD8_2016_Juicebox_input.txt.gz WT_CD8_2016_Juicebox.hic mm9 > WT_pre.log &
 	
 	
-	#juicer_tools hiccups [-m matrixSize] [-k normalization (NONE/VC/VC_SQRT/KR)] [-c chromosome(s)] [-r resolution(s)] [-f fdr] [-p peak width] [-i window] [-t thresholds] [-d centroid distances] [--ignore_sparsity]<hicFile> <outputDirectory> [specified_loop_list]
+	#juicer_tools hiccups [-m matrixSize] [-k normalization (NONE/VC/VC_SQRT/KR)] [-c chromosome(s)] [-r resolution(s)] [-f fdr] [-p peak width] [-i window] [-t thresholds] [-d centroid distances] [--ignore-sparsity]<hicFile> <outputDirectory> [specified_loop_list]
 	
-	nohup java -Xmx100g -jar /opt/tools/juicer_tools_1.14.08.jar hiccups --cpu -m 512 -r 10000,25000,50000 -k KR -f .1,.1,.1 -p 4,2,1 -i 7,5,3 -t 0.02,1.5,1.75,2 -d 20000,50000,100000 DKO_CD8_2016_Juicebox.hic ./DKO_CD8 > ./DKO_CD8/DKO_CD8_2016_hiccup.log &
+	nohup java -Xmx100g -jar /opt/tools/juicer_tools_1.21.01.jar hiccups --cpu -m 512 -r 10000,25000,50000 -k KR -f .1,.1,.1 -p 4,2,1 -i 7,5,3 -t 0.02,1.5,1.75,2 -d 20000,50000,100000 DKO_CD8_2016_Juicebox.hic ./DKO_CD8 > ./DKO_CD8/DKO_CD8_2016_hiccup.log &
 	 
-	java -Xmx100g -jar /opt/tools/juicer_tools_1.14.08.jar dump observed NONE DKO_CD8_1910_Juicebox.hic 10:21180000:21190000 10:21720000:21730000 BP 10000
+	java -Xmx100g -jar /opt/tools/juicer_tools_1.21.01.jar dump observed NONE DKO_CD8_1910_Juicebox.hic 10:21180000:21190000 10:21720000:21730000 BP 10000
 	
 	## for Juicerbox 
 	#0       chr1    3000424 0       0       chr1    3083951 1
 	#0       chr2    3000424 0       0       chr2    3083951 1
 	#0       chr10   3000424 0       0       chr10   3083951 1
 	#Using  sort -k2,2 -V -s
+	
+	#
 	
 	}
 
@@ -2710,13 +3010,7 @@ RUN_juicer_hiccup_diff(){
 	WT_CD8.hic TKO_na_CD8.hic WT_CD8_1905_merged_loops.bedpe TKO_na_1905_merged_loops.bedpe ./diff_hic > ${curr_path}/diff_hic.log &
 }
 
-RUN_hiccup_to_Long_Range_Interaction_Track(){
-	cat differential_loops2.bedpe | awk '{if (NR > 2) print $0}' | sort -k1,1 -k2,2n -V -s | awk -v OFS="\t" '{print "chr"$1,$2,$3,"chr"$4":"$5"-"$6","5,10,"."}' | bgzip > diff_loops2_interact.gz
-	tabix -p bed diff_loops2_interact.gz
-	}
-	## HIC from xxx to xxx.hic
-	#java -Xmx16g -jar $EXEDIR/juicer_tools_1.11.09_jcuda.0.8.jar pre -d -q 30 -r 10000 Tcf1_KO_na_CD8_Juicebox_input.txt Tcf1_KO_na_CD8_Juicebox.hic mm9 > q30.log &
-	###
+
 ## END OF MODULES
 
 ######################################
@@ -2777,12 +3071,14 @@ REMOVE_REDUNDANCY_PICARD(){
 	
 	for INPUT_FILE_Full in ${Mapping_File_Set[*]}
 	do
-		local INPUT_FILE=${INPUT_FILE_Full/.bam/}
+		local INPUT_FILE=${INPUT_FILE_Full} #${INPUT_FILE_Full/.bam/}
 		echo "${INPUT_FILE}"
 		if [ ! -f ${INPUT_FILE}_Dup_Removed.bam ];then
 			if [ ! -f ${INPUT_FILE}_sorted.bam ];then
-			echo "samtools sort -n -l 1 -o ${INPUT_FILE}_sorted.bam ${INPUT_FILE_Full}"
-			samtools sort -n -l 1 -o ${INPUT_FILE}_sorted.bam ${INPUT_FILE_Full}
+			echo "samtools sort -l 1 -o ${INPUT_FILE}_sorted.bam ${INPUT_FILE_Full}"
+			
+			#samtools sort -n -l 1 -o ${INPUT_FILE}_sorted.bam ${INPUT_FILE_Full}  ## Sort By Name
+			samtools sort -l 1 -o ${INPUT_FILE}_sorted.bam ${INPUT_FILE_Full}  ## Sort By leftmost coordinates
 			
 			echo "rm ${INPUT_FILE}.bam"
 			rm ${INPUT_FILE}.bam
@@ -2791,11 +3087,11 @@ REMOVE_REDUNDANCY_PICARD(){
 			echo "picard MarkDuplicates I=${INPUT_FILE}_sorted.bam O=${INPUT_FILE}_Dup_Removed.bam \
 			M=${INPUT_FILE}_Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true"
 			
-			#picard MarkDuplicates I=${INPUT_FILE}_sorted.bam O=${INPUT_FILE}_Dup_Removed.bam \
-			M=${INPUT_FILE}_Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true
+			picard MarkDuplicates I=${INPUT_FILE}_sorted.bam O=${INPUT_FILE}_Dup_Removed.bam \
+			M=${INPUT_FILE}_Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=coordinate #CREATE_INDEX=true
 			
 			## for shang.
-			java -jar /opt/tools/picard.jar MarkDuplicates I=${INPUT_FILE}_sorted.bam O=${INPUT_FILE}_Dup_Removed.bam \
+			#java -jar /opt/tools/picard.jar MarkDuplicates I=${INPUT_FILE}_sorted.bam O=${INPUT_FILE}_Dup_Removed.bam \
 			M=${INPUT_FILE}_Marked_dup_metrics.txt REMOVE_DUPLICATES=true ASSUME_SORT_ORDER=queryname CREATE_INDEX=true
 			
 			echo "rm ${INPUT_FILE}_sorted.bam"
@@ -3036,7 +3332,10 @@ IDR_of_All (){
 
 ## Some Out Dated Functions
 
-
+RUN_DeepTools(){
+	computeMatrix reference-point --referencePoint center -S <bigwigs> -R <regions> -a 1000 -b 1000 -o test.matrix
+	plotHeatmap -m test.matrix -out test.png
+	}
 
 RUN_Pkill(){
 	echo " "
@@ -3045,18 +3344,28 @@ RUN_Pkill(){
 	#PID  PPID  PGID   GID  SESS CMD
 	#pkill -9 -P $PPID
 	}
-
+	
+RUN_hiccup_to_Long_Range_Interaction_Track(){
+	
+	xx=$(find -name "*.bedpe")
+	
+	cat differential_loops2.bedpe | awk '{if (NR > 1) print $0}' | sort -k1,1 -k2,2n -V -s | awk -v OFS="\t" '{print "chr"$1,$2,$3,"chr"$4":"$5"-"$6","5,10,"."}' | bgzip > diff_loops2_interact.gz
+	tabix -p bed diff_loops2_interact.gz
+	}
+	## HIC from xxx to xxx.hic
+	#java -Xmx16g -jar $EXEDIR/juicer_tools_1.11.09_jcuda.0.8.jar pre -d -q 30 -r 10000 Tcf1_KO_na_CD8_Juicebox_input.txt Tcf1_KO_na_CD8_Juicebox.hic mm9 > q30.log &
+	###
 
 RUN_EpigenomeBrowser_Track(){
 	#https://eg.readthedocs.io/en/latest/tracks.html#prepare-track-files
 	# Using Linux sort
-	sort -k1,1 -k2,2n track.bedgraph > track.bedgraph.sorted
+	sort -k1,1 -k2,2n -V -s track.bedgraph > track.bedgraph.sorted
 # Using bedSort
 	bedSort track.bedgraph track.bedgraph.sorted
 # Using sort-bed
 	sort-bed track.bedgraph > track.bedgraph.sorted
 	
-	
+	## bgzip is mandate
 	bgzip track.bedgraph.sorted
 	tabix -p bed track.bedgraph.sorted.gz
 	
@@ -3076,7 +3385,23 @@ RUN_EpigenomeBrowser_Track(){
 
 #for file in *; do mv "$file" `echo $file | tr ' ' '_'` ; done
 
+RUN_Juicebox_dump(){
+	echo "f"
+	## chr_set=('chr1' 'chr2' 'chr3' 'chr4' 'chr5' 'chr6' 'chr7' 'chr8' 'chr9' 'chr10' 'chr11' 'chr12' 'chr13' 'chr14' 'chr15' 'chr16' 'chr17' 'chr18' 'chr19' 'chrX' 'chrY' 'chrM')
+# for chr in ${chr_set[*]} ; do echo ${chr}; done
+#for chr in ${chr_set[*]} ; do echo ${chr}; java -jar /opt/tools/juicer_tools_1.21.01.jar dump observed NONE WT_CD8_2016_Juicebox.hic ${chr} ${chr} BP 10000 dump_count_10k/WT_CD8_2016_${chr}.txt ; break; done
+	java -jar /opt/tools/juicer_tools_1.21.01.jar arrowhead -m 2000 -r 10000 -k KR --threads 8 WT_CD8_2016_Juicebox.hic WT_CD8_2016_TAD.bedpe
+	}
 
+Plot_Correlation_bigwig(){
+	multiBigwigSummary BED-file bins -b 1.bw 2.bw 3.bw1 4.bw 5.bw --labels 1 2 3 4 5 -o DNase_5_reps.npz
+	plotCorrelation --corData DNase_5_reps.npz --corMethod pearson --whatToPlot scatterplot --plotFile DNase_5_reps.png --removeOutliers --log1p
+	} 
+
+Post_On_Shang(){
+	scp K27ac_7reps.png lxiang@shang.phys.gwu.edu:/home/lxiang/Data/share
+	
+	}
 
 #[1] https://stackoverflow.com/questions/10909685/run-parallel-multiple-commands-at-once-in-the-same-terminal
 #[2]
