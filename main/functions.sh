@@ -38,7 +38,7 @@ set -o pipefail 	#### check on the p398 of book Bioinformatics Data Skills.
 	Tools_DIR=/opt/tools
 	#Python_Tools_DIR=~/cloud_research/PengGroup/XLi/Python_tools
 	Python_Tools_DIR=~/cloud_research/PengGroup/XLi/Python_tools
-	Annotation_DIR=/home/Data/Annotation
+	Annotation_DIR=/home/shared_data/Annotation
 	THREADS=8
 	# Tang
 	#Annotation_DIR=/home/Data/Annotation
@@ -81,6 +81,13 @@ FUNC_Download (){
 	echo ""
 
 	}
+
+FUNC_Download_google_aws_illuminate (){
+aws s3 cp --recursive Jianxu s3://xianglilab/tracks_hub/
+~/bin/bs list projects # check project ID
+~/bin/bs download project -i project_ID --output /home/xli/Data/Junjun/Arid1a/ChIP_Seq/Raw_data
+gdown --id file_id 
+}
 
 PRE_READS_DIR(){
 	### PRE_READS_DIR ${PATH_FOLDER} ${__INPUT_SAMPLE_DIR_List[i]} "fastq.gz" "Pairs SRA or anyother pattern"
@@ -1608,6 +1615,7 @@ case ${SPECIES} in
 	"mm10") 
 	echo "------------------------------Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
+	local BOWTIEINDEXS="/home/shared_data/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome"
 	;;
 	"hg19")
 	echo "------------------------------Reference SPECIES is ${SPECIES}"
@@ -1739,7 +1747,7 @@ esac
 	else
 		if [ ! -f ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed ];then
 			echo "bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}.bed"
-			bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
+			#bamToBed -i ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bam | sort -k1,1 -k2,2n -V -s > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed
 			
 			## either 50% of A is covered OR 50% of B is covered
 			#echo "bedtools intersect -v -e -f 0.5 -F 0.5 -a ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Removed.bed -b ${Simple_Repeats} > ${OUTPUT_BOWTIE2_FOLDER}/${INPUT_NAME}_Dup_Simple_Repeats_Removed.bed"
@@ -1968,13 +1976,16 @@ case ${SPECIES} in
 	echo "Reference SPECIES is ${SPECIES}"
 	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
+	local GTFFILE=/home/shared_data/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
+	local BOWTIEINDEXS=/home/shared_data/Annotation/UCSC/Mouse_Genome/MM9/Mus_musculus/UCSC/mm9/Sequence/Bowtie2Index/genome
 	local genome_shortcut="mm"
 	;;
 	"mm10")
 	echo "Reference SPECIES is ${SPECIES}"
 	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
-	local Genome=~/cloud_research/PengGroup/XLi/Annotation/genome_sizes/mm10.chrom.sizes
+	local GTFFILE=/home/shared_data/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
+	local BOWTIEINDEXS=/home/shared_data/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
 	local genome_shortcut="mm"
 	;;
 	"hg19")
@@ -2005,11 +2016,18 @@ esac
 	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
 	then
 		echo "Pair End Mode"
-		echo "tophat -p ${THREADS} --no-discordant --no-mixed --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
-		tophat -p ${THREADS} --no-discordant --no-mixed --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
+		echo "tophat -p ${THREADS} --no-discordant --no-mixed --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
+		tophat -p ${THREADS} --no-discordant --no-mixed --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
 		## --read-gap-length 2 --read-mismatches 2 
 		echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
 		mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+		
+		if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ]
+		then
+			echo "samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
+			samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+			rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+		fi
 		
 		echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --keep-dup ${Duplication_Num} --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
 		macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --keep-dup ${Duplication_Num} --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
@@ -2026,10 +2044,17 @@ esac
 		
 	else
 		echo "Single End Mode."
-		echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
-		tophat -p ${THREADS} --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} --GTF ${GTFFILE} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
+		echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
+		tophat -p ${THREADS} --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
 		echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
 		mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+		
+		if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ]
+		then
+			echo "samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
+			samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+			rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+		fi
 		
 		echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
 		macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
@@ -2383,6 +2408,9 @@ local p_value=0.00001
 case ${INPUT_TYPE} in
 	"bam") 
 	local MODE='BAM'
+	echo "bam Format"
+	local INPUT_TYPE='bam'
+	local MODE='BAM'
 	;;
 	"bampe")
 	echo "bampe Format"
@@ -2477,6 +2505,7 @@ python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 python ${Python_Tools_DIR}/MACS2_peaks_filtering.py -i ${OUT_FOLDER} \
 -n ${INPUT_NAME}_vs_${INPUT_CON}_peaks.xls -f 0.0 -p ${p_value} -q 1.0
 
+echo "RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}"
 RUN_BedGraph2BigWig ${OUT_FOLDER} ${INPUT_NAME}_vs_${INPUT_CON}_treat_pileup ${INPUT_LABEL} ${SPECIES} ${Data_Provider}
 
 if [ -n "${CONTRO_FILE[0]}" ]
@@ -2572,10 +2601,61 @@ macs2 bdgdiff --t1 ${IN_FILES[1]} --c1 ${IN_FILES[0]} --t2 ${CONTRO_FILE[1]} \
 
 }
 
+RUN_CUFFNORM(){
+	### RUN_CUFFNORM $1 $2
+	####
+CHECK_arguments $# 3
+### Find Input File
+local IN_FOLDER=${1}
+local INPUT_NAME=${2/Sample_/}
+local SPECIES=${3}
+########################################################################
+########################################################################
+########################################################################
+case ${SPECIES} in
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=${Annotation_DIR}/gtf_files/2015_GTF/mm9_2015.gtf
+	;;
+	"mm10")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=${Annotation_DIR}/gtf_files/2015_GTF/mm10_2015.gtf
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+########################################################################
+### Find Input File
+cd ${IN_FOLDER}
+local IN_FILES="$( find -name "*${INPUT_NAME}*.bam" | sort -n | xargs)"
+#### Search and save all input files PATH
+local k=0
+for in_files in ${IN_FILES}
+do
+	IN_FILES[k]="${IN_FOLDER}/${in_files: 2}"
+	k=`expr $k + 1`
+done
+
+local OUTPUT_CuffNorm=${__OUTPUT_PATH}/CuffNorm_Results
+echo "[$(date "+%Y-%m-%d %H:%M")]-----RUN_CUFFQUANT---------------------"
+DIR_CHECK_CREATE ${OUTPUT_CuffNorm}
+echo "RUN_CUFFQUANT INPUT LIBS"
+#### Preparing the .bam files for cuffdiff
+
+	echo "${IN_FILES} Data files are loading..."
+	echo "cuffnorm -q -o ${OUTPUT_Cuffquant}/${INPUT_NAME} -p 1 ${GTFFILE} $(echo ${IN_FILES[*]} | tr " " ",")"
+	cuffnorm -q -o ${OUTPUT_CuffNorm}/${INPUT_NAME} -p 1 ${GTFFILE} $(echo ${IN_FILES[*]} | tr " " ",")
+	
+########################################################################
+echo "[$(date "+%Y-%m-%d %H:%M")]----------------RUN_CUFFQUANT COMPLETED!"
+	}
+
 RUN_CUFFDIFF(){
 	### RUN_CUFFDIFF $1 $2
 	####
-CHECK_arguments $# 5
+CHECK_arguments $# 12
 local INPUT_Args=("$@")
 local SAMPLE_NUM=${#INPUT_Args[*]}
 local Fold_Change=2.0
@@ -2626,7 +2706,7 @@ done
 #wait ${PID_LIST}
 ### Four GROUP, each group has 3 DATA FILES, 
 ########################################################################
-if [ ${#DATA_BAM[*]}  -eq "5" ]
+if [ ${#DATA_BAM[*]}  -eq "12" ]
 then
 	local A_Label="Pre-_Tfh"
 	local B_Label="Pre-_Th1"
@@ -2666,15 +2746,19 @@ echo "[$(date "+%Y-%m-%d %H:%M")]----------------RUN_CUFFDIFF COMPLETED!"
 
 RUN_Quant_IRI(){
 	#### Usage: RUN_Quant_IRI 1.INPUT_FOLDER 2.${INPUT_SAMPLE_DIR_List[*]}
-	INPUT_FOLDER=${1}
-	INPUT_NAME=${2}
+	local IN_FOLDER=${1}
+	local INPUT_NAME=${2}
+	local INPUT_TYPE=${3}
 	echo "RUN_Quant_IRI"
-	CHECK_arguments $# 2
-	local MAPDIR=/home/xli/cloud_research/PengGroup/ZZeng/Annotation/mappability
+	CHECK_arguments $# 3
+	local MAPDIR=/home/shared_data/Annotation/mappability
 	local MAPFILE=mm9_wgEncodeCrgMapabilityAlign50mer.bigWig
 	
-	echo "IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e mm9 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}"
-	IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e mm9 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}
+	cd ${IN_FOLDER}
+	local IN_FILES="$( find -name "*${INPUT_NAME}*.${INPUT_TYPE}" | sort -n | xargs)"
+	
+	echo "IRTools quant -q IRI -i ${IN_FILES} -p single -s fr-unstranded -e mm9 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}"
+	IRTools quant -q IRI -i ${IN_FILES} -p single -s fr-unstranded -e mm9 -u ${MAPDIR}/${MAPFILE} -n ${INPUT_NAME}
 	#IRTools quant -q IRI -i ${INPUT_FOLDER}/${INPUT_NAME}.bam -p single -s fr-unstranded -e mm10 -n ${INPUT_NAME}
 	echo "Quant for Library: ${INPUT_NAME} is finished."
 	
@@ -3345,6 +3429,8 @@ RUN_Pkill(){
 	#pkill -9 -P $PPID
 	}
 	
+	
+#RUN_EpigenomeBrowser_Track
 RUN_hiccup_to_Long_Range_Interaction_Track(){
 	
 	xx=$(find -name "*.bedpe")

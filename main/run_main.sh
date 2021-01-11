@@ -35,16 +35,22 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### INPUT DIRECTORY
-__INPUT_PATH=/home/xli/Data/Haihui/mm10_Xin
+__INPUT_PATH=/home/xli/Data/Tianyi/LARP4/RNASeq_FLV/Rep2/TopHat_Analysis1
 ### Output DIRECTORY
-__OUTPUT_PATH=/home/xli/Data/Haihui/mm10_Xin
+__OUTPUT_PATH=/home/xli/Data/Tianyi/LARP4/RNASeq_FLV/Rep2
 __INPUT_SAMPLE_SET=(
-#naiveCD8_TCF1 ##
-SRR5217327 ##GSM2471915   >  Naïve CD8 CBF ChIP-Seq
-SRR5217328 #GSM2471916    >  CBFβ-deficient naive CD8 CBF ChIP-Seq
-SRR955620 #GSM1214544     >  Runx3_CD8+T_CHIP_Runx3_IP1 file 1
-SRR955621 #GSM1214545     >  Runx3_CD8+T_CHIP_Runx3_IP1 file 2
-SRR955622 #GSM1214546     >  Runx3_CD8+T_CHIP_Runx3_IP2
+Active_LKO_CD4_FLV_T0
+Active_LKO_CD4_FLV_T1h
+Active_LKO_CD4_FLV_T2h
+Active_WT_CD4_FLV_T0
+Active_WT_CD4_FLV_T1h
+Active_WT_CD4_FLV_T2h
+Rest_LKO_CD4_FLV_T0
+Rest_LKO_CD4_FLV_T1h
+Rest_LKO_CD4_FLV_T2h
+Rest_WT_CD4_FLV_T0
+Rest_WT_CD4_FLV_T1h
+Rest_WT_CD4_FLV_T2h
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -59,9 +65,9 @@ echo "-----------------------------------------------------------------"
 echo "$(date "+%Y-%m-%d %H:%M") Start Processing....."
 ##....................................................................##
 ### Key Parameters
-SPECIES='mm10'
-Data_Provider='Haihui'
-Project_Name='Xin_mm10'
+SPECIES='mm9'
+Data_Provider='TianYi'
+Project_Name='LARP4'
 ##....................................................................##
 ### Download Raw Data
 #FUNC_Download "ftp://ftp.admerahealth.com/19092-06" "19092-06"
@@ -73,14 +79,14 @@ echo "Parallel Operation have started"
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
 	#RUN_BedGraph2BigWig ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]}_treat_pileup ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
-	
+	RUN_Quant_IRI ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} & pid=$!
 	#RUN_SICER ${__INPUT_SAMPLE_SET[0]} ${__INPUT_SAMPLE_SET[1]} 200 ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
-	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[i]} 'Null' ${SPECIES} 'No Expression' 'yes' & pid=$!
+	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[1]} ${__INPUT_SAMPLE_SET[0]} ${SPECIES} 'No Expression' 'no' & pid=$!
 	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_SET[i]} 'bed' & pid=$!
 	#break
 	#REMOVE_REDUNDANCY_PICARD ${__INPUT_SAMPLE_SET[i]} & pid=$!
 	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_SET[i]} & pid=$!
-	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
+	#PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
 	#PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
 	#RUN_FAST_QC & pid=$!
 	#RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
@@ -88,8 +94,8 @@ do
 	#RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Trim_Galore_QC & pid=$!
 	#RUN_FAST_QC & pid=$!
-	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
-	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bam 'customeized' 'yes' & pid=$!
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
+	RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bam 'customeized' 'yes' & pid=$!
 	#RUN_MACS2 ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
 	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} "szhu" ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
