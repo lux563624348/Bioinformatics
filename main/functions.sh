@@ -176,13 +176,15 @@ RUN_Trim_Galore_QC(){
 		#echo ${__FASTQ_DIR_R1[*]}
 		if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
 		then
+		#R1 5'---------------------------> 3'
+		#R2 3'<--------------------------- 5'
 			echo "Pair End Mode"
-			echo "trim_galore --gzip --length 20 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn"
-			trim_galore --gzip --length 20 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn & # --cores 4
+			echo "trim_galore --cores 4 --gzip --length 20 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]}"
+			trim_galore --cores 4 --gzip --length 20 --fastqc --output_dir ${Output_Trim_QC} --paired ${__FASTQ_DIR_R1[i]} ${__FASTQ_DIR_R2[i]} --suppress_warn --three_prime_clip_R1 25 --three_prime_clip_R2 25 --clip_R1 25 --clip_R2 25
 		else
 			echo "Single End Mode."
 			echo "trim_galore --gzip --length 30 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[i]} --suppress_warn"
-			trim_galore --gzip --length 20 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[i]} --suppress_warn &
+			trim_galore --cores 4 --gzip --length 20 --fastqc --output_dir ${Output_Trim_QC} ${__FASTQ_DIR_R1[i]} --suppress_warn &
 		fi
 	done
 	
@@ -218,13 +220,13 @@ RUN_FAST_QC(){
 	for fastq_file in ${__FASTQ_DIR_R1[*]}
 	do
 	echo "fastqc -q -o ${Output_fastqc} $fastq_file"
-	fastqc -q -o ${Output_fastqc} ${fastq_file} &
+	fastqc -t ${THREADS} -o ${Output_fastqc} ${fastq_file} &
 	done
 	
 	for fastq_file in ${__FASTQ_DIR_R2[*]}
 	do
 	echo "fastqc -q -o ${Output_fastqc} $fastq_file"
-	fastqc -q -o ${Output_fastqc} ${fastq_file} &
+	fastqc -t ${THREADS} -o ${Output_fastqc} ${fastq_file} &
 	done
 	echo "[$(date "+%Y-%m-%d %H:%M")]---------RUN_FAST_QC-----COMPLETED!"
 	echo " "
@@ -241,6 +243,8 @@ RUN_SRA2FASTQ(){
 	## Usage : RUN_SRA2FASTQ ${__INPUT_SAMPLE_List[i]} 
 	#https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/
 	#https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc
+	## default path /home/xli/ncbi/prefetch/sra/sra
+	
 	
 	CHECK_arguments $# 1
 	local exe_path=/opt/tools/sratoolkit.2.10.8-ubuntu64/bin
@@ -250,7 +254,8 @@ RUN_SRA2FASTQ(){
 	for SRA in ${INPUT_SRA_LIST[*]}
 	do
 		echo "fastq-dump --split-files --gzip ${SRA}"
-		${exe_path}/fastq-dump --split-files --gzip ${SRA}
+		#${exe_path}/fastq-dump --split-files --gzip ${SRA}
+		prefetch ${SRA}
 	done
 	}
 
@@ -564,11 +569,11 @@ RUN_ROSE_SUPER_Enhancer(){
 	local k=0
 	for Input_B1 in ${Input_B1_Set[*]}
 	do
-		if [ ! -f ${Input_B1: 2:-4}.bam.sorted  ];then
-			samtools sort -@ ${THREADS} -o ${Input_B1: 2:-4}.bam.sorted ${Input_B1: 2}
-			samtools index -b ${Input_B1: 2:-4}.bam.sorted
+		if [ ! -f ${Input_B1: 2:-4}_sorted.bam  ];then
+			samtools sort -@ ${THREADS} -o ${Input_B1: 2:-4}_sorted.bam ${Input_B1: 2}
+			samtools index -b ${Input_B1: 2:-4}_sorted.bam
 		fi
-		local BAM_Set[k]=${__INPUT_PATH}/"${Input_B1: 2:-4}.bam.sorted"
+		local BAM_Set[k]=${__INPUT_PATH}/"${Input_B1: 2:-4}_sorted.bam"
 		echo "Saving BAM file as ${BAM_Set[k]}"
 		k=`expr $k + 1`
 	done
@@ -1624,6 +1629,7 @@ case ${SPECIES} in
 	"hg38")
 	echo "------------------------------Reference SPECIES is ${SPECIES}"
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Human_Genome/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome
+	local BOWTIEINDEXS="/home/shared_data/Annotation/UCSC/Human_Genome/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome"
 	;;
 	"dm6") 
 	echo "------------------------------Reference SPECIES is ${SPECIES}"
@@ -1957,7 +1963,7 @@ echo "[$(date "+%Y-%m-%d %H:%M")]--------------------RUN_TOPHAT_ANALYSIS"
 CHECK_arguments $# 4
 
 ### Operation PARAMETERS Setting
-local INPUT_NAME=${1}
+local INPUT_NAME=${1/Sample_/}
 local PROJECT_NAME=${2}
 local SPECIES=${3}
 local Data_Provider=${4}
@@ -1996,8 +2002,8 @@ case ${SPECIES} in
 	;;
 	"hg38")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/hg38_2015.gtf
-	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome
+	local GTFFILE=/home/shared_data/Annotation/gtf_files/2015_GTF/hg38_2015.gtf
+	local BOWTIEINDEXS=/home/shared_data/Annotation/UCSC/Human_Genome/HG38/Homo_sapiens/UCSC/hg38/Sequence/Bowtie2Index/genome
 	;;
 	"dm6") 
 	echo "Reference SPECIES is ${SPECIES}"
@@ -2017,20 +2023,19 @@ esac
 	then
 		echo "Pair End Mode"
 		echo "tophat -p ${THREADS} --no-discordant --no-mixed --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")"
-		tophat -p ${THREADS} --no-discordant --no-mixed --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
+		tophat2 -p ${THREADS} --no-discordant --no-mixed --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")
 		## --read-gap-length 2 --read-mismatches 2 
 		echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
-		mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+		mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam
 		
-		if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ]
+		if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ]
 		then
 			echo "samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
-			samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
-			rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+			samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam
 		fi
 		
 		echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --keep-dup ${Duplication_Num} --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
-		macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --keep-dup ${Duplication_Num} --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
+		macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam --keep-dup ${Duplication_Num} --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
 		
 		### a pipe to produce bedpe and then generate bdg.
 		#if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bedpe ];then
@@ -2044,20 +2049,19 @@ esac
 		
 	else
 		echo "Single End Mode."
-		echo "tophat -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
-		tophat -p ${THREADS} --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
+		echo "tophat2 -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
+		tophat2 -p ${THREADS} --max-multihits 1 -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")
 		echo "mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
-		mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+		mv ${OUTPUT_TOPHAT_FOLDER}/accepted_hits.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam
 		
-		if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ]
+		if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ]
 		then
 			echo "samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam"
-			samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_sorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
-			rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam
+			samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam
 		fi
 		
 		echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
-		macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
+		macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
 	fi
 	
 	### RNAseq no need to remove redundancy!!! 
@@ -2069,6 +2073,87 @@ esac
 	
 	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_TOPHAT_ANALYSIS---COMPLETED!"
 	echo ""
+	}
+
+RUN_CUFFDIFF(){
+	### RUN_CUFFDIFF $1 $2
+	####
+CHECK_arguments $# 10
+local INPUT_Args=("$@")
+local SAMPLE_NUM=${#INPUT_Args[*]}
+local Fold_Change=2.0
+local q_value=0.05
+local Num_Replicates_per_lib=2233
+###Number of Replicates per lib. Such as 23 means one rep for first lib, 3 replicates for second and 2 for third.
+########################################################################
+########################################################################
+########################################################################
+case ${SPECIES} in
+	"mm9")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
+	;;
+	"mm10")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
+	;;
+	"dm6") 
+	echo "Reference SPECIES is ${SPECIES}"
+	echo "Not ready yet!"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/Drosophila_Melanogaster/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+########################################################################
+
+local OUTPUT_Cuffdiff=${__OUTPUT_PATH}/Cuffdiff_Results
+echo "[$(date "+%Y-%m-%d %H:%M")]-----RUN_CUFFDIFF---------------------"
+DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}
+echo "CUFFDIFF INPUT LIBS"
+#### Preparing the .bam files for cuffdiff
+for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
+do	
+	cd ${__OUTPUT_PATH}
+	local DATA_BAM[$i]="$( find -name "*${INPUT_Args[i]}*_csorted.bam" | sort -n | xargs)"
+	#echo "samtools sort -l 1 -o ${DATA_BAM[$i]::-4}_sorted.bam ${DATA_BAM[$i]} "
+	#samtools sort -l 1 -o ${DATA_BAM[$i]::-4}_sorted.bam ${DATA_BAM[$i]} & pid=$!
+	#local PID_LIST+=" $pid";
+	echo ""
+	#local DATA_BAM[$i]=${DATA_BAM[$i]::-4}_sorted.bam
+done
+
+#echo "wait ${PID_LIST}....................................."
+#wait ${PID_LIST}
+### Four GROUP, each group has 3 DATA FILES, 
+########################################################################
+if [ ${#DATA_BAM[*]}  -eq "10" ]
+then
+	local A_Label="WT_na"
+	local B_Label="DKO_na"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
+	echo "${INPUT_Args} Data files are loading..."
+	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[4]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]} &
+	echo ""
+	
+	local A_Label="pn_LKO_na"
+	local B_Label="mn_LKO_na"
+	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
+	echo "${INPUT_Args} Data files are loading..."
+	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[4]},${DATA_BAM[5]},${DATA_BAM[6]} ${DATA_BAM[7]},${DATA_BAM[8]},${DATA_BAM[9]}"
+	cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[4]},${DATA_BAM[5]},${DATA_BAM[6]} ${DATA_BAM[7]},${DATA_BAM[8]},${DATA_BAM[9]}
+	echo ""
+fi
+########################################################################
+
+echo "[$(date "+%Y-%m-%d %H:%M")]---------------------------------------"
+echo "[PCA_Heatmap_After_CuffDiff.py -i ${__OUTPUT_PATH} -n RNAseq -l ${Num_Replicates_per_lib} -f ${Fold_Change} -q ${q_value}]"
+python ${Python_Tools_DIR}/PCA_Heatmap_After_CuffDiff.py -i ${__OUTPUT_PATH} -n "RNAseq" -l ${Num_Replicates_per_lib} -f ${Fold_Change} -q ${q_value}
+
+echo "[$(date "+%Y-%m-%d %H:%M")]----------------RUN_CUFFDIFF COMPLETED!"
 	}
 
 RUN_CELLRANGER(){
@@ -2652,98 +2737,6 @@ echo "RUN_CUFFQUANT INPUT LIBS"
 echo "[$(date "+%Y-%m-%d %H:%M")]----------------RUN_CUFFQUANT COMPLETED!"
 	}
 
-RUN_CUFFDIFF(){
-	### RUN_CUFFDIFF $1 $2
-	####
-CHECK_arguments $# 12
-local INPUT_Args=("$@")
-local SAMPLE_NUM=${#INPUT_Args[*]}
-local Fold_Change=2.0
-local q_value=0.05
-local Num_Replicates_per_lib=23
-###Number of Replicates per lib. Such as 23 means one rep for first lib, 3 replicates for second and 2 for third.
-########################################################################
-########################################################################
-########################################################################
-case ${SPECIES} in
-	"mm9")
-	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
-	;;
-	"mm10")
-	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
-	;;
-	"dm6") 
-	echo "Reference SPECIES is ${SPECIES}"
-	echo "Not ready yet!"
-	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/Drosophila_Melanogaster/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome
-	;;
-	*)
-	echo "ERR: Did Not Find Any Matched Reference...... Exit"
-	exit
-	;;
-esac
-########################################################################
-
-local OUTPUT_Cuffdiff=${__OUTPUT_PATH}/Cuffdiff_Results
-echo "[$(date "+%Y-%m-%d %H:%M")]-----RUN_CUFFDIFF---------------------"
-DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}
-echo "CUFFDIFF INPUT LIBS"
-#### Preparing the .bam files for cuffdiff
-for (( i = 0; i <= $(expr $SAMPLE_NUM - 1); i++ ))
-do	
-	cd ${__OUTPUT_PATH}
-	local DATA_BAM[$i]="$( find -name "*${INPUT_Args[i]}*.bam" | sort -n | xargs)"
-	#echo "samtools sort -l 1 -o ${DATA_BAM[$i]::-4}_sorted.bam ${DATA_BAM[$i]} "
-	#samtools sort -l 1 -o ${DATA_BAM[$i]::-4}_sorted.bam ${DATA_BAM[$i]} & pid=$!
-	#local PID_LIST+=" $pid";
-	echo ""
-	#local DATA_BAM[$i]=${DATA_BAM[$i]::-4}_sorted.bam
-done
-
-#echo "wait ${PID_LIST}....................................."
-#wait ${PID_LIST}
-### Four GROUP, each group has 3 DATA FILES, 
-########################################################################
-if [ ${#DATA_BAM[*]}  -eq "12" ]
-then
-	local A_Label="Pre-_Tfh"
-	local B_Label="Pre-_Th1"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
-	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[4]}"
-	#cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[2]},${DATA_BAM[3]},${DATA_BAM[4]}
-	echo ""
-fi
-
-if [ ${#DATA_BAM[*]} -eq "11" ]
-then
-	local A_Label="Eed_WT"
-	local B_Label="Eed_KO"
-	#DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
-	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]},${DATA_BAM[5]},${DATA_BAM[6]}"
-	#cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]} ${DATA_BAM[4]},${DATA_BAM[5]},${DATA_BAM[6]} &
-	echo ""
-	
-	local A_Label="Treg_WT"
-	local B_Label="Hdac12_KO"
-	DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label}
-	echo "${INPUT_Args} Data files are loading..."
-	echo "cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[7]},${DATA_BAM[8]},${DATA_BAM[9]},${DATA_BAM[10]}"
-	#cuffdiff -q -o ${OUTPUT_Cuffdiff}/${B_Label}_vs_${A_Label} -p ${THREADS} -L "${A_Label}","${B_Label}" ${GTFFILE} ${DATA_BAM[0]},${DATA_BAM[1]},${DATA_BAM[2]},${DATA_BAM[3]} ${DATA_BAM[7]},${DATA_BAM[8]},${DATA_BAM[9]},${DATA_BAM[10]}
-	
-fi
-########################################################################
-
-echo "[$(date "+%Y-%m-%d %H:%M")]---------------------------------------"
-echo "[PCA_Heatmap_After_CuffDiff.py -i ${__OUTPUT_PATH} -n RNAseq -l ${Num_Replicates_per_lib} -f ${Fold_Change} -q ${q_value}]"
-python ${Python_Tools_DIR}/PCA_Heatmap_After_CuffDiff.py -i ${__OUTPUT_PATH} -n "RNAseq" -l ${Num_Replicates_per_lib} -f ${Fold_Change} -q ${q_value}
-
-echo "[$(date "+%Y-%m-%d %H:%M")]----------------RUN_CUFFDIFF COMPLETED!"
-	}
-
 RUN_Quant_IRI(){
 	#### Usage: RUN_Quant_IRI 1.INPUT_FOLDER 2.${INPUT_SAMPLE_DIR_List[*]}
 	local IN_FOLDER=${1}
@@ -2767,7 +2760,7 @@ RUN_Quant_IRI(){
 	
 	#nohup IRTools diff -q IRI -s1 Control.bam -s2 Mutant.bam -p single -s fr-unstranded -e mm9 -u /home/xli/cloud_research/PengGroup/ZZeng/Annotation/mappability/mm9_wgEncodeCrgMapabilityAlign50mer.bigWig -n Mutant_Control > iri_diff.log &
 	}
-	
+
 RUN_TopDom(){
 	#### Usage: RUN_Quant_IRI 1.INPUT_FOLDER 2.${INPUT_SAMPLE_DIR_List[*]}
 	local INPUT_FOLDER=${1}
@@ -3076,8 +3069,6 @@ RUN_juicer_hiccup(){
 	
 	nohup java -Xmx100g -jar /opt/tools/juicer_tools_1.21.01.jar hiccups --cpu -m 512 -r 10000,25000,50000 -k KR -f .1,.1,.1 -p 4,2,1 -i 7,5,3 -t 0.02,1.5,1.75,2 -d 20000,50000,100000 DKO_CD8_2016_Juicebox.hic ./DKO_CD8 > ./DKO_CD8/DKO_CD8_2016_hiccup.log &
 	 
-	java -Xmx100g -jar /opt/tools/juicer_tools_1.21.01.jar dump observed NONE DKO_CD8_1910_Juicebox.hic 10:21180000:21190000 10:21720000:21730000 BP 10000
-	
 	## for Juicerbox 
 	#0       chr1    3000424 0       0       chr1    3083951 1
 	#0       chr2    3000424 0       0       chr2    3083951 1
@@ -3417,6 +3408,7 @@ IDR_of_All (){
 ## Some Out Dated Functions
 
 RUN_DeepTools(){
+	https://deeptools.readthedocs.io/en/develop/content/tools/plotProfile.html
 	computeMatrix reference-point --referencePoint center -S <bigwigs> -R <regions> -a 1000 -b 1000 -o test.matrix
 	plotHeatmap -m test.matrix -out test.png
 	}
@@ -3446,13 +3438,12 @@ RUN_EpigenomeBrowser_Track(){
 	#https://eg.readthedocs.io/en/latest/tracks.html#prepare-track-files
 	# Using Linux sort
 	sort -k1,1 -k2,2n -V -s track.bedgraph > track.bedgraph.sorted
-# Using bedSort
-	bedSort track.bedgraph track.bedgraph.sorted
+
 # Using sort-bed
 	sort-bed track.bedgraph > track.bedgraph.sorted
 	
 	## bgzip is mandate
-	bgzip track.bedgraph.sorted
+	sort-bed H_11485_WT_Hub_pvalue0.01.bed | bgzip > H_11485_WT_Hub_pvalue0.01.bed.sorted.gz
 	tabix -p bed track.bedgraph.sorted.gz
 	
 	
