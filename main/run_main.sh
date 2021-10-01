@@ -67,27 +67,11 @@ echo "Parallel Operation have started"
 #conda activate py3_lx
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
-	#RUN_BedGraph2BigWig ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]}_treat_pileup ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
-	#RUN_Quant_IRI ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} & pid=$!
-	#RUN_SICER ${__INPUT_SAMPLE_SET[0]} ${__INPUT_SAMPLE_SET[1]} 200 ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
-	#RUN_Motif_Homer ${__INPUT_SAMPLE_SET[1]} ${__INPUT_SAMPLE_SET[0]} ${SPECIES} 'No Expression' 'no' & pid=$!
-	#RUN_Island_Filtered_Reads ${__INPUT_SAMPLE_SET[i]} 'bed' & pid=$!
-	#break
-	#REMOVE_REDUNDANCY_PICARD ${__INPUT_SAMPLE_SET[i]} & pid=$!
-	#RUN_SRA2FASTQ ${__INPUT_SAMPLE_SET[i]} & pid=$!
-	#PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
 	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
-	#RUN_FAST_QC & pid=$!
-	#RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
-	#PRE_READS_DIR ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'SRA'
-	#RUN_HiC_Iterative_Mapping ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
-	#RUN_Trim_Galore_QC & pid=$!
-	#RUN_FAST_QC & pid=$!
-	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
-	#RUN_RPKM ${__INPUT_SAMPLE_SET[i]} bam 'customeized' 'yes' & pid=$!
-	#RUN_MACS2 ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
-	#RUN_TOPHAT ${__INPUT_SAMPLE_SET[i]} Project_Name ${SPECIES} ${Data_Provider} & pid=$!
-	#RUN_Venn_Diagram ${__INPUT_PATH} 'bed'
+	RUN_FAST_QC & pid=$!
+	RUN_Trim_Galore_QC & pid=$!
+	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
+	RUN_MACS2 ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
 	RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_SET[i]} ${SPECIES} 'customeized' & pid=$!
 	#RUN_Peaks_Distribution_Analysis ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_bed2fastq ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
