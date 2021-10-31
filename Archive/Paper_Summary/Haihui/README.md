@@ -1,12 +1,17 @@
-# CD8 Tcm
-## Tcf1 preprograms glycolysis mobilization in central memory CD8+ T cells in recall response
-The mechanisms underlying heightened protection by CD8+ central memory T (Tcm) cells remain unclear. Here we show intact Tcf1 expression in resting Tcm cells is required for generating secondary effector cells and pathogen clearance during recall responses. Recall stimulation of Tcm cells causes extensive reprogramming of transcriptome and chromatin accessibility, leading to rapid induction of glycolytic enzymes, cell cycle regulators and transcriptional regulators including Id3. This cluster of genes does not require Tcf1 for expression in resting Tcm cells, but depends on Tcf1 for optimal induction and chromatin opening in recall-stimulated Tcm cells. Mechanistically, Tcf1 binds extensively to these recall-induced gene loci in resting Tcm cells, and mediates chromatin interactions that position these genes in architectural proximity with the ‘would-be’ enhancers. We propose the concept that Tcf1 preprograms the responsiveness of Tcm cells for mobilizing a transcriptional program that supports bioenergetic and proliferative needs in response to secondary challenge. 
+# CD8_HP
+## T cell identity is established during thymic development, but how it is maintained in the
+periphery remains unknown. Here we show that ablating Tcf1 and Lef1 transcription factors in
+mature CD8+ T cells aberrantly induces genes from non-T cell lineages. The integrative mechanisms utilized by Tcf1/Lef1 underlie activation of T cell
+identity genes and repression of non-T lineage genes, conferring fine control of various T cell
+functionalities. These findings suggest that Tcf1/Lef1 control global genome organization and
+help form intricate chromatin-interacting hubs to facilitate promoter-enhancer/silencer contact,
+hence providing constant supervision of CD8+ T cell identity and function.
 
 ![GitHub Logo](Tcm.png)
 ### paper & data accession
-RNA-seq, CUT&RUN-seq and HiC-seq are deposited in GEO under the accession number [GSE177064](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE177064)
+RNA-seq, ChIP-seq, DNase-seq and HiC-seq are deposited in GEO under the accession number [GSE164713](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE164713)
 ### UCSC genome browser session
-UCSC genome browser view of all the processed data can be found [here](https://genome.ucsc.edu/s/tarelahu/Tcm).
+UCSC genome browser view of all the processed data can be found [here](https://genome.ucsc.edu/s/lux563624348/CD8%2DHP).
 Trackhub file can be found [here](https://data.cyverse.org/dav-anon/iplant/home/tarela/trackhub/Tcm/Tcm_trackhub_single.txt)
 
 ### processed files (genome version: mm10)
