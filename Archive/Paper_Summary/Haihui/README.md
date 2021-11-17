@@ -7,7 +7,7 @@ functionalities. These findings suggest that Tcf1/Lef1 control global genome org
 help form intricate chromatin-interacting hubs to facilitate promoter-enhancer/silencer contact,
 hence providing constant supervision of CD8+ T cell identity and function.
 
-![GitHub Logo](Tcm.png)
+![GitHub Logo](CD8_HP.png)
 ### paper & data accession
 RNA-seq, ChIP-seq, DNase-seq and HiC-seq are deposited in GEO under the accession number [GSE164713](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE164713)
 ### UCSC genome browser session

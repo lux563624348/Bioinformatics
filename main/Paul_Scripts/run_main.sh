@@ -35,26 +35,14 @@ echo "-----------------------------------------------------------------"
 ## GLOBAL VARIABLES
 ########################################################################
 ### INPUT DIRECTORY
-__INPUT_PATH=/slst/home/fanyh/Raw_Data/Totipotent/RNAseq
+__INPUT_PATH=/public/home/linzhb/linzhb/Storage/CHIPseq-JGA/JGA-rawData/03-Trimmed
 ### Output DIRECTORY
 __OUTPUT_PATH=/slst/home/fanyh/Data/JGA
 __INPUT_SAMPLE_SET=(
-EVT-1
-hTSC-1
-hESC-cas9-TB-1
-EVT-D3-NC-1
-EVT-D3-F3-2
-EVT-D3-F2-1
-EVT-D3-F1-2
-hESC-cas9-2
-hESC-cas9-1
-hTSC-2
-hESC-cas9-TB-2
-EVT-D3-NC-2_FRA
-EVT-D3-F3-1_FRA
-EVT-D3-F2-2_FRA
-EVT-D3-F1-1_FRA
-EVT-2_FRAS20241
+CT27-P11_RNAseq
+CT29-P13_RNAseq
+JKU016_RNAseq
+JKU017_RNAseq
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -82,9 +70,10 @@ echo "Parallel Operation have started"
 #conda activate py3_lx
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
-	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'SRA'
+	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
 	RUN_FAST_QC & pid=$!
 	RUN_HISAT2 ${__INPUT_SAMPLE_SET[i]} ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
+	#RUN_FAST_QC & pid=$!
 	#RUN_Trim_Galore_QC & pid=$!
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
 	#RUN_MACS2 ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
@@ -108,11 +97,10 @@ echo "Parallel Operation have finished";
 
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
-	break
-	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
+	RUN_Cufflinks ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Quant_IRI ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} & pid=$!
 	#PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fq.gz' 'Pair'
-	RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
+	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
 	#RUN_MACS2 ${__INPUT_SAMPLE_SET[i]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
 	PID_LIST+=" $pid";
 done

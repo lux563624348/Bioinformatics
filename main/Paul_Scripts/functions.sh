@@ -1993,7 +1993,7 @@ case ${SPECIES} in
 	;;
 	"hg38")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=/home/shared_data/Annotation/gtf_files/2015_GTF/hg38_2015.gtf
+	local GTFFILE=/public/home/linzhb/linzhb/Reference/GRCm38.release-99/Mus_musculus.GRCm38.99.chr_patch_hapl_scaff.gtf
 	local INDEXS=/public/home/linzhb/linzhb/index/hisat/GRCh38.99.patch_hapl_scaff.dna_primary/GRCh38
 	;;
 	*)
@@ -2018,15 +2018,16 @@ esac
 		hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") --no-discordant --no-mixed -k 1 -S ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
 	fi
 	
-	if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ]
+	if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam ]
 	then
-		echo "samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam"
-		samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
+		echo "samtools sort -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam"
+		samtools sort -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
+		rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
 	fi
 
 	
-	echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
-	macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
+#	echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
+#	macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
 
 #	if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ]
 #		then
@@ -2147,6 +2148,61 @@ esac
 	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_TOPHAT_ANALYSIS---COMPLETED!"
 	echo ""
 	}
+
+RUN_Cufflinks(){
+### RUN_Cufflinks $1 $2
+####
+CHECK_arguments $# 2
+### Operation PARAMETERS Setting
+local INPUT_NAME=${1}
+local SPECIES=${2}
+###Number of Replicates per lib. Such as 23 means one rep for first lib, 3 replicates for second and 2 for third.
+########################################################################
+########################################################################
+########################################################################
+case ${SPECIES} in
+	"hg38")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=/public/home/linzhb/linzhb/Reference/GRCm38.release-99/Mus_musculus.GRCm38.99.chr_patch_hapl_scaff.gtf
+	;;
+	"mm10")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
+	;;
+	"dm6") 
+	echo "Reference SPECIES is ${SPECIES}"
+	echo "Not ready yet!"
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/Drosophila_Melanogaster/Drosophila_melanogaster/UCSC/dm6/Sequence/Bowtie2Index/genome
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+########################################################################
+
+cd ${__OUTPUT_PATH}
+local DATA_BAM="$( find -name "*${INPUT_NAME}*csorted.bam" | sort -n | xargs)"
+
+local OUTPUT_Cuffdiff=${__OUTPUT_PATH}/Cufflinks_Results
+echo "[$(date "+%Y-%m-%d %H:%M")]-----RUN_CUFFLINKS---------------------"
+DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}
+echo "CUFFDIFF INPUT LIBS"
+#### Preparing the .bam files for cuffdiff
+########################################################################
+local A_Label=${INPUT_NAME}
+DIR_CHECK_CREATE ${OUTPUT_Cuffdiff}/${A_Label}
+echo "${DATA_BAM[*]} Data files are loading..."
+echo "cufflinks -p ${THREADS} -q -G ${GTFFILE} -o ${OUTPUT_Cuffdiff}/${A_Label} ${DATA_BAM[*]}"
+cufflinks -p ${THREADS} -q -G ${GTFFILE} -o ${OUTPUT_Cuffdiff}/${A_Label} ${DATA_BAM[*]}
+echo ""
+########################################################################
+
+#echo "[$(date "+%Y-%m-%d %H:%M")]---------------------------------------"
+#echo "[PCA_Heatmap_After_CuffDiff.py -i ${__OUTPUT_PATH} -n RNAseq -l ${Num_Replicates_per_lib} -f ${Fold_Change} -q ${q_value}]"
+#python ${Python_Tools_DIR}/PCA_Heatmap_After_CuffDiff.py -i ${__OUTPUT_PATH} -n "RNAseq" -l ${Num_Replicates_per_lib} -f ${Fold_Change} -q ${q_value}
+#echo "[$(date "+%Y-%m-%d %H:%M")]----------------RUN_CUFFDIFF COMPLETED!"
+}
 
 RUN_CUFFDIFF(){
 	### RUN_CUFFDIFF $1 $2
