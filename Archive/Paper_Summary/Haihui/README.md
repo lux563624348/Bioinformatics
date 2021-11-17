@@ -1,5 +1,6 @@
 # CD8_HP
-## T cell identity is established during thymic development, but how it is maintained in the
+## Tcf1 and Lef1 provide constant supervision to mature CD8+ T cell identity and function by organizing genomic architecture
+T cell identity is established during thymic development, but how it is maintained in the
 periphery remains unknown. Here we show that ablating Tcf1 and Lef1 transcription factors in
 mature CD8+ T cells aberrantly induces genes from non-T cell lineages. The integrative mechanisms utilized by Tcf1/Lef1 underlie activation of T cell
 identity genes and repression of non-T lineage genes, conferring fine control of various T cell
