@@ -7,17 +7,27 @@ functionalities. These findings suggest that Tcf1/Lef1 control global genome org
 help form intricate chromatin-interacting hubs to facilitate promoter-enhancer/silencer contact,
 hence providing constant supervision of CD8+ T cell identity and function.
 
-![GitHub Logo](CD8_HP.png)
+![GitHub Logo](CD8_HP.PNG)
 ### paper & data accession
 RNA-seq, ChIP-seq, DNase-seq and HiC-seq are deposited in GEO under the accession number [GSE164713](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE164713)
 ### UCSC genome browser session
-UCSC genome browser view of all the processed data can be found [here](https://genome.ucsc.edu/s/lux563624348/CD8%2DHP).
-Trackhub file can be found [here](https://data.cyverse.org/dav-anon/iplant/home/tarela/trackhub/Tcm/Tcm_trackhub_single.txt)
+UCSC genome browser view of processed data(excluded HiC) can be found [here](https://genome.ucsc.edu/s/lux563624348/CD8%2DHP).
+Trackhub file can be found 
+[Expression RNA_seq](https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP/mm9/trackDb.txt)
+[ChIP_seq Tcf1](https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP-ChIP_seq_Macs2/mm9/trackDb.txt)
+[DNase_seq](https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP-DNaseseq/mm9/trackDb.txt)
+[ChIP_seq K27ac](https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP-K27ac/mm9/trackDb.txt)
 
-### processed files (genome version: mm10)
-#### ATAC/ChIP-seq peak files in bigBed format:
-[TCF1 peaks in WT Rest](https://data.cyverse.org/dav-anon/iplant/home/tarela/trackhub/Tcm/CD8_TcmRestWT_TCF1_peaks.bb)<br />
-[WT prepotent chrAcc sites (A1looseB4)](https://data.cyverse.org/dav-anon/iplant/home/tarela/trackhub/Tcm/diffATACpeaks/A1looseB4_peaks.bb)<br />
+### Epigenome Browser session
+Epigenome genome browser view of all the processed data can be loaded with
+[Hub file]()
+[Session File]()
+
+
+### processed files (genome version: mm9)
+Expression profiling by high throughput sequencing
+Genome binding/occupancy profiling by high throughput sequencing
+[GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE164713)<br />
 
 #### ATAC/ChIP-seq signal tracks in bigWig format:
 [TCF1 signal in WT Rest](https://data.cyverse.org/dav-anon/iplant/home/tarela/trackhub/Tcm/CD8TcmRest_ctrl_TCF1.bw)<br />

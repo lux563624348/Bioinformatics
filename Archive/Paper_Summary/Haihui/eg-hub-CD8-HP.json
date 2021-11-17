@@ -1,0 +1,536 @@
+[
+	{
+		"type": "bigwig",
+		"url": "https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP/BigWigs/WT_na_0h_201805_pooled.bw",
+		"name": "mRNA_WT_0h_052018_pooled",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Project_20395_index9-W200-RPKM.bw",
+		"name": "mRNA_WT_5n_052018",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Project_20396_index10-W200-RPKM.bw",
+		"name": "mRNA_WT_6n_052018",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Project_20397_index11-W200-RPKM.bw",
+		"name": "mRNA_WT_7n_052018",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+
+	{
+		"type": "bigwig",
+		"url": "https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP/BigWigs/dKO_na_0h_201805_pooled.bw",
+		"name": "mRNA_dKO_0h_052018_pooled",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Project_20398_index12-W200-RPKM.bw",
+		"name": "dKO-5n_052018",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Project_20399_index13-W200-RPKM.bw",
+		"name": "dKO-6n_052018",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Project_20400_index14-W200-RPKM.bw",
+		"name": "dKO-7n_052018",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Sample_16712-W200-RPKM.bw",
+		"name": "WT1_CD8_72h",
+		"options": {
+			"color": "green",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Sample_16713-W200-RPKM.bw",
+		"name": "WT2_CD8_72h",
+		"options": {
+			"color": "green",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Sample_20055-W200-RPKM.bw",
+		"name": "WT3_CD8_72h",
+		"options": {
+			"color": "green",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Sample_16714-W200-RPKM.bw",
+		"name": "DKO1_CD8_72h",
+		"options": {
+			"color": "green",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Sample_16715-W200-RPKM.bw",
+		"name": "DKO2_CD8_72h",
+		"options": {
+			"color": "green",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP/BigWigs/Sample_20056-W200-RPKM.bw",
+		"name": "DKO3_CD8_72h",
+		"options": {
+			"color": "green",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bedGraph",
+		"name": "WT_CD8_AB_Compartment_pooled",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/AB_Compartments/WT_CD8_pooled_eigenvector_sorted.bdg.gz",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bedGraph",
+		"name": "DKO_CD8_AB_Compartment_pooled",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/AB_Compartments/DKO_CD8_pooled_eigenvector_sorted.bdg.gz",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "hic",
+		"name": "DKO_CD8_pooled",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/DKO_CD8_pooled_Juicebox.hic",
+		"options": {
+			"displayMode": "heatmap","binSize":"10000","scoreScale":"fixed","scoreMax":50},
+	},
+	{
+		"type": "hic",
+		"name": "WT_CD8_pooled",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/WT_CD8_pooled_Juicebox.hic",
+		"options": {
+			"displayMode": "heatmap","binSize":"10000","scoreScale":"fixed","scoreMax":50},
+	},
+	
+	{
+		"type": "hic",
+		"name": "DKO_CD8_2016",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/DKO_CD8_2016_Juicebox.hic",
+		"options": {
+			"displayMode": "heatmap","binSize":"10000","scoreScale":"fixed","scoreMax":50},
+	},
+	{
+		"type": "hic",
+		"name": "DKO_CD8_2019",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/DKO_CD8_1910_Juicebox.hic",
+		"options": {
+			"displayMode": "heatmap","binSize":"10000","scoreScale":"fixed","scoreMax":50},
+	},
+	{
+		"type": "hic",
+		"name": "WT_CD8_2016",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/WT_CD8_2016_Juicebox.hic",
+		"options": {
+			"displayMode": "heatmap","binSize":"10000","scoreScale":"fixed","scoreMax":50},
+	},
+	{
+		"type": "hic",
+		"name": "WT_CD8_2019",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/WT_CD8_1910_Juicebox.hic",
+		"options": {
+			"displayMode": "heatmap","binSize":"10000","scoreScale":"fixed","scoreMax":50},
+	},
+	{
+		"type": "hic",
+		"name": "stim_DKO_CD8_2016",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/stim_DKO_CD8_2016.hic",
+		"options": {
+			"displayMode": "heatmap","binSize":"10000","scoreScale":"fixed","scoreMax":50},
+	},
+	{
+		"type": "hic",
+		"name": "stim_DKO_CD8_2019",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/stim_DKO_CD8_2019.hic",
+		"options": {
+			"displayMode": "heatmap","binSize":"10000","scoreScale":"fixed","scoreMax":50},
+	},
+	{
+		"type": "hic",
+		"name": "stim_WT_CD8_2016",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/stim_WT_CD8_2016.hic",
+		"options": {
+			"displayMode": "heatmap","binSize":"10000","scoreScale":"fixed","scoreMax":50},
+	},
+	{
+		"type": "hic",
+		"name": "stim_WT_CD8_2019",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/stim_WT_CD8_2019.hic",
+		"options": {
+			"displayMode": "heatmap","binSize":"10000","scoreScale":"fixed","scoreMax":50},
+	},
+	{
+		"type": "longrange",
+		"name": "WT_CD8_2016_Loop_Hiccup",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/Diff_HiC_Results/WT_CD8_2016_merged_loops.bedpe.gz",
+		"options": {
+			"displayMode": "arc","height":200},
+	},
+
+	{
+		"type": "longrange",
+		"name": "Union_CD8_pooled_Loop_Hiccup",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/Diff_HiC_Results/HiC_20128_Union_Loops.bedpe.gz",
+		"options": {
+			"displayMode": "arc","height":200},
+	},
+
+	
+	{
+		"type": "bigwig",
+		"url": "https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP-DNaseseq/BigWigs/naive-WT_vs_Null_treat_pileup.bw",
+		"name": "WT-na_DNase_pooled",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-DNase_islandfiltered/BigWigs/WT-na1_20180709000_vs_Null_treat_pileup.bw",
+		"name": "WT-na1_DNase_seq",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-DNase_islandfiltered/BigWigs/WT-na2_20180709000_vs_Null_treat_pileup.bw",
+		"name": "WT-na2_DNase_seq",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+			},
+	},
+		
+		{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-DNase_islandfiltered/BigWigs/11-WT-na-CD8_vs_Null_treat_pileup.bw",
+		"name": "WT-na_CD8_DNase_Rep1",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP-DNaseseq/BigWigs/navie-dKO_vs_Null_treat_pileup.bw",
+		"name": "DKO-na_DNase_pooled",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+			},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-DNase_islandfiltered/BigWigs/dKO-na1_20180709000_vs_Null_treat_pileup.bw",
+		"name": "DKO-na1_DNase_seq",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+			},
+	},
+		
+		{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-DNase_islandfiltered/BigWigs/12-dKO-na-CD8_vs_Null_treat_pileup.bw",
+		"name": "DKO-na_CD8_DNase_Rep1",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-DNase_islandfiltered/BigWigs/WT-s2_20180709000_vs_Null_treat_pileup.bw",
+		"name": "WT-s2_DNase_seq",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+			},
+	},
+		
+		{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-DNase_islandfiltered/BigWigs/5-WT-s-CD8_vs_Null_treat_pileup.bw",
+		"name": "WT-s_CD8_DNase_Rep2",
+		"options": {
+			"color": "blue",
+			"backgroundColor":"#FFE7AB"
+			},
+		},
+		
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-DNase_islandfiltered/BigWigs/dKO-s1_20180709000_vs_Null_treat_pileup.bw",
+		"name": "DKO-s1_DNase",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+			},
+	},
+		
+		{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-DNase_islandfiltered/BigWigs/8-dKO-s-CD8_vs_Null_treat_pileup.bw",
+		"name": "DKO-s_CD8_DNase_Rep1",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+			},
+		},
+		
+		{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-DNase_islandfiltered/BigWigs/10-dKO-s-CD8_vs_Null_treat_pileup.bw",
+		"name": "DKO-s_CD8_DNase_Rep2",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+
+	
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/TCF1_MACS2_032018/BigWigs/Sample_naiveCD8_TCF1_20160827000_vs_Null_treat_pileup.bw",
+		"name": "CD8_TCF1_201608_ChIP_seq",
+		"options": {
+			"color": "blue",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/TCF1_MACS2_032018/BigWigs/Sample_TKOCD8_TCF1_20160827000_vs_Null_treat_pileup.bw",
+		"name": "TKO_CD8_TCF1_201608_ChIP_seq",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP-K27ac/BigWigs/BigWigs/naive-WT-CD8_vs_Null_treat_pileup.bw",
+		"name": "WT_CD8_H3K27ac_pooled",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-K27ac/BigWigs/ctrl_CD8_K27Ac_201603_Dup_Removed.bw",
+		"name": "WT_CD8_H3K27ac_Rep0_1603",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-K27ac/BigWigs/naive-WT-CD8-1_201903_Dup_Removed.bw",
+		"name": "WT_CD8_H3K27ac_Rep1_1903",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-K27ac/BigWigs/naive-WT-CD8-2_201903_Dup_Removed.bw",
+		"name": "WT_CD8_H3K27ac_Rep2_1903",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-K27ac/BigWigs/19092FL-05-01-01_Dup_Removed.bw",
+		"name": "WT_CD8_H3K27ac_Rep3_1908",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP-K27ac/BigWigs/BigWigs/naive-dKO-CD8_vs_Null_treat_pileup.bw",
+		"name": "DKO_CD8_H3K27ac_pooled",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-K27ac/BigWigs/dKO_CD8_K27Ac_201603_Dup_Removed.bw",
+		"name": "DKO_CD8_H3K27ac_Rep0_1603",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-K27ac/BigWigs/naive-dKO-CD8-2_201903_Dup_Removed.bw",
+		"name": "dKO_CD8_H3K27ac_Rep1_1903",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	{
+		"type": "bigwig",
+		"url": "https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8-HP-K27ac/BigWigs/19092FL-05-01-03_Dup_Removed.bw",
+		"name": "dKO_CD8_H3K27ac_Rep2_1908",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP-H3K27Ac_1903/BigWigs/stim-WT-CD8-2_vs_Input_treat_pileup.bw",
+		"name": "WT-stim_CD8_H3K27ac_Rep2",
+		"options": {
+			"color": "blue",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP-H3K27Ac_1903/BigWigs/stim-dKO-CD8-2_vs_Input_treat_pileup.bw",
+		"name": "DKO-stim_CD8_H3K27ac_Rep1",
+		"options": {
+			"color": "SlateBlue",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bigwig",
+		"url": "https://xianglilab.s3.amazonaws.com/tracks_hub/Haihui/CD8-HP-H3K27Ac_1903/BigWigs/naive-WT-CD8-1_vs_Input_control_lambda.bw",
+		"name": "WT_na_CD8_H3K27ac_control",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bed",
+		"name": "1190_Union_SuperEnhancer",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/Diff_HiC_Results/1190_Union_SE_with_EdgeR.bed.sorted.gz",
+		"options": {
+			"color": "black",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bed",
+		"name": "174_WT_specific_SuperEnhancer",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/Diff_HiC_Results/174_WT_SE.bed.sorted.gz",
+		"options": {
+			"color": "blue",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bed",
+		"name": "163_DKO_specific_SuperEnhancer",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/Diff_HiC_Results/163_DKO_SE.bed.sorted.gz",
+		"options": {
+			"color": "red",
+			"backgroundColor":"#FFE7AB"
+		},
+	},
+	
+	{
+		"type": "bed",
+		"name": "WT_CD8_pooled TADs ",
+		"url": "https://xianglilab.s3.amazonaws.com/Shared/Diff_HiC_Results/TADs/WT_CD8_pooled_TAD_sorted.bed.gz",
+		"options": {
+			"color": "#9013FE",
+			"backgroundColor":"#FFE7AB"
+		},
+	}
+]
