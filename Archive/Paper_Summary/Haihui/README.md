@@ -20,18 +20,11 @@ Trackhub file can be found
 
 ### Epigenome Browser session
 Epigenome genome browser view of all the processed data can be loaded with
-[Hub file]()
-[Session File]()
+[Hub file](https://github.com/lux563624348/Bioinformatics/blob/master/Archive/Paper_Summary/Haihui/eg-hub-CD8-HP.json)
+[Session File](https://github.com/lux563624348/Bioinformatics/blob/master/Archive/Paper_Summary/Haihui/CD8-HP-pooled_HiC_version.json)
 
 
 ### processed files (genome version: mm9)
 Expression profiling by high throughput sequencing
 Genome binding/occupancy profiling by high throughput sequencing
 [GEO](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE164713)<br />
-
-#### ATAC/ChIP-seq signal tracks in bigWig format:
-[TCF1 signal in WT Rest](https://data.cyverse.org/dav-anon/iplant/home/tarela/trackhub/Tcm/CD8TcmRest_ctrl_TCF1.bw)<br />
-[ATAC signal in WT Rest](https://data.cyverse.org/dav-anon/iplant/home/tarela/trackhub/Tcm/CD8TcmRest_ctrl_ATAC.bw)<br />
-[ATAC signal in WT Stim](https://data.cyverse.org/dav-anon/iplant/home/tarela/trackhub/Tcm/CD8TcmStim_ctrl_ATAC.bw)<br />
-[ATAC signal in Tcf1ko Rest](https://data.cyverse.org/dav-anon/iplant/home/tarela/trackhub/Tcm/CD8TcmRest_Tcf1ko_ATAC.bw)<br />
-[ATAC signal in Tcf1ko Stim](https://data.cyverse.org/dav-anon/iplant/home/tarela/trackhub/Tcm/CD8TcmStim_Tcf1ko_ATAC.bw)<br />
