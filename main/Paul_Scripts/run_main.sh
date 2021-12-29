@@ -39,10 +39,7 @@ __INPUT_PATH=/public/home/linzhb/linzhb/Storage/CHIPseq-JGA/JGA-rawData/03-Trimm
 ### Output DIRECTORY
 __OUTPUT_PATH=/slst/home/fanyh/Data/JGA
 __INPUT_SAMPLE_SET=(
-CT27-P11_RNAseq
-CT29-P13_RNAseq
-JKU016_RNAseq
-JKU017_RNAseq
+
 )
 #### Saving DIR Check and Create
 DIR_CHECK_CREATE ${__OUTPUT_PATH} ${__INPUT_PATH}
@@ -71,10 +68,10 @@ echo "Parallel Operation have started"
 for (( i = 0; i <= $(expr ${#__INPUT_SAMPLE_SET[*]} - 1); i++ ))  ### Loop Operation [Ref.1]
 do
 	PRE_READS_DIR ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'fastq.gz' 'Pair'
-	RUN_FAST_QC & pid=$!
-	RUN_HISAT2 ${__INPUT_SAMPLE_SET[i]} ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
 	#RUN_FAST_QC & pid=$!
-	#RUN_Trim_Galore_QC & pid=$!
+	RUN_Trim_Galore_QC & pid=$!
+	#RUN_HISAT2 ${__INPUT_SAMPLE_SET[i]} ${Project_Name} ${SPECIES} ${Data_Provider} & pid=$!
+	
 	#RUN_BOWTIE2 ${__INPUT_SAMPLE_SET[i]} ${SPECIES} ${Project_Name} ${Data_Provider} 'no' & pid=$!
 	#RUN_MACS2 ${__INPUT_PATH} ${__INPUT_SAMPLE_SET[i]} 'Null' ${Project_Name} ${SPECIES} ${Data_Provider} 'bampe' & pid=$!
 	#RUN_ROSE_SUPER_Enhancer ${__INPUT_SAMPLE_SET[i]} ${SPECIES} 'customeized' & pid=$!
@@ -82,10 +79,8 @@ do
 	#RUN_bed2fastq ${__INPUT_SAMPLE_SET[i]} ${SPECIES} & pid=$!
 	#RUN_Reads_Profile "GeneBody" ${__INPUT_SAMPLE_Set[i]} ${SPECIES}
 	#REMOVE_REDUNDANCY_PICARD ${__INPUT_SAMPLE_SET[i]} & pid=$!
-	
-	
 	PID_LIST+=" $pid";
-	#break
+	break
 #### FOR a full cycle, it must be clear its READS_DIR in the end.
 	#echo "Unset DIR sets."
 	#unset ${__FASTQ_DIR_R1} ${__FASTQ_DIR_R2}

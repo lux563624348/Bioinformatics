@@ -241,23 +241,58 @@ RUN_FAST_QC(){
 
 RUN_SRA2FASTQ(){
 	## Usage : RUN_SRA2FASTQ ${__INPUT_SAMPLE_List[i]} 
+	# Recommended https://github.com/s-andrews/sradownloader
+	
 	#https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/
 	#https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc
+	#https://github.com/ncbi/sra-tools/wiki/HowTo:-fasterq-dump
 	## default path /home/xli/ncbi/prefetch/sra/sra
 	
-	
 	CHECK_arguments $# 1
-	local exe_path=/opt/tools/sratoolkit.2.10.8-ubuntu64/bin
+	local exe_path=/home/xli/Downloads/sratoolkit.2.11.3-ubuntu64/bin
 	cd ${__INPUT_PATH}
 	local INPUT_SRA_LIST=${1} 
 	echo "SRA to FASTQ"
 	for SRA in ${INPUT_SRA_LIST[*]}
 	do
 		echo "fastq-dump --split-files --gzip ${SRA}"
-		#${exe_path}/fastq-dump --split-files --gzip ${SRA}
-		prefetch ${SRA}
+		${exe_path}/fastq-dump --split-files \
+			--gzip ${SRA} \
+			--outdir ${__OUTPUT_PATH}
+		#prefetch ${SRA}
 	done
 	}
+
+RUN_SRA_TABLE_2FASTQ(){
+	## Usage : RUN_SRA2FASTQ ${__INPUT_SAMPLE_List[i]} 
+	# Recommended https://github.com/s-andrews/sradownloader
+	## default path /home/xli/ncbi/prefetch/sra/sra
+	CHECK_arguments $# 1
+	local exe_path=/home/xli/Downloads/sratoolkit.2.11.3-ubuntu64/bin
+	cd ${__INPUT_PATH}
+	local INPUT_SRA_FILE=${1} 
+	echo "SRA to FASTQ"
+	
+	INPUT_SRA_LIST=$( cat ${INPUT_SRA_FILE} | awk 'BEGIN { FS = "," } ; {print $1}')
+	
+	for SRA in ${INPUT_SRA_LIST[*]}
+	do
+		echo "fastq-dump --split-files --gzip ${SRA}"
+		#${exe_path}/
+		fastq-dump --split-3 \
+			--gzip ${SRA} \
+			--outdir ${__OUTPUT_PATH} \
+			--skip-technical \
+			--readids \
+			--read-filter pass \
+			--dumpbase \
+			--clip $SRR
+		#prefetch ${SRA}
+		
+	done
+	}
+
+
 
 RUN_READLINE(){
 	#### USAGE: RUN_READLINE $INPUT $OUTPUT
@@ -1954,6 +1989,89 @@ esac
 
 	echo " "
 	echo "One Bowtie2 is Completed!"
+	}
+
+RUN_HISAT2(){
+#### Usage: RUN_HISAT2 ${__INPUT_SAMPLE_List[i]} "TEST" ${SPECIES} ${Data_Provider} 
+### for xx in $(find -name align_summary.txt); do echo $xx; sed -n '1,8p' $xx; done
+echo "[$(date "+%Y-%m-%d %H:%M")]--------------------RUN_HISAT2_ANALYSIS"
+CHECK_arguments $# 4
+
+### Operation PARAMETERS Setting
+local INPUT_NAME=${1/Sample_/}
+local PROJECT_NAME=${2}
+local SPECIES=${3}
+local Data_Provider=${4}
+local Duplication_Num=10  ## For RNAseq, at what level of duplication number should be allowed?
+
+
+#### OUTPUT FORMAT
+local OUTPUT_TOPHAT_FOLDER="${__OUTPUT_PATH}/HISAT2_Results/${INPUT_NAME}"
+DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
+
+#local WINDOW_SIZE=200
+#local FRAGMENT_SIZE=$( expr $(zcat ${__FASTQ_DIR_R1[0]} | head -n 4 | sed '2q;d' | wc -c) - 1 + 50 )
+########################################################################
+case ${SPECIES} in
+	"mm10")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
+	local GTFFILE=/home/shared_data/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
+	local BOWTIEINDEXS=/home/shared_data/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
+	local genome_shortcut="mm"
+	;;
+	"hg19")
+	echo "Not ready yet!"
+	echo "Reference SPECIES is ${SPECIES}"
+	#local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
+	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
+	;;
+	"hg38")
+	echo "Reference SPECIES is ${SPECIES}"
+	local GTFFILE=/public/home/linzhb/linzhb/Reference/GRCm38.release-99/Mus_musculus.GRCm38.99.chr_patch_hapl_scaff.gtf
+	local INDEXS=/public/home/linzhb/linzhb/index/hisat/GRCh38.99.patch_hapl_scaff.dna_primary/GRCh38
+	;;
+	*)
+	echo "ERR: Did Not Find Any Matched Reference...... Exit"
+	exit
+	;;
+esac
+########################################################################
+
+#### Decide single end or pair ends mode
+#### NOW it is only compatible with single file. Not with pieces files.
+	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
+	then
+		echo "Pair End Mode"
+		echo "hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")  --no-discordant --no-mixed -k 1 -S ${OUTPUT_TOPHAT_FOLDER}"
+		hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")  --no-discordant --no-mixed -k 1 -S ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
+		## --read-gap-length 2 --read-mismatches 2 
+		
+	else
+		echo "Single End Mode."
+		echo "tophat2 -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
+		hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") --no-discordant --no-mixed -k 1 -S ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
+	fi
+	
+	if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam ]
+	then
+		echo "samtools sort -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam"
+		samtools sort -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
+		rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
+	fi
+
+	
+#	echo "macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR"
+#	macs2 callpeak --format BAM -t ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam --outdir ${OUTPUT_TOPHAT_FOLDER}/macs2 -g ${genome_shortcut} -n ${INPUT_NAME} -B --SPMR
+
+#	if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ]
+#		then
+#			echo "samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam"
+#			samtools sort -n -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_qsorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
+#	fi
+	echo "[$(date "+%Y-%m-%d %H:%M")] RUN_TOPHAT_ANALYSIS---COMPLETED!"
+	echo ""
 	}
 
 RUN_TOPHAT(){

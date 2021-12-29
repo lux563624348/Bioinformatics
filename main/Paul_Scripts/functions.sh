@@ -243,18 +243,47 @@ RUN_SRA2FASTQ(){
 	#https://www.ncbi.nlm.nih.gov/sra/docs/sradownload/
 	#https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc
 	## default path /home/xli/ncbi/prefetch/sra/sra
-	
-	
 	CHECK_arguments $# 1
-	local exe_path=/opt/tools/sratoolkit.2.10.8-ubuntu64/bin
+	local exe_path=/home/xli/Downloads/sratoolkit.2.11.3-ubuntu64/bin
 	cd ${__INPUT_PATH}
 	local INPUT_SRA_LIST=${1} 
 	echo "SRA to FASTQ"
 	for SRA in ${INPUT_SRA_LIST[*]}
 	do
 		echo "fastq-dump --split-files --gzip ${SRA}"
-		#${exe_path}/fastq-dump --split-files --gzip ${SRA}
-		prefetch ${SRA}
+		${exe_path}/fastq-dump --split-files \
+			--gzip ${SRA} \
+			--outdir ${__OUTPUT_PATH}
+		#prefetch ${SRA}
+	done
+}
+
+RUN_SRA_TABLE_2FASTQ(){
+	## Usage : RUN_SRA2FASTQ ${__INPUT_SAMPLE_List[i]} 
+	# Recommended https://github.com/s-andrews/sradownloader
+	## default path /home/xli/ncbi/prefetch/sra/sra
+	CHECK_arguments $# 1
+	local exe_path=/home/xli/Downloads/sratoolkit.2.11.3-ubuntu64/bin
+	cd ${__INPUT_PATH}
+	local INPUT_SRA_FILE=${1} 
+	echo "SRA to FASTQ"
+	
+	INPUT_SRA_LIST=$( cat ${INPUT_SRA_FILE} | awk 'BEGIN { FS = "," } ; {print $1}')
+	
+	for SRA in ${INPUT_SRA_LIST[*]}
+	do
+		echo "fastq-dump --split-files --gzip ${SRA}"
+		#${exe_path}/
+		fastq-dump --split-3 \
+			--gzip ${SRA} \
+			--outdir ${__OUTPUT_PATH} \
+			--skip-technical \
+			--readids \
+			--read-filter pass \
+			--dumpbase \
+			--clip $SRR
+		#prefetch ${SRA}
+		
 	done
 	}
 
@@ -1979,18 +2008,14 @@ DIR_CHECK_CREATE ${OUTPUT_TOPHAT_FOLDER}
 case ${SPECIES} in
 	"mm10")
 	echo "Reference SPECIES is ${SPECIES}"
-	local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
 	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
 	local GTFFILE=/home/shared_data/Annotation/gtf_files/2015_GTF/mm10_2015.gtf
-	local BOWTIEINDEXS=/home/shared_data/Annotation/UCSC/Mouse_Genome/MM10/Mus_musculus/UCSC/mm10/Sequence/Bowtie2Index/genome
 	local genome_shortcut="mm"
 	;;
-	"hg19")
-	echo "Not ready yet!"
+	"GRCm38")
 	echo "Reference SPECIES is ${SPECIES}"
-	#local GTFFILE=~/cloud_research/PengGroup/XLi/Annotation/gtf_files/2015_GTF/mm9_2015.gtf
-	local BOWTIEINDEXS=~/cloud_research/PengGroup/XLi/Annotation/HG19/Homo_sapiens/UCSC/hg19/Sequence/Bowtie2Index/genome
-	;;
+	local INDEXs=/home/shared_data/Annotation/genomes/GRCm38/grcm38_tran/genome_tran
+	local genome_shortcut="mm"
 	"hg38")
 	echo "Reference SPECIES is ${SPECIES}"
 	local GTFFILE=/public/home/linzhb/linzhb/Reference/GRCm38.release-99/Mus_musculus.GRCm38.99.chr_patch_hapl_scaff.gtf
@@ -2018,10 +2043,10 @@ esac
 		hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") --no-discordant --no-mixed -k 1 -S ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
 	fi
 	
-	if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam ]
+	if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sorted.bam ]
 	then
 		echo "samtools sort -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam"
-		samtools sort -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
+		samtools sort -o ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sorted.bam ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
 		rm ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
 	fi
 
