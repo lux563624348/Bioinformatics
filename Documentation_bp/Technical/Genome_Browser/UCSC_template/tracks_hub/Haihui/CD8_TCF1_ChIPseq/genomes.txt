@@ -1,0 +1,2 @@
+genome mm9
+trackDb mm9/trackDb.txt

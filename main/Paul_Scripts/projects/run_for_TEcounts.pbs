@@ -1,0 +1,16 @@
+#PBS -N 'TECount'
+#PBS -l nodes=2:ppn=4
+#PBS -S /bin/bash
+#PBS -j oe
+#PBS -q slst_pub
+# This job's working dir
+cd /slst/home/fanyh/Data/JGA/TE_Results
+
+# Define number of processors
+NPROCS=`wc -l < $PBS_NODEFILE`
+
+echo This job has allocated $NPROCS nodes
+
+# Run the parallel MPI executable a.out
+
+bash /slst/home/fanyh/Data/JGA/TE_Results/run_TEcounts.sh

@@ -1,0 +1,24 @@
+track naiveCD8_vs_TKOCD8_treat_pileup
+shortLabel naiveCD8_vs_TKOCD8
+longLabel naiveCD8_vs_TKOCD8_treat_pileup
+type bigWig
+bigDataUrl https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8_TCF1_ChIPseq/BigWigs/naiveCD8_vs_TKOCD8_treat_pileup.bw
+visibility full
+color 256,0,0
+autoScale on
+alwaysZero on
+maxHeightPixels 100:24:8
+windowingFunction mean+whiskers 
+
+track naiveCD8_vs_TKOCD8_control_lambda
+shortLabel naiveCD8_vs_TKOCD8
+longLabel naiveCD8_vs_TKOCD8_control_lambda
+type bigWig
+bigDataUrl https://s3.amazonaws.com/xianglilab/tracks_hub/Haihui/CD8_TCF1_ChIPseq/BigWigs/naiveCD8_vs_TKOCD8_control_lambda.bw
+visibility full
+color 256,0,0
+autoScale on
+alwaysZero on
+maxHeightPixels 100:24:8
+windowingFunction mean+whiskers 
+
