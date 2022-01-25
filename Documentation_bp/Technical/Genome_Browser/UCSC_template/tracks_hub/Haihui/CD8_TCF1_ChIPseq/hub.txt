@@ -1,6 +1,0 @@
-hub CD8_TCF1_ChIPseq
-shortLabel CD8_TCF1_ChIPseq
-longLabel CD8_TCF1_ChIPseq/Haihui
-genomesFile genomes.txt
-email lux@gwu.edu
-descriptionUrl descriptionUrl
