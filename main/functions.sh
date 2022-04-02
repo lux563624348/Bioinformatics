@@ -2044,14 +2044,14 @@ esac
 	if [ -n "${__FASTQ_DIR_R1[*]}" -a -n "${__FASTQ_DIR_R2[*]}" ]
 	then
 		echo "Pair End Mode"
-		echo "hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")  --no-discordant --no-mixed -k 1 -S ${OUTPUT_TOPHAT_FOLDER}"
-		hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")  --no-discordant --no-mixed -k 1 -S ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
+		echo "hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")  --no-discordant --no-mixed -k 100 -S ${OUTPUT_TOPHAT_FOLDER}"
+		hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") -2 $(echo ${__FASTQ_DIR_R2[*]} | tr " " ",")  --no-discordant --no-mixed -k 100 -S ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
 		## --read-gap-length 2 --read-mismatches 2 
 		
 	else
 		echo "Single End Mode."
 		echo "tophat2 -p $THREADS -o ${OUTPUT_TOPHAT_FOLDER} ${BOWTIEINDEXS} $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",")"
-		hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") --no-discordant --no-mixed -k 1 -S ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
+		hisat2 -p ${THREADS} -q -x ${INDEXS} -1 $(echo ${__FASTQ_DIR_R1[*]} | tr " " ",") --no-discordant --no-mixed -k 100 -S ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}.sam
 	fi
 	
 	if [ ! -f ${OUTPUT_TOPHAT_FOLDER}/${INPUT_NAME}_csorted.bam ]
